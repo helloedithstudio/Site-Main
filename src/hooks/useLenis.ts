@@ -8,7 +8,6 @@ export function useLenis() {
       smoothWheel: true,
       wheelMultiplier: 0.88,
       touchMultiplier: 1.2,
-      normalizeWheel: true, // consistent feel across browsers/devices
       infinite: false,
     });
 
