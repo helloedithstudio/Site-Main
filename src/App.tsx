@@ -13,6 +13,7 @@ import { Contact } from "./components/Contact";
 import { StatusStrip } from "./components/StatusStrip";
 import { Cursor } from "./components/Cursor";
 import { useLenis } from "./hooks/useLenis";
+import { Analytics } from "@vercel/analytics/react";
 
 const STUDIO_NAME = "KEVIN ANDREW STUDIO";
 
@@ -94,6 +95,7 @@ export default function App() {
 
   return (
     <>
+      <Analytics />
       <AnimatePresence>
         {!curtainDone && <Curtain onDone={() => setCurtainDone(true)} />}
       </AnimatePresence>
