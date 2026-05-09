@@ -113,7 +113,7 @@ export function Testimonials() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-8%" }}
           transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-          className="col-span-1 flex flex-col justify-between overflow-hidden rounded-[1.75rem] bg-foreground p-9 md:col-span-7 sm:p-12"
+          className="col-span-1 flex flex-col justify-between overflow-hidden rounded-[1.75rem] bg-foreground px-6 py-9 md:col-span-7 sm:p-12"
         >
           {/* What was built */}
           <div className="mb-8 flex items-center gap-3">
@@ -148,7 +148,7 @@ export function Testimonials() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-8%" }}
             transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col justify-between overflow-hidden rounded-[1.75rem] border border-foreground/[0.08] bg-background/50 p-8 backdrop-blur-xl transition-all duration-500 hover:-translate-y-0.5 hover:border-foreground/18 sm:p-9"
+            className="flex flex-col justify-between overflow-hidden rounded-[1.75rem] border border-foreground/[0.08] bg-background/50 px-6 py-8 backdrop-blur-xl transition-all duration-500 hover:-translate-y-0.5 hover:border-foreground/18 sm:p-9"
           >
             <div className="mb-6 flex items-center gap-3">
               <span className="h-px w-4 bg-foreground/15" />
@@ -177,7 +177,7 @@ export function Testimonials() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-8%" }}
             transition={{ duration: 1, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col justify-between overflow-hidden rounded-[1.75rem] border border-foreground/[0.08] bg-background/50 p-8 backdrop-blur-xl transition-all duration-500 hover:-translate-y-0.5 hover:border-foreground/18 sm:p-9"
+            className="flex flex-col justify-between overflow-hidden rounded-[1.75rem] border border-foreground/[0.08] bg-background/50 px-6 py-8 backdrop-blur-xl transition-all duration-500 hover:-translate-y-0.5 hover:border-foreground/18 sm:p-9"
           >
             <div className="mb-6 flex items-center gap-3">
               <span className="h-px w-4 bg-foreground/15" />
@@ -207,7 +207,7 @@ export function Testimonials() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-8%" }}
           transition={{ duration: 1, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
-          className="col-span-1 flex flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-foreground/[0.08] bg-background/50 p-8 backdrop-blur-xl transition-all duration-500 hover:border-foreground/18 md:col-span-12 sm:flex-row sm:items-center sm:justify-between sm:p-10"
+          className="col-span-1 flex flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-foreground/[0.08] bg-background/50 px-6 py-8 backdrop-blur-xl transition-all duration-500 hover:border-foreground/18 md:col-span-12 sm:flex-row sm:items-center sm:justify-between sm:p-10"
         >
           <div className="flex items-center gap-3">
             <span className="h-px w-4 bg-foreground/15" />

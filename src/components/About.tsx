@@ -132,7 +132,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 1.0, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-14 grid grid-cols-4 gap-4 border-t border-foreground/10 pt-8"
+            className="mt-14 grid grid-cols-2 gap-x-4 gap-y-8 border-t border-foreground/10 pt-8 sm:grid-cols-4"
           >
             {stats.map((s) => (
               <div key={s.k}>

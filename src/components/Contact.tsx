@@ -55,7 +55,7 @@ export function Contact() {
             <a
               href="mailto:kevinandrew.studio@gmail.com"
               data-magnet
-              className="group relative inline-flex items-center gap-4 text-2xl font-medium tracking-tight text-white/90 transition-colors duration-500 hover:text-white sm:text-4xl"
+              className="group relative inline-flex items-center gap-4 text-lg font-medium tracking-tight text-white/90 transition-colors duration-500 hover:text-white sm:text-4xl"
             >
               kevinandrew.studio@gmail.com
               <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-white/20 bg-white/[0.05] text-sm text-white/60 backdrop-blur-md transition-all duration-500 group-hover:rotate-45 group-hover:border-white/40 group-hover:bg-white/[0.1] group-hover:text-white">
@@ -79,7 +79,7 @@ export function Contact() {
           <motion.div
             initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-14 flex items-center justify-center gap-6 text-[11px] uppercase tracking-[0.2em] text-white/40 sm:gap-10"
+            className="mt-14 flex flex-col items-center justify-center gap-6 text-[11px] uppercase tracking-[0.2em] text-white/40 sm:flex-row sm:gap-10"
           >
             <span className="flex items-center gap-2">
               <span className="relative flex h-1.5 w-1.5">
@@ -88,7 +88,7 @@ export function Contact() {
               </span>
               Available for Q3
             </span>
-            <span className="h-px w-4 bg-white/15" />
+            <span className="hidden h-px w-4 bg-white/15 sm:block" />
             <span>Based in Chennai</span>
           </motion.div>
         </div>

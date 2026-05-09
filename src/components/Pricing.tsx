@@ -79,7 +79,7 @@ export function Pricing() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-10%" }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="col-span-1 flex flex-col overflow-hidden rounded-[2rem] border border-foreground/[0.08] bg-background/60 p-9 backdrop-blur-xl transition-all duration-500 hover:border-foreground/18 lg:col-span-5 sm:p-10"
+          className="col-span-1 flex flex-col overflow-hidden rounded-[2rem] border border-foreground/[0.08] bg-background/60 px-6 py-9 backdrop-blur-xl transition-all duration-500 hover:border-foreground/18 lg:col-span-5 sm:p-10"
         >
           <div>
             <p className="text-[11px] uppercase tracking-[0.22em] text-foreground/38">Essential</p>
@@ -89,7 +89,7 @@ export function Pricing() {
           </div>
           <div className="mt-8">
             <span className="block text-[10px] uppercase tracking-[0.22em] text-foreground/32 mb-2">Starting from</span>
-            <span className="font-display text-6xl tracking-tight text-foreground sm:text-7xl">€500</span>
+            <span className="font-display text-5xl tracking-tight text-foreground sm:text-7xl">€500</span>
           </div>
           <div className="my-8 h-px bg-foreground/[0.07]" />
           <ul className="flex-1">
@@ -112,7 +112,7 @@ export function Pricing() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-10%" }}
           transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="relative col-span-1 flex flex-col overflow-hidden rounded-[2rem] bg-foreground p-9 lg:col-span-7 sm:p-10"
+          className="relative col-span-1 flex flex-col overflow-hidden rounded-[2rem] bg-foreground px-6 py-9 lg:col-span-7 sm:p-10"
         >
           <div className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-background/12 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-background/55">
             <span className="h-1 w-1 rounded-full bg-background/45" />

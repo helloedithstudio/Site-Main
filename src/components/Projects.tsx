@@ -92,15 +92,18 @@ const projects: Project[] = [
   },
 ];
 
+import { useIsMobile } from "@/hooks/use-mobile";
+
 function ProjectRow({ project, i }: { project: Project; i: number }) {
+  const isMobile = useIsMobile();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
-  const y = useTransform(scrollYProgress, [0, 1], [80, -80]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [1.08, 1, 1.04]);
-  const titleY = useTransform(scrollYProgress, [0, 1], [40, -40]);
+  const y = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [80, -80]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], isMobile ? [1, 1, 1] : [1.08, 1, 1.04]);
+  const titleY = useTransform(scrollYProgress, [0, 1], isMobile ? [0, 0] : [40, -40]);
 
   const isLeft = project.align === "left";
 

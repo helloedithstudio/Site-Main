@@ -9,7 +9,7 @@ export function StatusStrip() {
       transition={{ duration: 0.9 }}
       className="border-t border-foreground/[0.07] px-5 py-5 sm:px-8"
     >
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between">
+      <div className="mx-auto flex max-w-[1400px] flex-col items-center gap-4 sm:flex-row sm:justify-between sm:gap-0">
         <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/30">
           Current status
         </span>
