@@ -127,7 +127,7 @@ export function Contact() {
 
           {/* Col 4 */}
           <div className="flex flex-col justify-between text-[13px] sm:items-end">
-            <p className="text-white/30">&copy; {new Date().getFullYear()}</p>
+            <p className="text-white/30">Edith Studio&copy; {new Date().getFullYear()}</p>
             <div className="mt-8 sm:mt-0">
               <p className="text-[10px] uppercase tracking-[0.2em] text-white/20">All rights reserved</p>
             </div>
