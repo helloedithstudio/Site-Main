@@ -113,7 +113,7 @@ export function Contact() {
             <div className="flex flex-col gap-3 text-white/50">
               <a href="https://www.linkedin.com/in/kevinandrewa" target="_blank" rel="noopener noreferrer" className="w-fit transition-colors hover:text-white">LinkedIn</a>
               <a href="https://github.com/Andrew-Kevin-007" target="_blank" rel="noopener noreferrer" className="w-fit transition-colors hover:text-white">GitHub</a>
-              <a href="https://www.instagram.com/beyond.aphelion_/" target="_blank" rel="noopener noreferrer" className="w-fit transition-colors hover:text-white">Instagram</a>
+              <a href="https://www.instagram.com/edith_.studio/" target="_blank" rel="noopener noreferrer" className="w-fit transition-colors hover:text-white">Instagram</a>
             </div>
           </div>
 
