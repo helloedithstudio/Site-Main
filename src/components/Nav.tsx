@@ -69,11 +69,9 @@ export function Nav() {
         >
           {/* Logo */}
           <a href="#top" className="group flex items-center gap-2.5 flex-none">
-            <img
-              src={logoB}
-              alt="Logo"
-              className="h-7 w-auto transition-transform duration-300 group-hover:scale-110"
-            />
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground overflow-hidden transition-transform duration-300 group-hover:scale-110">
+              <img src={logoB} alt="Logo" className="h-full w-full object-contain p-1" />
+            </span>
           </a>
 
           {/* Centre — nav links when expanded, section name when compact */}
