@@ -52,7 +52,7 @@ export function About() {
           <div>
               <p className="font-serif-display text-2xl italic leading-[1.45] tracking-tight text-foreground/90 sm:text-3xl">
                 I'm Kevin — a 20-year-old developer and creative
-                technologist based in Chennai, India. I build for clients
+                technologist. I build for clients
                 across the UK, Europe, Australia and the US.
               </p>
 
@@ -70,7 +70,7 @@ export function About() {
               <div className="mt-10 flex items-center gap-3">
                 <span className="block h-px w-6 bg-foreground/25" />
                 <span className="text-[11px] uppercase tracking-[0.22em] text-foreground/40">
-                  Chennai · Global
+                  Remote · Global
                 </span>
               </div>
           </div>
@@ -107,7 +107,7 @@ export function About() {
             className="mt-10 space-y-5 text-base leading-relaxed text-foreground/60 max-w-[52ch]"
           >
             <p>
-              Twenty years old, BTech IT, Chennai. Four internships deep
+              Twenty years old, BTech IT. Four internships deep
               across SaaS, GenAI, and fintech. International clients.
               Built everything from scratch — no bootcamp, no shortcuts
               — shipping with an AI-assisted workflow that moves faster

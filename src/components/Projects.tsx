@@ -85,7 +85,7 @@ const projects: Project[] = [
     stack: "React · Vite",
     year: "2025",
     overview:
-      "A full website for a mid-scale hospitality property in Tamil Nadu — built to communicate comfort, drive direct bookings, and replace an outdated presence with something guests would actually trust.",
+      "A full website for a mid-scale hospitality property — built to communicate comfort, drive direct bookings, and replace an outdated presence with something guests would actually trust.",
     image: ss1,
     align: "left",
     ratio: "wide",

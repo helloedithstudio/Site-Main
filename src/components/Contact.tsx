@@ -89,7 +89,7 @@ export function Contact() {
               Available for Q3
             </span>
             <span className="hidden h-px w-4 bg-white/15 sm:block" />
-            <span>Based in Chennai</span>
+            <span>REMOTE · GLOBAL</span>
           </motion.div>
         </div>
 

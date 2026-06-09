@@ -89,7 +89,7 @@ export function Pricing() {
           </div>
           <div className="mt-8">
             <span className="block text-[10px] uppercase tracking-[0.22em] text-foreground/32 mb-2">Starting from</span>
-            <span className="font-display text-5xl tracking-tight text-foreground sm:text-7xl">€500</span>
+            <span className="font-display text-5xl tracking-tight text-foreground sm:text-7xl">$500</span>
           </div>
           <div className="my-8 h-px bg-foreground/[0.07]" />
           <ul className="flex-1">
@@ -127,7 +127,7 @@ export function Pricing() {
           </div>
           <div className="mt-8">
             <span className="block text-[10px] uppercase tracking-[0.22em] text-background/32 mb-2">Starting from</span>
-            <span className="font-display text-6xl tracking-tight text-background sm:text-7xl">€800</span>
+            <span className="font-display text-6xl tracking-tight text-background sm:text-7xl">$800</span>
           </div>
           <div className="my-8 h-px bg-background/[0.12]" />
 
