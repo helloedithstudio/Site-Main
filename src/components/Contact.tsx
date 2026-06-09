@@ -65,7 +65,7 @@ export function Contact() {
             </a>
 
             <a
-              href="https://calendly.com/p1legendary7/30min"
+              href="https://calendly.com/hello-edithstudio/30min"
               target="_blank"
               rel="noopener noreferrer"
               data-magnet
@@ -121,7 +121,7 @@ export function Contact() {
           <div className="flex flex-col gap-5 text-[13px]">
             <p className="font-display font-medium tracking-tight text-white/90">Location</p>
             <p className="leading-relaxed text-white/40">
-              Chennai, India <br />IST (UTC +5:30)
+              Global <br />IST (UTC +5:30)
             </p>
           </div>
 
