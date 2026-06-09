@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import logoB from "@/assets/logo-B.png";
 
 const links = [
   { label: "Work", href: "#work" },
@@ -68,17 +69,11 @@ export function Nav() {
         >
           {/* Logo */}
           <a href="#top" className="group flex items-center gap-2.5 flex-none">
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-foreground text-[10px] font-semibold tracking-tight text-background transition-transform duration-300 group-hover:scale-110">
-              K
-            </span>
-            <motion.span
-              animate={{ opacity: scrolled ? 0 : 1, width: scrolled ? 0 : "auto" }}
-              transition={{ duration: 0.3 }}
-              className="hidden overflow-hidden text-sm font-medium tracking-tight text-foreground/80 sm:block"
-              style={{ whiteSpace: "nowrap" }}
-            >
-              Kevin Andrew
-            </motion.span>
+            <img
+              src={logoB}
+              alt="Logo"
+              className="h-7 w-auto transition-transform duration-300 group-hover:scale-110"
+            />
           </a>
 
           {/* Centre — nav links when expanded, section name when compact */}
@@ -94,7 +89,7 @@ export function Nav() {
                   transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                   className="text-[15px] font-medium tracking-tight text-foreground/80"
                 >
-                  {currentLabel || "Kevin Andrew"}
+                  {currentLabel || "Edith Studio"}
                 </motion.span>
               ) : (
                 /* Expanded: full nav links */

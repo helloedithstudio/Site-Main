@@ -53,11 +53,11 @@ export function Contact() {
             className="mt-16 flex flex-col items-center gap-8 sm:mt-24"
           >
             <a
-              href="mailto:kevinandrew.studio@gmail.com"
+              href="mailto:hello.edithstudio@gmail.com"
               data-magnet
               className="group relative inline-flex items-center gap-4 text-lg font-medium tracking-tight text-white/90 transition-colors duration-500 hover:text-white sm:text-4xl"
             >
-              kevinandrew.studio@gmail.com
+              hello.edithstudio@gmail.com
               <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-white/20 bg-white/[0.05] text-sm text-white/60 backdrop-blur-md transition-all duration-500 group-hover:rotate-45 group-hover:border-white/40 group-hover:bg-white/[0.1] group-hover:text-white">
                 ↗
               </span>
@@ -101,7 +101,7 @@ export function Contact() {
         >
           {/* Col 1 */}
           <div className="flex flex-col gap-5 text-[13px]">
-            <p className="font-display font-medium tracking-tight text-white/90">Kevin Andrew Studio</p>
+            <p className="font-display font-medium tracking-tight text-white/90">Edith Studio</p>
             <p className="leading-relaxed text-white/40">
               Creative Technologist
             </p>

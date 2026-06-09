@@ -15,7 +15,7 @@ import { Cursor } from "./components/Cursor";
 import { useLenis } from "./hooks/useLenis";
 import { Analytics } from "@vercel/analytics/react";
 
-const STUDIO_NAME = "KEVIN ANDREW STUDIO";
+const STUDIO_NAME = "EDITH STUDIO";
 
 function Curtain({ onDone }: { onDone: () => void }) {
   const [nameVisible, setNameVisible] = useState(false);

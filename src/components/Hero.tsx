@@ -57,7 +57,7 @@ export function Hero({ curtainDone = false }: HeroProps) {
             transition={{ duration: 0.7, delay: D + 0.1 }}
             className="eyebrow"
           >
-            Creative Technologist · Chennai
+            Creative Technologist
           </motion.span>
         </motion.div>
 
