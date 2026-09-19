@@ -61,6 +61,7 @@ export const footer: {
         anchor("membership", "Membership"),
         anchor("hubs", "Hubs"),
         anchor("faq", "FAQ"),
+        page("handbook", "Handbook"),
       ],
     },
     {
@@ -129,6 +130,7 @@ export const nav: { label: string; href: string }[] = [
   { label: "Membership", href: "#membership" },
   { label: "Hubs", href: "#hubs" },
   { label: "FAQ", href: "#faq" },
+  { label: "Handbook", href: "/handbook" },
 ];
 
 export const home = {

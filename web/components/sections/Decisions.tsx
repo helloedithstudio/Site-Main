@@ -15,7 +15,7 @@ export default function Decisions() {
           />
         </div>
         <div className="relative flex justify-center site-margin pt-25 pb-40 s:pt-180 s:pb-180">
-          <Texts item={home.decisions.texts} className="w-full s:max-w-[50rem]">
+          <Texts item={home.decisions.texts} className="w-full s:max-w-[50rem]" rule>
             <Points points={home.decisions.list} className="mt-20" />
           </Texts>
         </div>

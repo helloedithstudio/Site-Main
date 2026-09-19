@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { seo } from "@/lib/content";
-import { brand } from "@/lib/brand";
+import { socialLinks } from "@/lib/brand";
 import SiteShell from "@/components/SiteShell";
 import "@/styles/site.css";
 import "@/styles/scoped.css";
@@ -40,7 +40,7 @@ const jsonLd = [
     alternateName: ["edith studio", "EDITH"],
     description: seo.description,
     url: seo.baseUrl,
-    sameAs: [brand.discord],
+    sameAs: socialLinks.map((s) => s.href),
   },
   { "@context": "https://schema.org", "@type": "WebSite", name: seo.siteName, url: seo.baseUrl },
 ];

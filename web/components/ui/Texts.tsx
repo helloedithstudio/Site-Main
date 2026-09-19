@@ -15,9 +15,21 @@ export type TextsItem = {
   link?: LinkItem | null;
 };
 
-export default function Texts({ item, className, children }: { item: TextsItem; className?: string; children?: ReactNode }) {
+export default function Texts({
+  item,
+  className,
+  rule,
+  children,
+}: {
+  item: TextsItem;
+  className?: string;
+  /** Show the short Apple-style gradient rule above the title (highlight sections only). */
+  rule?: boolean;
+  children?: ReactNode;
+}) {
   return (
     <div className={`flex flex-col items-start gap-y-20${className ? ` ${className}` : ""}`}>
+      {rule ? <div className="edith-rule edith-rule--short" /> : null}
       {item.title ? <h2 className="type-h2" dangerouslySetInnerHTML={{ __html: item.title }} /> : null}
       {item.subtitle ? <h3 className="type-body-lg text-white" dangerouslySetInnerHTML={{ __html: item.subtitle }} /> : null}
       {item.text ? <div className="txt" dangerouslySetInnerHTML={{ __html: item.text }} /> : null}

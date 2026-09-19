@@ -8,7 +8,7 @@ import { theme } from "@/lib/theme";
 import { gsap } from "@/lib/runtime/gsap";
 import { useResizeFlags } from "@/lib/runtime/hooks";
 import { cleanId } from "./Button";
-import { DISCORD } from "./glyphs";
+import { DISCORD, INSTAGRAM, LINKEDIN } from "./glyphs";
 import { socialLinks } from "@/lib/brand";
 
 const ICONS = {
@@ -17,6 +17,8 @@ const ICONS = {
     cls: "h-16 w-auto block",
     d: DISCORD.d,
   },
+  instagram: { viewBox: INSTAGRAM.viewBox, cls: "h-16 w-auto block", d: INSTAGRAM.d },
+  linkedin: { viewBox: LINKEDIN.viewBox, cls: "h-16 w-auto block", d: LINKEDIN.d },
 } as const;
 
 export type SocialId = keyof typeof ICONS;

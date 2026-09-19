@@ -9,7 +9,7 @@ export default function Membership() {
     <section id="membership" data-quick-link="Membership" className="relative z-2">
       <div className="site-max --full grid grid-cols-1 s:grid-cols-2 s:divide-x s:divide-brown-dark border-t border-brown-dark">
         <div className="col-span-1 relative flex justify-center site-margin pt-25 pb-40 s:py-335 max-s:order-2">
-          <Texts item={home.membership.texts} className="s:max-w-[50rem]">
+          <Texts item={home.membership.texts} className="s:max-w-[50rem]" rule>
             <StatsList items={home.membership.stats} className="mt-25 s:mt-40 border-y border-brown-dark" />
           </Texts>
         </div>
