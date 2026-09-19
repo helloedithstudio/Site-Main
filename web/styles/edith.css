@@ -229,3 +229,16 @@
     padding: 4rem 3.2rem 3.2rem;
   }
 }
+
+/* 404 page */
+.edith-notfound {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 10rem 2rem 6rem;
+  text-align: center;
+  background: #000;
+}
