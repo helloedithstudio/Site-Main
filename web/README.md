@@ -1,8 +1,8 @@
 # edith
 
 The website for **edith**, a club of builders that runs itself: developers and technologists across Web2,
-Web3, AI and whatever comes next. Built with Next.js (App Router). The design, scroll choreography, Rive
-animations and three.js WebGL layer come from a pixel-accurate port of a Nuxt site; the content is edith's.
+Web3, AI and whatever comes next. Built with Next.js (App Router). The design, scroll choreography and three.js
+WebGL layer come from a pixel-accurate port of a Nuxt site; the content, structure and 3D objects are edith's.
 
 ```bash
 npm install
@@ -10,61 +10,78 @@ npm run dev        # http://localhost:3000
 npm run build && npm start
 ```
 
+## Pages
+
+- `/` the story: hero, Why builders stick around, Hubs, How an idea becomes a launch, Membership, Show off,
+  Studio, Decisions, Safety, Beliefs, FAQ, footer.
+- `/handbook` maintainers, top projects, discussions, FAQ, community rules and the legal documents. Footer links
+  such as `/handbook#terms` deep-link to a section. **The rules and legal text are a draft that has not been
+  reviewed by a lawyer** (the page says so); have a lawyer read them before launch.
+
 ## Where things live
 
 | Path | What it is |
 | --- | --- |
-| `lib/brand.ts` | Brand name, title, description, Discord invite, site URL, socials. **Change links here.** |
-| `lib/content.ts` | All page copy (hero, loop, membership, hubs, safety, beliefs, decisions, show-off, FAQ, footer) |
-| `app/layout.tsx`, `app/page.tsx` | Root layout (fonts, metadata, structured data) and the home page |
-| `components/sections/` | `Hero`, `Loop`, `Membership`, `Hubs`, `Safety`, `Beliefs`, `Decisions`, `ShowOff`, `Faq`, `Franchise` |
+| `lib/brand.ts` | Brand name, title, description, Discord invite, socials, founder, contact email, location. **Change links and contact details here.** |
+| `lib/content.ts` | Home page copy, header and footer menus |
+| `lib/handbook.ts` | Handbook content: maintainers, projects, discussions, FAQ, rules, terms, privacy, customer terms, Maintainer licence |
+| `app/` | Root layout (fonts, metadata, structured data), `page.tsx` (home), `handbook/page.tsx` |
+| `components/sections/` | Home sections: `Hero`, `WhatIsEdith`, `Hubs`, `Loop`, `Membership`, `ShowOff`, `Franchise`, `Decisions`, `Safety`, `Beliefs`, `Faq` |
+| `components/handbook/` | The handbook page |
 | `components/` | Site chrome: `SiteShell`, `Header`, `MobileMenu`, `QuickMenu`, `GlCanvas`, `Footer` |
-| `components/ui/` | Shared pieces: noise-hover `Button`, `Pager`, `DragCarousel`, `RiveCanvas`, `Seal`, `ShowCard`, ... |
+| `components/ui/` | Shared pieces: gradient-hover `Button`, `Pager`, `DragCarousel`, `Seal`, `ShowCard`, ... |
 | `lib/runtime/` | Lenis scroll, resize, device, event bus, GSAP eases and effects, UI flag store |
-| `lib/gl/` | The WebGL engine (three r180): asset loader, DOM trackers, marble, archway hallway, spinning models, shaders |
-| `styles/` | `site.css`, `scoped.css`, `chunks.css` are verbatim copies of the original compiled stylesheet (do not edit by hand). `edith.css` holds edith's additions. |
-| `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, Rive file + wasm, flower frames |
-
-Library versions match the original bundle: three 0.180.0, gsap 3.13.0, lenis 1.3.17,
-@rive-app/canvas 2.35.0, @use-gesture/vanilla 10.3.1, postprocessing 6.38.0.
+| `lib/gl/` | The WebGL engine (three r180): asset loader, DOM trackers, hero marble, tech-grid backdrop, spinning models, shaders |
+| `styles/` | `site.css`, `scoped.css`, `chunks.css` come from the original compiled stylesheet (never edit `site.css` by hand, see Colours). `edith.css` and `handbook.css` hold edith's additions. |
+| `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, flower frames |
+| `scripts/` | `make-logo.cjs`, `make-tech-grid.cjs`, `retheme.cjs` |
 
 ## Working with the styles
 
 The original stylesheet only contains the utility classes the original site used. A class that is not in
-`site.css` (for example `mt-auto`) silently does nothing, so new rules go in `styles/edith.css`.
+`site.css` (for example `mt-auto`) silently does nothing, so new rules go in `styles/edith.css` (home) or
+`styles/handbook.css` (handbook).
 
 ## Notes
 
 - `reactStrictMode` is off: the WebGL context and GSAP/Lenis singletons mount once per page.
 - `NEXT_PUBLIC_SITE_URL` sets the canonical and social URLs (defaults to `http://localhost:3000`).
 - Section links (`#membership` and so on) scroll through Lenis. For the pinned loop section they resolve to
-  the top of its GSAP pin wrapper (`lib/runtime/scroll.ts`), so they always land on the first card.
-- The home page is static; there is no backend and no `/api` route.
-- Instagram, LinkedIn and X are not wired yet. Add them to `socialLinks` in `lib/brand.ts` and give each an
-  icon in `components/ui/Social.tsx` once the URLs are confirmed.
+  the top of its GSAP pin wrapper (`lib/runtime/scroll.ts`), so they always land on the first card. On other
+  pages they become `/#section`.
+- The site is static; there is no backend and no `/api` route. It uses no cookies, storage or analytics, and
+  the privacy policy says so: update it before adding any.
+- Socials (Discord, Instagram, LinkedIn) live in `lib/brand.ts`. To add X, add its entry there and an icon in
+  `components/ui/Social.tsx`.
+
+## The backdrop
+
+The dark engineering grid behind the hero, Why edith, Hubs and Loop is a generated image,
+`public/gl/images/tech-grid.png` (`node scripts/make-tech-grid.cjs` redraws it). `HomeHero.ts` draws it on a sticky
+plane inside the `[data-js="gl-hero-bg-desktop"]` wrapper in `app/page.tsx` and drifts it against scroll (the image
+tiles vertically). The handbook uses the same image as a fixed CSS background.
 
 ## The 3D layer
 
-Eight sculptures, built in Blender from `docs/edith-3d-brief.md` and delivered in `D:\page_content\blender`
-(sources, previews and a handover note live there; the site only needs the files below).
+Eight hard-surface objects (machined, chamfered, engraved), built in Blender by `blender/scripts/v2_objects.py`
+(see `docs/edith-3d-brief-v2.md`). There are no baked maps: the finish is the geometry under the site matcap.
 
-- `public/gl/models/loop-1-pitch.glb` to `loop-6-launch.glb`: one per carousel card, keyed `loop-N-model`
-  in `lib/gl/resources.ts` and tracked from the `[data-js="gl-loop-N"]` anchors in `Loop.tsx`. They share
-  the stone surface (`hero-model-diffuse` and `hero-model-normal`).
-- `membership-pr.glb` and `decisions-rfc.glb` for the two portrait sections, each with its own baked
-  engraving in `public/gl/images/<name>/` (normal PNG plus a greyscale ink JPEG, 1024 square). These are
-  plain textures rather than KTX2, because there is no KTX2 encoder here, and they set `flipY: false`
-  since the UVs follow the glTF convention.
+- `public/gl/models/loop-1-pitch.glb` to `loop-6-launch.glb`: bulb, meshing gears, CPU chip, open padlock,
+  crate, rocket. One per carousel card, keyed `loop-N-model` in `lib/gl/resources.ts` and tracked from the
+  `[data-js="gl-loop-N"]` anchors in `Loop.tsx`.
+- `membership-pr.glb` (git merge glyph made of hex nuts and rods) and `decisions-rfc.glb` (document slab with a
+  check badge) for the two portrait sections.
 - Tuning for the two spinning models is in `lib/gl/theatre.ts` under `Spinning-membership-model` and
-  `Spinning-decisions-model`: noise 0.5, normal scale 0.25, pointer yaw 1.5.
-- The carousel tilt now sits on a parent of the spinning pivot (`HomeHero.ts`), so the camera keeps
-  seeing a little of the top instead of swinging between the top and the underside.
-- Rive is gone: the card charts, `RiveCanvas`, `vaults.riv`, `rive.wasm` and `@rive-app/canvas`.
+  `Spinning-decisions-model`.
+- The carousel tilt sits on a parent of the spinning pivot (`HomeHero.ts`), so the camera keeps seeing a little
+  of the top instead of swinging between the top and the underside.
 
 Known, and inherited from the original site: while the carousel is still settling, the pager ignores an
 arrow click. The original does the same at the same point, so a click can be swallowed once on the way in.
 
-To re-check the models: `D:\blender\blender.exe -b --factory-startup -P D:\page_content\blender\scripts\verify.py`
+To rebuild every object: `D:\blender\blender.exe -b --factory-startup -P blender\scripts\v2_objects.py`
+(or add object numbers after `--`). Each run checks the mesh (closed, one shell, triangle budget) and writes the
+GLB and a preview sheet.
 
 ## Still Saffron (temporary)
 
@@ -84,6 +101,8 @@ orange WebGL glows. Two deliberate changes:
   stretches it and drags the hot spot behind, and it drifts slowly at rest. Touch and reduced-motion users get the
   same gradient, centred and still. Every stop keeps the black label above 4.5:1 contrast.
 
+The short Apple-style gradient rule (`.edith-rule`) is used only above highlight sections.
+
 ## Logo
 
 The logo is the sample edith wordmark (dark version, cut out onto a transparent background). To swap in the
@@ -95,4 +114,6 @@ The header, loading screen and footer all read those files.
 ## Next
 
 - Final logo (see above).
-- Work section, `/work` page and Maintainer booking (Calendly).
+- A lawyer's review of the handbook's rules and legal documents, and the legal entity details for the terms.
+- Work section and Maintainer booking (Calendly).
+- X (Twitter) link once the page exists.

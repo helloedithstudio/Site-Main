@@ -1,3 +1,7 @@
+> **Superseded for the objects and materials by `edith-3d-brief-v2.md`.** The engine contract (axes, size,
+> single mesh, footprints, what the site does to the model) in this file still applies. The stone surface, colours
+> and the object list below are the old direction.
+
 # edith: 3D objects brief (Blender)
 
 **For:** the agent or artist building the 3D objects for the edith website in Blender.

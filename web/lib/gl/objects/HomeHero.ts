@@ -244,17 +244,13 @@ varying vec2 vBoxUv;`,
     if (!resources.get(key) || !document.querySelector(selector)) return null;
     const matcap = resources.get("model-matcap");
     matcap.colorSpace = SRGBColorSpace;
-    const normal = resources.get("hero-model-normal");
-    const diffuse = resources.get("hero-model-diffuse");
     const noise = resources.get("noise-4");
     noise.wrapS = noise.wrapT = RepeatWrapping;
     noise.needsUpdate = true;
     const model: Object3D = resources.get(key).scene;
     const tracker = new Tracker({ tracker: selector, live: liveTracking() });
     const material = new MeshMatcapMaterial({
-      map: diffuse,
       matcap,
-      normalMap: normal,
       transparent: true,
       side: DoubleSide,
     }) as CardModel["material"];
@@ -321,7 +317,7 @@ varying vec2 vBoxUv;`,
         o.renderOrder = RENDER.renderOrder.hero + 3 + slide * 2;
       }
     });
-    const fit = new FitModel({ model, scaleFactor: 0.75, tracker });
+    const fit = new FitModel({ model, scaleFactor: 1.05, tracker });
     const pivot = new Group();
     pivot.add(fit);
     // The tilt sits outside the spinning pivot, so the camera keeps seeing a little of the top as the

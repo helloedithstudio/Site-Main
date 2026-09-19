@@ -30,26 +30,13 @@ export const manifest: ResourceEntry[] = [
     compress: { responsive: true, maxResolution: [256, 256] },
   },
   { key: "tech-grid", type: "texture", path: "/gl/images/tech-grid.png", colorSpace: "SRGBColorSpace" },
-  // One sculpture per carousel card. They share the stone surface below (hero-model-*).
+  // One hard-surface object per carousel card. No baked maps: the finish comes from the geometry and the matcap.
   { key: "loop-1-model", type: "gltf", path: "/gl/models/loop-1-pitch.glb" },
   { key: "loop-2-model", type: "gltf", path: "/gl/models/loop-2-crew.glb" },
   { key: "loop-3-model", type: "gltf", path: "/gl/models/loop-3-build.glb" },
   { key: "loop-4-model", type: "gltf", path: "/gl/models/loop-4-unstuck.glb" },
   { key: "loop-5-model", type: "gltf", path: "/gl/models/loop-5-ship.glb" },
   { key: "loop-6-model", type: "gltf", path: "/gl/models/loop-6-launch.glb" },
-  {
-    key: "hero-model-normal",
-    type: "texture",
-    path: "/gl/images/hero/model-normal.png",
-    compress: { isNormalMap: true, responsive: true, maxResolution: [512, 256] },
-  },
-  {
-    key: "hero-model-diffuse",
-    type: "texture",
-    path: "/gl/images/hero/model-diffuse.png",
-    compress: { responsive: true, maxResolution: [512, 256] },
-    colorSpace: "SRGBColorSpace",
-  },
   { key: "hero-marble-colorA", type: "texture", path: "/gl/images/hero/colorA.jpg", colorSpace: "SRGBColorSpace" },
   {
     key: "hero-marble",
@@ -76,26 +63,9 @@ export const manifest: ResourceEntry[] = [
     path: "/gl/images/hero/marble-03.jpg",
     compress: { responsive: true, maxResolution: [1024, 256], flipY: true },
   },
-  // The two portrait sculptures (Membership, Decisions) carry their own baked engraving. Their maps are
-  // plain textures rather than KTX2, and `flipY: false` because the UVs follow the glTF convention.
+  // The two portrait pieces (Membership, Decisions), also map-free.
   { key: "membership-model", type: "gltf", path: "/gl/models/membership-pr.glb" },
-  {
-    key: "membership-diffuse",
-    type: "texture",
-    path: "/gl/images/membership-pr/diffuse.jpg",
-    colorSpace: "SRGBColorSpace",
-    flipY: false,
-  },
-  { key: "membership-normal", type: "texture", path: "/gl/images/membership-pr/normal.png", flipY: false },
   { key: "decisions-model", type: "gltf", path: "/gl/models/decisions-rfc.glb" },
-  {
-    key: "decisions-diffuse",
-    type: "texture",
-    path: "/gl/images/decisions-rfc/diffuse.jpg",
-    colorSpace: "SRGBColorSpace",
-    flipY: false,
-  },
-  { key: "decisions-normal", type: "texture", path: "/gl/images/decisions-rfc/normal.png", flipY: false },
 ];
 
 const requestIdle: (cb: () => void, opts?: { timeout: number }) => unknown =

@@ -39,8 +39,6 @@ export class HomeScene extends Group {
       key: "membership-model",
       tracker: '[data-js="gl-coin"]',
       mask: { tracker: '[data-js="gl-coin-mask"]', stencilRef: RENDER.stencils.coin },
-      diffuseKey: "membership-diffuse",
-      normalKey: "membership-normal",
       scaleFactor: 1.5,
       hasEmbers: true,
     });
@@ -51,8 +49,6 @@ export class HomeScene extends Group {
       key: "decisions-model",
       tracker: '[data-js="gl-emblem"]',
       mask: { tracker: '[data-js="gl-emblem-mask"]', stencilRef: RENDER.stencils.emblem },
-      diffuseKey: "decisions-diffuse",
-      normalKey: "decisions-normal",
       scaleFactor: 0.95,
       hasEmbers: true,
     });
