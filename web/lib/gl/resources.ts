@@ -29,13 +29,7 @@ export const manifest: ResourceEntry[] = [
     path: "/gl/images/misc/model-matcap.jpg",
     compress: { responsive: true, maxResolution: [256, 256] },
   },
-  {
-    key: "paint",
-    type: "texture",
-    path: "/gl/images/paint.jpg",
-    compress: { responsive: true, maxResolution: [1800, 1024], flipY: true },
-    colorSpace: "SRGBColorSpace",
-  },
+  { key: "tech-grid", type: "texture", path: "/gl/images/tech-grid.png", colorSpace: "SRGBColorSpace" },
   // One sculpture per carousel card. They share the stone surface below (hero-model-*).
   { key: "loop-1-model", type: "gltf", path: "/gl/models/loop-1-pitch.glb" },
   { key: "loop-2-model", type: "gltf", path: "/gl/models/loop-2-crew.glb" },
@@ -81,24 +75,6 @@ export const manifest: ResourceEntry[] = [
     type: "texture",
     path: "/gl/images/hero/marble-03.jpg",
     compress: { responsive: true, maxResolution: [1024, 256], flipY: true },
-  },
-  {
-    key: "archway",
-    type: "texture",
-    path: "/gl/images/archway.png",
-    compress: { responsive: true, maxResolution: [1024, 512], flipY: true },
-  },
-  {
-    key: "archway-blur",
-    type: "texture",
-    path: "/gl/images/archway-blur.png",
-    compress: { responsive: true, maxResolution: [512, 256], flipY: true },
-  },
-  {
-    key: "archway-gradient",
-    type: "texture",
-    path: "/gl/images/archway-gradient.png",
-    compress: { responsive: true, maxResolution: [512, 256], flipY: true },
   },
   // The two portrait sculptures (Membership, Decisions) carry their own baked engraving. Their maps are
   // plain textures rather than KTX2, and `flipY: false` because the UVs follow the glTF convention.

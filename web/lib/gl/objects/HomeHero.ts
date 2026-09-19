@@ -1,5 +1,5 @@
 // Hero + "How an idea becomes a launch" WebGL layer:
-//  • the paint backdrop (sticky over the hero/loop block)
+//  • the tech-grid backdrop (sticky over the hero to loop block)
 //  • the hero marble, which scroll-morphs into the first carousel card
 //  • one rounded black box per card (bends with drag velocity)
 //  • one sculpture per card, which pops in when its card is active
@@ -70,6 +70,7 @@ const BOW_MAX = 0.045;
 const BOW_GAIN = -0.014;
 const BOW_LERP = 0.14;
 const INACTIVE_SCALE = 0.92;
+const PAINT_DRIFT = 0.00003;
 const liveTracking = () => !!d.size?.isMobile || !d.size?.isTouch;
 
 /** The sculpture on one carousel card. `model` is the spinning pivot; `tilt` holds it steady. */
@@ -111,8 +112,12 @@ export class HomeHero extends Group {
     this.#listen();
   }
 
+  #paintBaseY = 0;
+
   #fitPaint() {
-    coverTexture(resources.get("paint"), [this.#paint.scale.x, this.#paint.scale.y]);
+    const texture = resources.get("tech-grid");
+    coverTexture(texture, [this.#paint.scale.x, this.#paint.scale.y]);
+    this.#paintBaseY = texture.offset.y;
   }
 
   #build() {
@@ -130,7 +135,7 @@ export class HomeHero extends Group {
     });
     this.#paint = paint;
     this.#fitPaint();
-    const texture = resources.get("paint");
+    const texture = resources.get("tech-grid");
     paint.material.map = texture;
     paint.material.map!.colorSpace = SRGBColorSpace;
     paint.material.map!.needsUpdate = true;
@@ -418,6 +423,9 @@ varying vec2 vBoxUv;`,
     const spin = 0.2 * d.time.delta + velocity * 0.002;
     this.#cards.forEach((card) => (card.model.rotation.y += spin + card.rotation.y));
     this.#updateCarousel();
+    // the grid tiles in Y, so it can drift slowly against the page as you scroll
+    const grid = resources.get("tech-grid");
+    grid.offset.y = this.#paintBaseY + d.runtime.scroll.lenis.scroll * PAINT_DRIFT;
     this.#components.update();
   }
 

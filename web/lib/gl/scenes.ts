@@ -6,13 +6,11 @@ import { THEATRE, t, theatreObject } from "./theatre";
 import { ComponentList } from "./objects/ComponentList";
 import { HomeHero } from "./objects/HomeHero";
 import { Marble } from "./objects/Marble";
-import { Hallway } from "./objects/Hallway";
 import { SpinningModel } from "./objects/SpinningModel";
 
-/** Home page: hero/loop layer, footer marble, archway hallway, membership glyph, decisions scroll. */
+/** Home page: hero/loop layer, footer marble, membership glyph, decisions scroll. */
 export class HomeScene extends Group {
   #components = new ComponentList();
-  #hallway?: Hallway;
   #theatre!: { unsubscribe: () => void };
 
   constructor() {
@@ -36,10 +34,6 @@ export class HomeScene extends Group {
     const footer = new Marble({ tracker: '[data-js="gl-marble-footer"]', isHero: false });
     this.add(footer);
     this.#components.add(footer);
-
-    this.#hallway = new Hallway();
-    this.add(this.#hallway);
-    this.#components.add(this.#hallway);
 
     const membership = new SpinningModel({
       key: "membership-model",

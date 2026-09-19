@@ -1,5 +1,5 @@
 // Stencil masks: an invisible quad writes a stencil ref so that 3D objects only
-// draw inside a DOM element's rectangle (the coin / emblem / hallway columns).
+// draw inside a DOM element's rectangle (the coin and emblem).
 
 import {
   AlwaysStencilFunc,

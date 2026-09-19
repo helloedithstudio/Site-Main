@@ -150,3 +150,82 @@
     max-width: 36rem;
   }
 }
+
+/* Hubs: six highlight cards. A snap row on phones, a three column grid from 650px. */
+.edith-hubcards {
+  display: flex;
+  gap: 1.2rem;
+  padding: 0 2rem 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.edith-hubcards::-webkit-scrollbar {
+  display: none;
+}
+.edith-hubcard {
+  position: relative;
+  flex: 0 0 78%;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  padding: 3rem 2.4rem 2.6rem;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 0.8rem;
+  background: rgb(0 0 0 / 0.55);
+  overflow: hidden;
+  transition: border-color 0.4s ease;
+}
+.edith-hubcard::before {
+  content: "";
+  position: absolute;
+  inset: -30% -20% auto;
+  height: 70%;
+  background: radial-gradient(60% 60% at 50% 0%, rgb(232 3 209 / 0.22), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+.edith-hubcard > * {
+  position: relative;
+}
+.edith-hubcard__rule {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.edith-hubcard__channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: auto;
+  padding-top: 2.4rem;
+}
+.edith-hubcard__chip {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 999px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .edith-hubcard:hover {
+    border-color: rgb(255 255 255 / 0.28);
+  }
+  .edith-hubcard:hover::before {
+    opacity: 1;
+  }
+}
+@media (min-width: 650px) {
+  .edith-hubcards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.6rem;
+    padding: 0;
+    overflow: visible;
+  }
+  .edith-hubcard {
+    flex: none;
+    min-height: 27rem;
+    padding: 4rem 3.2rem 3.2rem;
+  }
+}

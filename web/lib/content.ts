@@ -169,14 +169,13 @@ export const home = {
       text: `<p>Pick your interests when you join. There is a hangout for everything else, and ${ch("touch-grass")} for when you need it.</p>`,
       links: [discord()],
     },
-    columns: ["Hub", "What you do there", "Start in"],
-    rows: [
-      { hub: "Ideas", what: "Pitch an idea and get real feedback", start: "brainstorm" },
-      { hub: "Build", what: "Web2, Web3, AI, hardware and design", start: "web2, web3, ai" },
-      { hub: "Team up", what: "Find a crew and join hackathons", start: "find-a-team" },
-      { hub: "Help", what: "Get unstuck, ask, talk careers", start: "rubber-duck" },
-      { hub: "Feedback", what: "Request features and propose RFCs", start: "rfcs" },
-      { hub: "Show off", what: "Share what you shipped", start: "ship-it" },
+    cards: [
+      { id: "ideas", hub: "Ideas", what: "Pitch an idea and get real feedback.", channels: ["brainstorm"] },
+      { id: "build", hub: "Build", what: "Web2, Web3, AI, hardware and design.", channels: ["web2", "web3", "ai"] },
+      { id: "team-up", hub: "Team up", what: "Find a crew and join hackathons.", channels: ["find-a-team"] },
+      { id: "help", hub: "Help", what: "Get unstuck, ask, talk careers.", channels: ["rubber-duck"] },
+      { id: "feedback", hub: "Feedback", what: "Request features and propose RFCs.", channels: ["rfcs"] },
+      { id: "show-off", hub: "Show off", what: "Share what you shipped.", channels: ["ship-it"] },
     ],
   },
   safety: {

@@ -26,15 +26,6 @@ const sheets: Record<string, Record<string, Record<string, any>>> = {
     Postprocessing: { bloomIntensity: 1.8354430379746862, bloomThreshold: 0.41772151898734217 },
     Background: { speed: 0.2099999999999993 },
     Test: { test: 6.2025316455696204 },
-    Hallway: {
-      colorA: { r: 0.2980392156862745, g: 0, b: 0.28627450980392155, a: 1 },
-      colorB: { r: 0.6078431372549019, g: 0.26666666666666666, b: 0.023529411764705882, a: 1 },
-      colorC: { r: 1, g: 0, b: 0, a: 1 },
-      speed: 0.2025316455696194,
-      gradientColor: { r: 1, g: 0, b: 0, a: 1 },
-      gradientOpacity: 0.778481012658228,
-      scaleFactor: 1.2784810126582287,
-    },
     "Spinning-emblem": { mouse: { x: 1.1607594936708856 } },
     "Spinning-coin": { mouse: { y: 1.1354430379746834, x: 0.5278481012658228 } },
     "Hero Marble": {
