@@ -1,0 +1,152 @@
+/* edith additions. Kept apart from site.css / scoped.css / chunks.css, which are verbatim copies of the
+   original compiled stylesheet and are not edited by hand. */
+
+/* The hero headline wraps to two lines; the original display style (line-height .75) was for one line. */
+.edith-hero-title {
+  line-height: 0.95;
+}
+
+/* The loop carousel has six cards (the original had five); the compiled stylesheet only positions five. */
+#how-it-works .js-slide:nth-child(6) {
+  transform: translate3d(calc(var(--step) * 5), 0, 0);
+}
+
+/* The beliefs scroll has six captions (the original had three), so it gets more scroll distance. */
+.edith-beliefs {
+  height: 500vh;
+}
+
+/* Hubs table: three columns of unequal width, text may wrap. */
+.edith-hubs {
+  grid-template-columns: 0.8fr 2fr 1.3fr;
+}
+
+/* Channel names in running text: the mono font keeps hyphens looking like hyphens. */
+.edith-ch {
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.92em;
+  white-space: nowrap;
+}
+
+/* Show-off card: call to action pinned to the card bottom, tag turns gold on card hover. */
+.edith-cta {
+  align-self: flex-start;
+  margin-top: auto;
+}
+@media (hover: hover) and (pointer: fine) {
+  .group:hover .edith-tag {
+    background-color: rgb(255 188 9);
+  }
+}
+
+/* Wordmark sizes (the sample logo is about 2.76 times wider than tall). */
+.edith-logo {
+  height: 4.4rem;
+}
+.edith-footer-logo {
+  height: 6rem;
+}
+@media (min-width: 650px) {
+  .edith-logo {
+    height: 5.2rem;
+  }
+}
+
+/* Apple-style gradient rule, used above highlight sections and on the hub cards.
+   The colours are the reference bar; see `theme.gradient` in lib/theme.ts. */
+.edith-rule {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, #0a84ff 0%, #6f5bff 28%, #bc4bff 48%, #ff4b8b 70%, #ff8a3d 88%, #ffb13d 100%);
+}
+.edith-rule--soft {
+  opacity: 0.55;
+}
+
+/* "Why builders stick around": hidden target the hero marble morphs toward, and the four highlight tiles. */
+.edith-hero-end {
+  position: absolute;
+  left: 50%;
+  top: 3rem;
+  width: 24rem;
+  aspect-ratio: 5 / 3;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.edith-rule--short {
+  width: 12rem;
+}
+.edith-tiles {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.edith-tile {
+  padding: 3rem 2rem 4rem;
+  border-top-width: 1px;
+}
+@media (min-width: 650px) {
+  .edith-hero-end {
+    top: 3rem;
+    width: 26rem;
+  }
+  .edith-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .edith-tile {
+    padding: 5rem 5rem 6rem;
+  }
+  .edith-tile:nth-child(even) {
+    border-left-width: 1px;
+  }
+}
+
+/* Footer: the oversized wordmark behind the small print, clipped by the bottom edge (footer is overflow-hidden). */
+.edith-ghost {
+  font-family: "Funnel Display", sans-serif;
+  font-weight: 300;
+  font-size: 34vw;
+  line-height: 0.72;
+  text-align: center;
+  white-space: nowrap;
+  color: rgb(255 255 255 / 0.045);
+  margin-bottom: -0.16em;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Small layout helpers the compiled stylesheet does not carry. */
+.edith-self-start {
+  align-self: flex-start;
+}
+.edith-footer-brand {
+  max-width: 34rem;
+}
+.edith-footer-nav {
+  margin-top: 4rem;
+}
+.edith-smallprint {
+  text-transform: none;
+}
+.edith-pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+.edith-intro-pb {
+  padding-bottom: 4rem;
+}
+@media (min-width: 650px) {
+  .edith-footer-nav {
+    margin-top: 1.5rem;
+  }
+  .edith-smallprint {
+    text-align: right;
+  }
+  .edith-intro-pb {
+    padding-bottom: 8rem;
+  }
+  .edith-tile-text {
+    max-width: 36rem;
+  }
+}
