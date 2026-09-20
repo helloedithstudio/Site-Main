@@ -33,7 +33,7 @@ npm run build && npm start
 | `lib/runtime/` | Lenis scroll, resize, device, event bus, GSAP eases and effects, UI flag store |
 | `lib/gl/` | The WebGL engine (three r180): asset loader, DOM trackers, hero marble, tech-grid backdrop, spinning models, shaders |
 | `styles/` | `site.css`, `scoped.css`, `chunks.css` come from the original compiled stylesheet (never edit `site.css` by hand, see Colours). `edith.css` and `handbook.css` hold edith's additions. |
-| `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, flower frames |
+| `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, WebP flower frames, self-hosted fonts |
 | `scripts/` | `make-logo.cjs`, `make-tech-grid.cjs`, `retheme.cjs` |
 
 ## Working with the styles
@@ -57,7 +57,7 @@ The original stylesheet only contains the utility classes the original site used
 ## The backdrop
 
 The dark engineering grid behind the hero, Why edith, Hubs and Loop is a generated image,
-`public/gl/images/tech-grid.png` (`node scripts/make-tech-grid.cjs` redraws it). `HomeHero.ts` draws it on a sticky
+`public/gl/images/tech-grid.webp` (`node scripts/make-tech-grid.cjs` redraws it). `HomeHero.ts` draws it on a sticky
 plane inside the `[data-js="gl-hero-bg-desktop"]` wrapper in `app/page.tsx` and drifts it against scroll (the image
 tiles vertically). The handbook uses the same image as a fixed CSS background.
 
@@ -86,6 +86,22 @@ GLB and a preview sheet.
 ## Still Saffron (temporary)
 
 - **Crocus frames** in the Beliefs scroll (no text, kept for now).
+
+## Performance
+
+- **Flower sequence** (`Beliefs.tsx`): 267 WebP frames (4.7 MB, from the original JPEG set at quality 72). They are not
+  fetched at page load. Four at a time, in passes (every 8th frame, then 4th, 2nd, the rest), once the section is
+  within three screens or about 9 s after mount (only near the section on a slow or data-saving connection).
+  Scrubbing draws the nearest frame that has arrived.
+- **WebGL assets** are listed once in `lib/gl/manifest.ts`. `components/GlPreload.tsx` reads that list on the server and
+  emits `<link rel="preload">` hints, so downloads start with the HTML instead of after the scripts run. Add a new
+  asset to the manifest and it is preloaded automatically. Responsive textures use the `-desktop` variant on every
+  device on purpose (the `-mobile` ones make the marble blocky).
+- **Images**: `tech-grid.webp` (near-lossless), an 8-bit `blue-noise.png`. Only the red channel of the blue noise is used.
+- **Fonts** are self-hosted in `public/fonts` (latin subset, variable weight) and declared in `styles/fonts.css`, with
+  preload hints in the layout. Nothing is fetched from Google.
+- **Caching** (`next.config.ts`): `/gl`, `/images` one day plus a week of stale-while-revalidate, `/fonts` one year.
+  Replaced files reach returning visitors within a day. Give a file a new name to force it sooner.
 
 ## Colours
 

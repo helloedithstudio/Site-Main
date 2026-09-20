@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { seo } from "@/lib/content";
 import { socialLinks } from "@/lib/brand";
 import SiteShell from "@/components/SiteShell";
+import "@/styles/fonts.css";
 import "@/styles/site.css";
 import "@/styles/scoped.css";
 import "@/styles/chunks.css";
@@ -49,13 +50,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap"
-        />
+        {["funnel-display", "host-grotesk", "roboto-mono"].map((f) => (
+          <link key={f} rel="preload" href={`/fonts/${f}-latin.woff2`} as="font" type="font/woff2" crossOrigin="anonymous" />
+        ))}
         {jsonLd.map((data, i) => (
           <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
         ))}

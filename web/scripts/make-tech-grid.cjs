@@ -1,6 +1,6 @@
 // Draws the page backdrop: a dark engineering grid with faint traces and the marble's magenta/orange as soft glows.
 // The picture tiles in Y (glows are drawn at +-H too) so HomeHero can drift it with scroll.
-// usage: node scripts/make-tech-grid.cjs   ->  public/gl/images/tech-grid.png
+// usage: node scripts/make-tech-grid.cjs   ->  public/gl/images/tech-grid.webp
 const sharp = require("sharp");
 const path = require("path");
 
@@ -56,5 +56,5 @@ ${glows.map((g) => g.uses).join("")}
 ${grid}${tr}${marks}
 </svg>`;
 
-const out = path.join(__dirname, "..", "public", "gl", "images", "tech-grid.png");
-sharp(Buffer.from(svg)).png({ compressionLevel: 9, palette: false }).toFile(out).then((i) => console.log("wrote", out, (i.size / 1024).toFixed(0) + " KB"));
+const out = path.join(__dirname, "..", "public", "gl", "images", "tech-grid.webp");
+sharp(Buffer.from(svg)).removeAlpha().webp({ nearLossless: true, quality: 60, effort: 6 }).toFile(out).then((i) => console.log("wrote", out, (i.size / 1024).toFixed(0) + " KB"));

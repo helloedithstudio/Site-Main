@@ -1,5 +1,6 @@
 import QuickMenuSlot from "@/components/QuickMenuSlot";
 import GlCanvas from "@/components/GlCanvas";
+import GlPreload from "@/components/GlPreload";
 import Hero from "@/components/sections/Hero";
 import WhatIsEdith from "@/components/sections/WhatIsEdith";
 import Hubs from "@/components/sections/Hubs";
@@ -22,6 +23,7 @@ export default function Home() {
   return (
     <main id="main">
       <QuickMenuSlot />
+      <GlPreload />
       <GlCanvas page="index" />
       <div data-js="gl-hero-bg-desktop">
         <Hero />
