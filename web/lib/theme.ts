@@ -15,6 +15,8 @@ export const theme = {
    * Every stop keeps the button's black text above 4.5:1 contrast; the ramp's deep violet was left out for that.
    */
   hoverStops: ["#FEAF01", "#FF8301", "#FF3702", "#F70C5A", "#E803D1", "#CE3AAD"],
+  /** The marble ramp as one gradient, for a single highlighted word (`.edith-gradword`). Keep in sync with `--edith-ramp` in styles/edith.css. */
+  ramp: "linear-gradient(90deg, #FEAF01 0%, #FF8301 30%, #F70C5A 68%, #E803D1 100%)",
   /** The Apple-style rule for highlight sections (the reference gradient), see `.edith-rule`. */
   gradient: "linear-gradient(90deg, #0A84FF 0%, #6F5BFF 28%, #BC4BFF 48%, #FF4B8B 70%, #FF8A3D 88%, #FFB13D 100%)",
 } as const;

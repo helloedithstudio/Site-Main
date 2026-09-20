@@ -154,7 +154,7 @@ export const footer: {
 };
 
 export const whatIs = {
-  title: "Why builders stick around",
+  title: "Why builders<br><span class=\"edith-gradword\">stick around</span>",
   subtitle: "edith gives you four things you cannot get building alone.",
   items: [
     {

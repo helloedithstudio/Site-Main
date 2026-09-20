@@ -34,7 +34,7 @@ npm run build && npm start
 | `lib/gl/` | The WebGL engine (three r180): asset loader, DOM trackers, hero marble, tech-grid backdrop, spinning models, shaders |
 | `styles/` | `site.css`, `scoped.css`, `chunks.css` come from the original compiled stylesheet (never edit `site.css` by hand, see Colours). `edith.css` and `handbook.css` hold edith's additions. |
 | `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, WebP flower frames, self-hosted fonts |
-| `scripts/` | `make-logo.cjs`, `make-tech-grid.cjs`, `retheme.cjs` |
+| `scripts/` | `make-logo.cjs`, `make-tech-grid.cjs`, `make-hub-images.cjs`, `retheme.cjs` |
 
 ## Working with the styles
 
@@ -60,6 +60,25 @@ The dark engineering grid behind the hero, Why edith, Hubs and Loop is a generat
 `public/gl/images/tech-grid.webp` (`node scripts/make-tech-grid.cjs` redraws it). `HomeHero.ts` draws it on a sticky
 plane inside the `[data-js="gl-hero-bg-desktop"]` wrapper in `app/page.tsx` and drifts it against scroll (the image
 tiles vertically). The handbook uses the same image as a fixed CSS background.
+
+## The hub stack (Blender render)
+
+"Six hubs, one server" (`components/sections/Hubs.tsx`) is shown like an Apple product page: one lit hero image and a
+list of hubs. The image is a stack of six glossy layers, one per hub, each engraved with a glyph. It is rendered in
+Blender (Cycles, transparent film), not drawn in the WebGL engine:
+
+- `blender/scripts/hub_stack.py` builds and renders it (`blender -b --factory-startup -P blender/scripts/hub_stack.py --
+  final base 0 1 2 3 4 5 cam=30,27,46,70 size=1400x2200 samples=128`; `preview` for a fast look). Frames are `base` (nothing
+  lit) and `0` to `5` (one hub lit each). Raw 16-bit PNGs go to `blender/work/hub/` (not committed).
+- `node scripts/make-hub-images.cjs` turns them into `public/images/hubs/`: `stack-base-{1x,2x}.webp` and six
+  `stack-glow-N-{1x,2x}.webp`. Each glow is an RGBA layer that is transparent except for the light that hub adds
+  (glyph, edge line and a soft bloom), so drawing it over the base with normal alpha reproduces the lit render. The
+  base is a soft resting image, the glow layers are 40 to 100 KB each, and the bloom is faded out before the image edge
+  so the stack blends into the page.
+- The hub colours are the marble ramp (`theme.hoverStops`), the same six stops in the render, the row dots and the
+  colour pool behind the stack (`--hub`).
+- Behaviour: the live hub plays in turn (its row hairline draws left to right as the timer) until you hover, tap or
+  arrow-key to another; reduced motion turns autoplay off.
 
 ## The 3D layer
 

@@ -16,11 +16,6 @@
   height: 500vh;
 }
 
-/* Hubs table: three columns of unequal width, text may wrap. */
-.edith-hubs {
-  grid-template-columns: 0.8fr 2fr 1.3fr;
-}
-
 /* Channel names in running text: the mono font keeps hyphens looking like hyphens. */
 .edith-ch {
   font-family: "Roboto Mono", monospace;
@@ -49,7 +44,7 @@
   }
 }
 
-/* Apple-style gradient rule, used above highlight sections and on the hub cards.
+/* Apple-style gradient rule, used above highlight sections and on the live hub row.
    The colours are the reference bar; see `theme.gradient` in lib/theme.ts. */
 .edith-rule {
   height: 1px;
@@ -60,7 +55,7 @@
   opacity: 0.55;
 }
 
-/* "Why builders stick around": hidden target the hero marble morphs toward, and the four highlight tiles. */
+/* Hidden target the hero marble morphs toward (inside "Why builders stick around"). */
 .edith-hero-end {
   position: absolute;
   left: 50%;
@@ -73,27 +68,10 @@
 .edith-rule--short {
   width: 12rem;
 }
-.edith-tiles {
-  display: grid;
-  grid-template-columns: 1fr;
-}
-.edith-tile {
-  padding: 3rem 2rem 4rem;
-  border-top-width: 1px;
-}
 @media (min-width: 650px) {
   .edith-hero-end {
     top: 3rem;
     width: 26rem;
-  }
-  .edith-tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .edith-tile {
-    padding: 5rem 5rem 6rem;
-  }
-  .edith-tile:nth-child(even) {
-    border-left-width: 1px;
   }
 }
 
@@ -107,97 +85,6 @@
   justify-content: center;
   gap: 1rem;
 }
-.edith-intro-pb {
-  padding-bottom: 4rem;
-}
-@media (min-width: 650px) {
-  .edith-intro-pb {
-    padding-bottom: 8rem;
-  }
-  .edith-tile-text {
-    max-width: 36rem;
-  }
-}
-
-/* Hubs: six highlight cards. A snap row on phones, a three column grid from 650px. */
-.edith-hubcards {
-  display: flex;
-  gap: 1.2rem;
-  padding: 0 2rem 1rem;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-}
-.edith-hubcards::-webkit-scrollbar {
-  display: none;
-}
-.edith-hubcard {
-  position: relative;
-  flex: 0 0 78%;
-  scroll-snap-align: center;
-  display: flex;
-  flex-direction: column;
-  padding: 3rem 2.4rem 2.6rem;
-  border: 1px solid rgb(255 255 255 / 0.14);
-  border-radius: 0.8rem;
-  background: rgb(0 0 0 / 0.55);
-  overflow: hidden;
-  transition: border-color 0.4s ease;
-}
-.edith-hubcard::before {
-  content: "";
-  position: absolute;
-  inset: -30% -20% auto;
-  height: 70%;
-  background: radial-gradient(60% 60% at 50% 0%, rgb(232 3 209 / 0.22), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-.edith-hubcard > * {
-  position: relative;
-}
-.edith-hubcard__rule {
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  right: 0;
-}
-.edith-hubcard__channels {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.8rem;
-  margin-top: auto;
-  padding-top: 2.4rem;
-}
-.edith-hubcard__chip {
-  padding: 0.5rem 1.1rem;
-  border: 1px solid rgb(255 255 255 / 0.14);
-  border-radius: 999px;
-}
-@media (hover: hover) and (pointer: fine) {
-  .edith-hubcard:hover {
-    border-color: rgb(255 255 255 / 0.28);
-  }
-  .edith-hubcard:hover::before {
-    opacity: 1;
-  }
-}
-@media (min-width: 650px) {
-  .edith-hubcards {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.6rem;
-    padding: 0;
-    overflow: visible;
-  }
-  .edith-hubcard {
-    flex: none;
-    min-height: 27rem;
-    padding: 4rem 3.2rem 3.2rem;
-  }
-}
-
 /* 404 page */
 .edith-notfound {
   min-height: 100vh;
@@ -356,5 +243,349 @@
   .edith-apf__legal {
     flex: 1;
     margin-left: 1rem;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+   Apple-style statement and showcase (Why builders stick around, Six hubs one server).
+   Cream is the site text colour (236 231 224). The ramp is the hero marble's own colours (theme.hoverStops). */
+:root {
+  --edith-cream: 236 231 224;
+  --edith-ramp: linear-gradient(90deg, #feaf01 0%, #ff8301 30%, #f70c5a 68%, #e803d1 100%);
+}
+
+/* One proper noun in the ramp, never running text. Solid gold where background-clip:text is missing. */
+.edith-gradword {
+  display: inline-block;
+  padding-bottom: 0.08em;
+  color: #feaf01;
+}
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .edith-gradword {
+    background: var(--edith-ramp);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+}
+@media (forced-colors: active) {
+  .edith-gradword {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: CanvasText;
+  }
+}
+
+/* A paragraph whose emphasised phrases carry the meaning: grey text, cream lead-ins. */
+.edith-lit {
+  font-family: "Host Grotesk", sans-serif;
+  font-weight: 400;
+  line-height: 1.3;
+  color: rgb(var(--edith-cream) / 0.6);
+  margin: 0;
+}
+.edith-lit strong {
+  color: rgb(var(--edith-cream));
+  font-weight: 600;
+}
+.edith-lit p {
+  margin: 0;
+  display: inline;
+}
+
+/* Why builders stick around: a centred statement. */
+.edith-why {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.edith-statement {
+  font-family: "Funnel Display", sans-serif;
+  font-weight: 300;
+  font-size: 4.6rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 3rem 0 0;
+}
+.edith-standfirst {
+  font-family: "Host Grotesk", sans-serif;
+  font-size: 2.4rem;
+  line-height: 1.2;
+  margin: 3.6rem 0 0;
+  color: rgb(var(--edith-cream));
+  max-width: 72rem;
+}
+.edith-why-body {
+  font-size: 1.9rem;
+  text-align: left;
+  margin-top: 3rem;
+}
+@media (min-width: 650px) {
+  .edith-statement {
+    font-size: 7.2rem;
+    margin-top: 3.6rem;
+  }
+  .edith-standfirst {
+    font-size: 3.4rem;
+    margin-top: 5.4rem;
+  }
+  .edith-why-body {
+    font-size: 2.4rem;
+    text-align: center;
+    max-width: 93rem;
+    margin-top: 4.4rem;
+  }
+}
+
+/* Six hubs, one server: copy and an index on one side, one lit hero image on the other. */
+/* The colour pool behind the stack is wider than the column; never let it widen the page. */
+#hubs {
+  overflow-x: clip;
+}
+.edith-show {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "head" "stage" "index";
+  gap: 4rem 0;
+  align-items: start;
+}
+.edith-show__head {
+  grid-area: head;
+}
+.edith-show__h2 {
+  font-family: "Funnel Display", sans-serif;
+  font-weight: 300;
+  font-size: 3.6rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin: 2.4rem 0 0;
+}
+.edith-show__lit {
+  font-size: 2rem;
+  margin-top: 2rem;
+  max-width: 56rem;
+}
+.edith-show__cta {
+  margin-top: 3rem;
+}
+
+@property --hub {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #feaf01;
+}
+.edith-stage {
+  position: relative;
+  grid-area: stage;
+  width: min(74%, 30rem);
+  aspect-ratio: 1400 / 2200;
+  margin: 0 auto;
+  animation: edith-float 9s ease-in-out infinite;
+  transition: --hub 0.9s ease;
+}
+/* A wide soft pool of the live hub's colour behind the stack, so it sits in the page light rather than on it. */
+.edith-stage::before {
+  content: "";
+  position: absolute;
+  inset: 8% -30% 4%;
+  z-index: -1;
+  background: radial-gradient(closest-side, var(--hub), transparent 78%);
+  opacity: 0.2;
+  pointer-events: none;
+}
+.edith-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.edith-stage__glow {
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.edith-stage__glow.is-on {
+  opacity: 1;
+}
+@keyframes edith-float {
+  50% {
+    transform: translate3d(0, -0.9rem, 0);
+  }
+}
+
+.edith-index {
+  grid-area: index;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgb(255 255 255 / 0.14);
+}
+.edith-row {
+  position: relative;
+  border-bottom: 1px solid rgb(255 255 255 / 0.14);
+}
+.edith-row__head {
+  margin: 0;
+  font: inherit;
+}
+.edith-row__btn {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  width: 100%;
+  padding: 1.9rem 0;
+  text-align: left;
+  cursor: pointer;
+  color: rgb(var(--edith-cream) / 0.5);
+  transition: color 0.45s ease;
+}
+.edith-row__btn:focus-visible {
+  outline: 2px solid #ffbc09;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.edith-row.is-active .edith-row__btn {
+  color: rgb(var(--edith-cream));
+}
+.edith-row__dot {
+  flex: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: var(--hub);
+  opacity: 0.55;
+  transition: opacity 0.45s ease, box-shadow 0.45s ease, transform 0.45s ease;
+}
+.edith-row.is-active .edith-row__dot {
+  opacity: 1;
+  transform: scale(1.25);
+  box-shadow: 0 0 1.6rem 0.2rem var(--hub);
+}
+.edith-row__name {
+  font-family: "Funnel Display", sans-serif;
+  font-weight: 300;
+  font-size: 4rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.edith-row__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.edith-row.is-active .edith-row__panel {
+  grid-template-rows: 1fr;
+}
+.edith-row__inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.edith-row.is-active .edith-row__inner {
+  opacity: 1;
+  transition-delay: 0.12s;
+}
+.edith-row__what {
+  margin: 0;
+  padding: 0 0 1.4rem 2.5rem;
+  font-family: "Host Grotesk", sans-serif;
+  font-size: 2rem;
+  line-height: 1.3;
+  color: rgb(var(--edith-cream) / 0.7);
+}
+.edith-row__ch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  padding: 0 0 2.4rem 2.5rem;
+}
+.edith-row__ch .edith-ch {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 999px;
+  color: rgb(var(--edith-cream));
+}
+/* The live row's top hairline in the ramp. With autoplay it also draws left to right and is the timer. */
+.edith-row__rule {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.edith-row.is-active .edith-row__rule {
+  transform: scaleX(1);
+}
+.edith-show[data-auto="true"] .edith-row.is-active .edith-row__rule {
+  transform: scaleX(0);
+  animation: edith-progress var(--edith-auto, 5200ms) linear forwards;
+}
+.edith-show[data-auto="true"][data-inview="false"] .edith-row.is-active .edith-row__rule,
+.edith-show[data-auto="true"] .edith-index:hover .edith-row.is-active .edith-row__rule {
+  animation-play-state: paused;
+}
+@keyframes edith-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .edith-row:not(.is-active) .edith-row__btn:hover {
+    color: rgb(var(--edith-cream) / 0.85);
+  }
+}
+
+@media (min-width: 900px) {
+  .edith-show {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-areas: "head stage" "index stage";
+    gap: 5rem 6rem;
+  }
+  .edith-show__h2 {
+    font-size: 3.4rem;
+  }
+  .edith-show__lit {
+    font-size: 2.3rem;
+  }
+  .edith-stage {
+    width: min(100%, 50rem);
+    position: sticky;
+    top: 8rem;
+  }
+  .edith-row__btn {
+    padding: 2.3rem 0;
+  }
+  .edith-row__name {
+    font-size: 6rem;
+  }
+  .edith-row__what {
+    font-size: 2.2rem;
+    padding-left: 3rem;
+  }
+  .edith-row__ch {
+    padding-left: 3rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edith-stage {
+    animation: none;
+  }
+  .edith-show[data-auto="true"] .edith-row.is-active .edith-row__rule {
+    animation: none;
+    transform: scaleX(1);
+  }
+  .edith-stage__glow,
+  .edith-row__panel,
+  .edith-row__inner,
+  .edith-row__rule {
+    transition-duration: 0.01s;
   }
 }
