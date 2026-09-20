@@ -13,7 +13,7 @@ npm run build && npm start
 ## Pages
 
 - `/` the story: hero, Why builders stick around, Hubs, How an idea becomes a launch, Membership, Show off,
-  Studio, Decisions, Safety, Beliefs, FAQ, footer.
+  Studio, Decisions, Safety, Beliefs, footer. The FAQ lives only in the handbook.
 - `/handbook` maintainers, top projects, discussions, FAQ, community rules and the legal documents. Footer links
   such as `/handbook#terms` deep-link to a section. **The rules and legal text are a draft that has not been
   reviewed by a lawyer** (the page says so); have a lawyer read them before launch.
@@ -26,9 +26,9 @@ npm run build && npm start
 | `lib/content.ts` | Home page copy, header and footer menus |
 | `lib/handbook.ts` | Handbook content: maintainers, projects, discussions, FAQ, rules, terms, privacy, customer terms, Maintainer licence |
 | `app/` | Root layout (fonts, metadata, structured data), `page.tsx` (home), `handbook/page.tsx` |
-| `components/sections/` | Home sections: `Hero`, `WhatIsEdith`, `Hubs`, `Loop`, `Membership`, `ShowOff`, `Franchise`, `Decisions`, `Safety`, `Beliefs`, `Faq` |
+| `components/sections/` | Home sections: `Hero`, `WhatIsEdith`, `Hubs`, `Loop`, `Membership`, `ShowOff`, `Franchise`, `Decisions`, `Safety`, `Beliefs` |
 | `components/handbook/` | The handbook page |
-| `components/` | Site chrome: `SiteShell`, `Header`, `MobileMenu`, `QuickMenu`, `GlCanvas`, `Footer` |
+| `components/` | Site chrome: `SiteShell`, `Header`, `MobileMenu`, `QuickMenu`, `GlCanvas`, `Footer` (Apple style: small print, five columns of link groups from `footer.columns` in `lib/content.ts`, legal row; accordions on phones) |
 | `components/ui/` | Shared pieces: gradient-hover `Button`, `Pager`, `DragCarousel`, `Seal`, `ShowCard`, ... |
 | `lib/runtime/` | Lenis scroll, resize, device, event bus, GSAP eases and effects, UI flag store |
 | `lib/gl/` | The WebGL engine (three r180): asset loader, DOM trackers, hero marble, tech-grid backdrop, spinning models, shaders |
@@ -85,7 +85,6 @@ GLB and a preview sheet.
 
 ## Still Saffron (temporary)
 
-- **FAQ ornament** (`public/images/saffron-art-1.png`).
 - **Crocus frames** in the Beliefs scroll (no text, kept for now).
 
 ## Colours

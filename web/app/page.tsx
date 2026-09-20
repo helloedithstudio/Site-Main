@@ -10,11 +10,10 @@ import Franchise from "@/components/sections/Franchise";
 import Decisions from "@/components/sections/Decisions";
 import Safety from "@/components/sections/Safety";
 import Beliefs from "@/components/sections/Beliefs";
-import Faq from "@/components/sections/Faq";
 import Footer from "@/components/Footer";
 
 // The story runs: what edith is, where it happens, how an idea moves, how you level up, proof, the studio,
-// how decisions get made, trust, culture, questions.
+// how decisions get made, trust, culture. Questions live in the handbook.
 //
 // The wrapper holds the sticky tech-grid backdrop from the hero down to the end of the loop. The hero marble is
 // drawn by WebGL into the full-screen hero, then scroll-morphs toward [data-js="gl-hero-end"] (inside WhatIsEdith)
@@ -37,7 +36,6 @@ export default function Home() {
       <Decisions />
       <Safety />
       <Beliefs />
-      <Faq />
       <Footer />
     </main>
   );

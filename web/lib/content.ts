@@ -44,58 +44,113 @@ export const seo = {
   baseUrl: brand.siteUrl,
 } as const;
 
+const external = (id: string, label: string, url: string): LinkItem => ({ id, label, internal: null, external: url });
+
+export type FooterGroup = { id: string; title: string; links: LinkItem[] };
+
+// Apple-style footer: five columns of headed groups, small print above them, legal links below.
 export const footer: {
-  text: string;
-  link: LinkItem;
-  menus: { id: string; title: string; links: LinkItem[] }[];
-  smallPrint: string;
+  notes: string[];
+  columns: FooterGroup[][];
+  legal: LinkItem[];
 } = {
-  text: "edith is an autonomous, decentralised organisation for developers and technologists to connect, collaborate, build and launch ideas across Web2, Web3, AI and emerging technology.",
-  link: discord(),
-  menus: [
-    {
-      id: "explore",
-      title: "Explore",
-      links: [
-        anchor("how-it-works", "How it works"),
-        anchor("membership", "Membership"),
-        anchor("hubs", "Hubs"),
-        anchor("faq", "FAQ"),
-        page("handbook", "Handbook"),
-      ],
-    },
-    {
-      id: "community",
-      title: "Community",
-      links: [
-        { id: "footer-discord", label: "Discord", internal: null, external: brand.discord },
-        anchor("show-off", "Show off"),
-        anchor("studio", "Studio"),
-      ],
-    },
-    {
-      id: "trust",
-      title: "Trust",
-      links: [
-        anchor("safety", "Safety"),
-        page("handbook#terms", "Terms of use"),
-        page("handbook#privacy", "Privacy policy"),
-        page("handbook#rules", "Community rules"),
-      ],
-    },
-    {
-      id: "stack",
-      title: "Built with",
-      links: [
-        { id: "stack-next", label: "Next.js", internal: null, external: "https://www.npmjs.com/package/next" },
-        { id: "stack-three", label: "Three.js", internal: null, external: "https://www.npmjs.com/package/three" },
-        { id: "stack-gsap", label: "GSAP", internal: null, external: "https://www.npmjs.com/package/gsap" },
-        { id: "stack-lenis", label: "Lenis", internal: null, external: "https://www.npmjs.com/package/lenis" },
-      ],
-    },
+  notes: [
+    "edith is an autonomous, decentralised organisation for developers and technologists to connect, collaborate, build and launch ideas across Web2, Web3, AI and emerging technology.",
+    "There is no token, treasury or on-chain governance, and this site uses no cookies or analytics. Open by default. Reputation is earned.",
   ],
-  /** Small print in the STEM-style footer, verbatim from the brief's copy bank (section 10). */
-  smallPrint: "Open by default. Reputation is earned.",
+  columns: [
+    [
+      {
+        id: "explore",
+        title: "Explore",
+        links: [
+          anchor("why-edith", "Why edith"),
+          anchor("how-it-works", "How it works"),
+          anchor("hubs", "Hubs"),
+          anchor("membership", "Membership"),
+          anchor("show-off", "Show off"),
+          anchor("studio", "Studio"),
+        ],
+      },
+      {
+        id: "handbook",
+        title: "Handbook",
+        links: [
+          page("handbook#maintainers", "Maintainers"),
+          page("handbook#projects", "Top projects"),
+          page("handbook#discussions", "Discussions"),
+          page("handbook#faq", "FAQ"),
+        ],
+      },
+    ],
+    [
+      {
+        id: "community",
+        title: "Community",
+        links: [
+          external("footer-discord", "Discord", brand.discord),
+          external("footer-instagram", "Instagram", brand.instagram),
+          external("footer-linkedin", "LinkedIn", brand.linkedin),
+        ],
+      },
+      {
+        id: "involved",
+        title: "Get involved",
+        links: [discord(), page("handbook#maintainers", "Become a Maintainer")],
+      },
+    ],
+    [
+      {
+        id: "trust",
+        title: "Trust",
+        links: [
+          anchor("safety", "Safety"),
+          page("handbook#rules", "Community rules"),
+          page("handbook#terms", "Terms of use"),
+          page("handbook#privacy", "Privacy policy"),
+        ],
+      },
+      {
+        id: "stack",
+        title: "Built with",
+        links: [
+          external("stack-next", "Next.js", "https://www.npmjs.com/package/next"),
+          external("stack-three", "Three.js", "https://www.npmjs.com/package/three"),
+          external("stack-gsap", "GSAP", "https://www.npmjs.com/package/gsap"),
+          external("stack-lenis", "Lenis", "https://www.npmjs.com/package/lenis"),
+        ],
+      },
+    ],
+    [
+      {
+        id: "clients",
+        title: "For clients",
+        links: [page("handbook#clients", "Working with edith")],
+      },
+      {
+        id: "operators",
+        title: "For Maintainers",
+        links: [page("handbook#operating", "Operating under edith")],
+      },
+    ],
+    [
+      {
+        id: "about",
+        title: "About edith",
+        links: [
+          anchor("decisions", "How decisions are made"),
+          anchor("beliefs", "What we believe"),
+          external("footer-email", "Email us", `mailto:${brand.email}`),
+        ],
+      },
+    ],
+  ],
+  legal: [
+    page("handbook#privacy", "Privacy policy"),
+    page("handbook#terms", "Terms of use"),
+    page("handbook#rules", "Community rules"),
+    page("handbook", "Handbook"),
+  ],
 };
 
 export const whatIs = {
@@ -129,7 +184,6 @@ export const nav: { label: string; href: string }[] = [
   { label: "How it works", href: "#how-it-works" },
   { label: "Membership", href: "#membership" },
   { label: "Hubs", href: "#hubs" },
-  { label: "FAQ", href: "#faq" },
   { label: "Handbook", href: "/handbook" },
 ];
 
@@ -274,44 +328,6 @@ export const home = {
         title: "Launch it",
         text: "The strongest projects launch under the edith name.",
         link: discord(),
-      },
-    ],
-  },
-  faq: {
-    title: "Frequently<br>asked<br>questions",
-    link: null as LinkItem | null,
-    items: [
-      {
-        id: "who",
-        question: "Who is edith for?",
-        answer:
-          "\n<span>Developers, designers and technologists of any level: students, professionals, founders and freelancers. Web2, Web3, AI and everything else. It is stack-agnostic on purpose.</span>\n",
-      },
-      {
-        id: "maintainer",
-        question: "How do I become a Maintainer?",
-        answer:
-          `
-<span>Everyone starts as a Catalyst. After 30+ days of helping people, shipping something and having a public profile, open a PR in ${ch("apply-here")}. Maintainers review it in the open, two endorse it and Core approves. You hear back in about a week.</span>
-`,
-      },
-      {
-        id: "token",
-        question: "Is there a token, a DAO or anything on-chain?",
-        answer:
-          "\n<span>No. There is no token, treasury or on-chain governance. Decisions are made by people in the community, in the open.</span>\n",
-      },
-      {
-        id: "dm",
-        question: "Will anyone from edith DM me?",
-        answer:
-          "\n<span>Not to ask for keys or payments, ever. If someone claims to be from edith and asks, it is not us.</span>\n",
-      },
-      {
-        id: "startup",
-        question: "Can I run my startup under edith?",
-        answer:
-          "\n<span>Maintainers can. Ask the founder in the private Maintainers channel. If it is approved, you can say you operate under edith on your own site.</span>\n",
       },
     ],
   },
