@@ -61,7 +61,7 @@ The dark engineering grid behind the hero, Why edith, Hubs and Loop is a generat
 plane inside the `[data-js="gl-hero-bg-desktop"]` wrapper in `app/page.tsx` and drifts it against scroll (the image
 tiles vertically). The handbook uses the same image as a fixed CSS background.
 
-## The hub stack (Blender render)
+## Showcase renders (hub stack and project lineup)
 
 "Six hubs, one server" (`components/sections/Hubs.tsx`) is shown like an Apple product page: one lit hero image and a
 list of hubs. The image is a stack of six glossy layers, one per hub, each engraved with a glyph. It is rendered in
@@ -79,6 +79,14 @@ Blender (Cycles, transparent film), not drawn in the WebGL engine:
   colour pool behind the stack (`--hub`).
 - Behaviour: the live hub plays in turn (its row hairline draws left to right as the timer) until you hover, tap or
   arrow-key to another; reduced motion turns autoplay off.
+
+- **Project lineup** ("Shipped by members", `components/sections/ShowOff.tsx`): three plinths with floating skeleton project
+  cards that rise left to right (ship it, show it, launch it), the middle one largest. `blender/scripts/ship_lineup.py`
+  renders it, `node scripts/make-hub-images.cjs ship` writes `lineup-base-*` and `lineup-glow-N-*`. The three steps beneath
+  select and light a card the same way the hubs do. On a phone the image is cropped to one card and pans to the lit one.
+  Nothing is invented: the cards are placeholders because nothing has shipped yet.
+- **Studio** ("Build under the edith name", `Franchise.tsx`): a left-aligned statement over one wide panel of the footer
+  marble (`data-js="gl-marble-footer"`), no boxes.
 
 ## The 3D layer
 

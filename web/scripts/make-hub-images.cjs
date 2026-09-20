@@ -1,5 +1,6 @@
-// Turns the raw Blender renders of the hub stack (blender/work/hub/raw_*.png, 16-bit RGBA on a transparent film)
-// into the site images in public/images/hubs/:
+// Turns raw Blender renders (16-bit RGBA on a transparent film) into the site images in public/images/hubs/.
+// Two presets: `hub` (the six-layer stack, blender/work/hub) and `ship` (the three-card lineup, blender/work/ship).
+// For the hub preset the output is:
 //   stack-base.webp      the stack with nothing lit, straight alpha, with a soft bloom on its edge lights
 //   stack-glow-N.webp    one RGBA layer per hub, drawn over the base with ordinary alpha compositing. Where the lit
 //                        render equals the base the layer is transparent; where a glyph or edge light glows (or its
@@ -8,16 +9,25 @@
 //                        stacking context.
 // Each image is written at 1120 and 640 px wide (-2x / -1x suffix) for srcset.
 //
-// usage: node scripts/make-hub-images.cjs [rawDir]
+// The ship preset writes lineup-base-* and lineup-glow-N-* the same way.
+//
+// usage: node scripts/make-hub-images.cjs [hub|ship]
 
 const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
 
-const RAW = process.argv[2] || path.join(__dirname, "..", "..", "blender", "work", "hub");
+const ROOT = path.join(__dirname, "..", "..", "blender", "work");
 const OUT = path.join(__dirname, "..", "public", "images", "hubs");
-const WIDTHS = [["2x", 1120], ["1x", 640]];
-const HUBS = 6;
+const PRESETS = {
+  hub: { raw: path.join(ROOT, "hub"), prefix: "stack", count: 6, widths: [["2x", 1120], ["1x", 640]], rest: 0.6, lit: 1.4 },
+  ship: { raw: path.join(ROOT, "ship"), prefix: "lineup", count: 3, widths: [["2x", 1600], ["1x", 800]], rest: 0.6, lit: 1.4 },
+};
+const P = PRESETS[process.argv[2] || "hub"];
+if (!P) throw new Error("unknown preset, use hub or ship");
+const RAW = P.raw;
+const WIDTHS = P.widths;
+const HUBS = P.count;
 
 const toLin = (v) => Math.pow(v, 2.2);
 const toSrgb = (v) => Math.pow(Math.max(0, Math.min(1, v)), 1 / 2.2);
@@ -153,11 +163,17 @@ function applyBloom(img, bloom) {
   const n = w * h;
   const rgb = new Float32Array(n * 3);
   const a = new Float32Array(n);
+  const lin = [0, 0, 0];
   for (let i = 0; i < n; i++) {
+    let peak = 1;
+    for (let c = 0; c < 3; c++) {
+      lin[c] = toLin(img.rgb[i * 3 + c]) + Math.max(0, bloom[i * 3 + c] - 0.0006);
+      if (lin[c] > peak) peak = lin[c];
+    }
+    // over 1.0, scale all channels together rather than clipping the strongest one, or gold drifts to lemon yellow
     let lum = 0;
     for (let c = 0; c < 3; c++) {
-      const spill = Math.max(0, bloom[i * 3 + c] - 0.0006);
-      const v = toSrgb(toLin(img.rgb[i * 3 + c]) + spill);
+      const v = toSrgb(lin[c] / peak);
       rgb[i * 3 + c] = v;
       lum = Math.max(lum, v);
     }
@@ -199,13 +215,13 @@ async function save(buf, channels, w, h, name, opts) {
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   // Quiet at rest, brighter on the lit hub, so the glow reads as the hub switching on.
-  const restGlow = 0.6;
-  const litGlow = 1.4;
+  const restGlow = P.rest;
+  const litGlow = P.lit;
   const baseRaw = await load("base");
   const { width: w, height: h } = baseRaw;
   const restField = scaled(bloomField(baseRaw), restGlow);
   const base = applyBloom(baseRaw, restField);
-  await save(toRgba8(base), 4, w, h, "stack-base", { quality: 86, alphaQuality: 92, effort: 6, smartSubsample: false });
+  await save(toRgba8(base), 4, w, h, `${P.prefix}-base`, { quality: 86, alphaQuality: 92, effort: 6, smartSubsample: false });
 
   const n = w * h;
   for (let k = 0; k < HUBS; k++) {
@@ -229,6 +245,6 @@ async function save(buf, channels, w, h, name, opts) {
       }
       buf[i * 4 + 3] = Math.max(1, Math.min(255, Math.round(aOv * 255)));
     }
-    await save(buf, 4, w, h, `stack-glow-${k}`, { quality: 80, alphaQuality: 88, effort: 6, smartSubsample: false, exact: false });
+    await save(buf, 4, w, h, `${P.prefix}-glow-${k}`, { quality: 80, alphaQuality: 88, effort: 6, smartSubsample: false, exact: false });
   }
 })();

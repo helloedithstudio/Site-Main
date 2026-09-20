@@ -528,8 +528,7 @@
   transform: scaleX(0);
   animation: edith-progress var(--edith-auto, 5200ms) linear forwards;
 }
-.edith-show[data-auto="true"][data-inview="false"] .edith-row.is-active .edith-row__rule,
-.edith-show[data-auto="true"] .edith-index:hover .edith-row.is-active .edith-row__rule {
+.edith-show[data-auto="true"][data-inview="false"] .edith-row.is-active .edith-row__rule {
   animation-play-state: paused;
 }
 @keyframes edith-progress {
@@ -587,5 +586,300 @@
   .edith-row__inner,
   .edith-row__rule {
     transition-duration: 0.01s;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+   Shipped by members: a lineup image (three plinths, three skeleton cards) with the three steps beneath it. */
+.edith-lineup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.edith-lineup__h2 {
+  font-family: "Funnel Display", sans-serif;
+  font-weight: 300;
+  font-size: 4rem;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.edith-lineup__lit {
+  font-family: "Host Grotesk", sans-serif;
+  font-size: 2rem;
+  line-height: 1.25;
+  max-width: 56rem;
+  margin: 2.2rem 0 0;
+  color: rgb(var(--edith-cream));
+}
+.edith-lineup__stage {
+  position: relative;
+  /* on a phone the crop bleeds to the screen edge, so the neighbouring card is cut by the screen, not the padding */
+  width: calc(100% + 4rem);
+  aspect-ratio: 1 / 1;
+  margin: 3rem -2rem 0;
+}
+.edith-lineup__stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--pan, 50%) 50%;
+  transition: object-position 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.edith-lineup__stage .edith-stage__glow {
+  opacity: 0;
+}
+.edith-lineup__stage .edith-stage__glow.is-on {
+  opacity: 1;
+}
+
+.edith-steps {
+  list-style: none;
+  margin: 3rem 0 0;
+  padding: 0;
+  width: 100%;
+  text-align: left;
+  border-top: 1px solid rgb(255 255 255 / 0.14);
+}
+.edith-step {
+  position: relative;
+  border-bottom: 1px solid rgb(255 255 255 / 0.14);
+}
+.edith-step__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  padding: 2.4rem 0 2.6rem;
+  text-align: left;
+  cursor: pointer;
+  color: rgb(var(--edith-cream) / 0.5);
+  transition: color 0.45s ease;
+}
+.edith-step__btn:focus-visible {
+  outline: 2px solid #ffbc09;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+.edith-step.is-active .edith-step__btn {
+  color: rgb(var(--edith-cream) / 0.72);
+}
+.edith-step__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: "Roboto Mono", monospace;
+  font-size: 1.2rem;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.edith-step__tag::before {
+  content: "";
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: var(--hub);
+  opacity: 0.55;
+  transition: opacity 0.45s ease, box-shadow 0.45s ease, transform 0.45s ease;
+}
+.edith-step.is-active .edith-step__tag::before {
+  opacity: 1;
+  transform: scale(1.25);
+  box-shadow: 0 0 1.6rem 0.2rem var(--hub);
+}
+.edith-step__title {
+  font-family: "Funnel Display", sans-serif;
+  font-weight: 300;
+  font-size: 3.2rem;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: rgb(var(--edith-cream) / 0.55);
+  transition: color 0.45s ease;
+}
+.edith-step.is-active .edith-step__title {
+  color: rgb(var(--edith-cream));
+}
+.edith-step__text {
+  font-family: "Host Grotesk", sans-serif;
+  font-size: 1.8rem;
+  line-height: 1.35;
+  max-width: 40rem;
+}
+.edith-step.is-active .edith-row__rule {
+  transform: scaleX(1);
+}
+.edith-lineup[data-auto="true"] .edith-step.is-active .edith-row__rule {
+  transform: scaleX(0);
+  animation: edith-progress var(--edith-auto, 5200ms) linear forwards;
+}
+.edith-lineup[data-auto="true"][data-inview="false"] .edith-step.is-active .edith-row__rule {
+  animation-play-state: paused;
+}
+/* Pause on hover for a mouse only: on touch a tap leaves :hover stuck and would stop autoplay for good. */
+@media (hover: hover) and (pointer: fine) {
+  .edith-show[data-auto="true"] .edith-index:hover .edith-row.is-active .edith-row__rule,
+  .edith-lineup[data-auto="true"] .edith-steps:hover .edith-step.is-active .edith-row__rule {
+    animation-play-state: paused;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .edith-step:not(.is-active) .edith-step__btn:hover .edith-step__title {
+    color: rgb(var(--edith-cream) / 0.85);
+  }
+}
+
+@media (min-width: 650px) {
+  .edith-lineup__h2 {
+    font-size: 5.6rem;
+  }
+  .edith-lineup__lit {
+    font-size: 2.6rem;
+    max-width: 64rem;
+    margin-top: 2.6rem;
+  }
+  .edith-lineup__stage {
+    width: 100%;
+    max-width: 122rem;
+    aspect-ratio: 2000 / 900;
+    margin: 4rem 0 0;
+  }
+  .edith-lineup__stage img {
+    object-fit: contain;
+    object-position: 50% 50%;
+  }
+  .edith-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 5rem;
+    margin-top: 2rem;
+    max-width: 122rem;
+    border-top: 0;
+  }
+  .edith-step {
+    border-bottom: 0;
+    border-top: 1px solid rgb(255 255 255 / 0.14);
+  }
+  .edith-step__title {
+    font-size: 3.6rem;
+  }
+  .edith-step__text {
+    font-size: 2rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edith-lineup[data-auto="true"] .edith-step.is-active .edith-row__rule {
+    animation: none;
+    transform: scaleX(1);
+  }
+  .edith-lineup__stage img {
+    transition-duration: 0.01s;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------------------------
+   Build under the edith name: a left-aligned statement over one wide panel of the footer marble. */
+.edith-path {
+  position: relative;
+  border-top: 1px solid rgb(255 255 255 / 0.14);
+  border-bottom: 1px solid rgb(255 255 255 / 0.14);
+}
+.edith-path::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.78) 0%, rgb(0 0 0 / 0.5) 48%, rgb(0 0 0 / 0.08) 100%);
+  pointer-events: none;
+}
+.edith-path__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 6.5rem;
+  padding-bottom: 6.5rem;
+}
+.edith-path__h2 {
+  font-family: "Funnel Display", sans-serif;
+  font-weight: 300;
+  font-size: 4.2rem;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  margin: 2.4rem 0 0;
+  max-width: 62rem;
+}
+.edith-path__stand {
+  font-family: "Host Grotesk", sans-serif;
+  font-size: 2.1rem;
+  line-height: 1.25;
+  color: rgb(var(--edith-cream));
+  max-width: 58rem;
+  margin: 2.4rem 0 0;
+}
+.edith-path__body {
+  font-size: 1.8rem;
+  max-width: 62rem;
+  margin-top: 2.6rem;
+}
+.edith-path__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.6rem 3rem;
+  margin-top: 3.6rem;
+}
+/* An Apple-style text link: the site's gold, a chevron that leans in on hover. */
+.edith-more {
+  font-family: "Host Grotesk", sans-serif;
+  font-size: 1.8rem;
+  color: #ffbc09;
+  text-decoration: none;
+}
+.edith-more::after {
+  content: "\203A";
+  display: inline-block;
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
+.edith-more:focus-visible {
+  outline: 2px solid #ffbc09;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .edith-more:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+  .edith-more:hover::after {
+    transform: translateX(0.4rem);
+  }
+}
+@media (min-width: 650px) {
+  .edith-path__inner {
+    min-height: 56rem;
+    justify-content: center;
+    padding-top: 10rem;
+    padding-bottom: 10rem;
+  }
+  .edith-path__h2 {
+    font-size: 6.4rem;
+  }
+  .edith-path__stand {
+    font-size: 2.8rem;
+  }
+  .edith-path__body {
+    font-size: 2.2rem;
+    margin-top: 3.2rem;
+  }
+  .edith-more {
+    font-size: 2rem;
   }
 }

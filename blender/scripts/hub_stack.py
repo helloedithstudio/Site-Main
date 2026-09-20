@@ -224,6 +224,7 @@ def make_glow(name, colour):
     setp(p, "Base Color", (0.015, 0.015, 0.02, 1.0))
     setp(p, "Metallic", 0.0)      # matte, so the top light cannot wash a lit glyph out to white
     setp(p, "Roughness", 0.5)
+    setp(p, "Specular IOR Level", 0.0)   # no white sheen on a lit glyph, so gold stays gold
     setp(p, "Emission Color", (*colour, 1.0))
     setp(p, "Emission Strength", 0.0)
     m["glow_node"] = p.name

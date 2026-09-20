@@ -1,72 +1,100 @@
 "use client";
 
-// "Shipped by members": drag carousel of what the community has shipped. There are no projects
-// yet, so it shows honest first-ones-land-here cards that point to the Discord.
+// "Shipped by members", shown as a product lineup: three plinths, each with a floating project card that is still a
+// skeleton, because nothing has shipped yet and the page says so. The cards rise left to right (ship it, show it,
+// launch it), the middle one is the largest, and the step you pick lights its card. Rendered in Blender (see
+// blender/scripts/ship_lineup.py). Nothing is invented: the cards are placeholders, the captions are the old card copy.
 
-import { useRef } from "react";
 import { home } from "@/lib/content";
 import { brand } from "@/lib/brand";
-import DragCarousel, { type DragCarouselHandle } from "../ui/DragCarousel";
-import ShowCard from "../ui/ShowCard";
+import { theme } from "@/lib/theme";
+import { useLitCycle } from "@/lib/runtime/useLitCycle";
 import Button from "../ui/Button";
-import { ArrowGlyph } from "../ui/Arrow";
-import { Columns } from "./Safety";
 
 const item = home.showOff;
 
-export default function ShowOff() {
-  const carousel = useRef<DragCarouselHandle>(null);
+// gold, red-pink, magenta: the marble ramp, one per card
+const colours = [theme.hoverStops[0], theme.hoverStops[3], theme.hoverStops[4]];
+// where the phone crop looks: the left card, the middle one, the right one
+const pans = ["0%", "50%", "100%"];
+const AUTO_MS = 5200;
 
-  const arrowButton =
-    "group relative flex items-center justify-center min-w-45 max-w-45 h-35 rounded-[4.5rem] bg-brown-dark border border-brown text-gold type-caption";
+export default function ShowOff() {
+  const { root, active, auto, inView, pick, next } = useLitCycle(item.cards.length);
 
   return (
     <section
       id="show-off"
       data-quick-link="Show off"
+      ref={root}
       className="bg-brown-darker relative border-t border-brown-dark overflow-hidden z-3"
     >
-      <div className="relative pt-65 s:pt-180 pb-65 s:pb-90 s:border-b s:border-brown-dark">
-        <Columns />
-        <div className="relative site-max flex flex-col items-center z-2">
-          <h2 className="type-h2 text-center" dangerouslySetInnerHTML={{ __html: item.title }} />
-          <h3
-            className="type-body-lg text-white mt-20 text-center s:max-w-[50rem]"
-            dangerouslySetInnerHTML={{ __html: item.subtitle }}
+      <div
+        className="edith-lineup relative site-max pt-65 s:pt-180 pb-65 s:pb-180 px-20 s:px-0"
+        data-auto={auto}
+        data-inview={inView}
+        style={{ "--edith-auto": `${AUTO_MS}ms` } as React.CSSProperties}
+      >
+        <h2 className="edith-lineup__h2" dangerouslySetInnerHTML={{ __html: item.title }} />
+        <p className="edith-lineup__lit" dangerouslySetInnerHTML={{ __html: item.subtitle }} />
+
+        <div
+          className="edith-lineup__stage"
+          style={{ "--pan": pans[active] } as React.CSSProperties}
+          role="img"
+          aria-label={`Three plinths, each with a project card that has not shipped yet: ${item.cards[active].title} is lit.`}
+        >
+          {/* eslint-disable @next/next/no-img-element */}
+          <img
+            src="/images/hubs/lineup-base-2x.webp"
+            srcSet="/images/hubs/lineup-base-1x.webp 800w, /images/hubs/lineup-base-2x.webp 1600w"
+            sizes="(min-width: 650px) 1100px, 100vw"
+            alt=""
+            width={1600}
+            height={720}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
           />
+          {item.cards.map((card, i) => (
+            <img
+              key={card.id}
+              className={`edith-stage__glow${i === active ? " is-on" : ""}`}
+              src={`/images/hubs/lineup-glow-${i}-2x.webp`}
+              srcSet={`/images/hubs/lineup-glow-${i}-1x.webp 800w, /images/hubs/lineup-glow-${i}-2x.webp 1600w`}
+              sizes="(min-width: 650px) 1100px, 100vw"
+              alt=""
+              width={1600}
+              height={720}
+              loading="lazy"
+              decoding="async"
+              draggable={false}
+            />
+          ))}
+          {/* eslint-enable @next/next/no-img-element */}
         </div>
-      </div>
-      <div className="relative">
-        <Columns />
-        <div className="relative flex flex-col items-center s:pt-80 pb-65 s:pb-180 z-2">
-          <DragCarousel ref={carousel} className="relative w-full min-w-0">
-            <div className="relative site-max">
-              <div className="s:overflow-hidden s:p-20">
-                <div className="flex mx-20 s:mx-0 js-slides">
-                  {item.cards.map((card) => (
-                    <article
-                      key={card.id}
-                      className="relative flex min-w-full max-w-full mr-20 s:mr-20 s:min-w-[calc((100%-4rem)/3)] s:max-w-[calc((100%-4rem)/3)] sm:mr-85 sm:min-w-[calc((100%-17rem)/3)] sm:max-w-[calc((100%-17rem)/3)] js-slide"
-                    >
-                      <ShowCard card={card} />
-                    </article>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </DragCarousel>
-          <div className="pt-30 flex items-center justify-center gap-30 s:hidden">
-            <button type="button" aria-label="Previous" className={arrowButton} onClick={() => carousel.current?.previous()}>
-              <ArrowGlyph className="w-auto h-15 rotate-90" />
-            </button>
-            <button type="button" aria-label="Next" className={arrowButton} onClick={() => carousel.current?.next()}>
-              <ArrowGlyph className="w-auto h-15 -rotate-90" />
-            </button>
-          </div>
-          <Button to={brand.discord} className="mt-55">
-            {brand.cta}
-          </Button>
-        </div>
+
+        <ol className="edith-steps">
+          {item.cards.map((card, i) => (
+            <li
+              key={card.id}
+              className={`edith-step${i === active ? " is-active" : ""}`}
+              style={{ "--hub": colours[i] } as React.CSSProperties}
+              onAnimationEnd={i === active && auto ? next : undefined}
+            >
+              <div className="edith-rule edith-row__rule" aria-hidden="true" />
+              <button type="button" className="edith-step__btn" aria-pressed={i === active} onClick={() => pick(i)}>
+                <span className="edith-step__tag">{card.tag}</span>
+                <span className="edith-step__title">{card.title}</span>
+                <span className="edith-step__text" dangerouslySetInnerHTML={{ __html: card.text }} />
+              </button>
+            </li>
+          ))}
+        </ol>
+
+        <Button to={brand.discord} className="mt-55">
+          {brand.cta}
+        </Button>
       </div>
     </section>
   );

@@ -3,11 +3,12 @@
 // "Six hubs, one server", shown the way Apple shows a product: one lit hero image and a list of six hubs. The image
 // is a stack of six glossy layers (rendered in Blender, see docs/edith-3d-brief-v2.md and blender/scripts/hub_stack.py)
 // and the hub you pick lights its layer. Without a choice the hubs play in turn, the live row's hairline drawing
-// left to right as the timer (under reduced motion the CSS drops the animation, so nothing advances on its own). Rows are buttons, so this works on touch and keyboard as well as by hover.
+// left to right as the timer (see useLitCycle). Rows are buttons, so it works on touch and keyboard as well as by hover.
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, type KeyboardEvent } from "react";
 import { home } from "@/lib/content";
 import { theme } from "@/lib/theme";
+import { useLitCycle } from "@/lib/runtime/useLitCycle";
 import Button from "../ui/Button";
 
 const { texts, cards } = home.hubs;
@@ -33,30 +34,11 @@ const colours = cards.map((_, i) => rampColour(i / (cards.length - 1)));
 const lit = `<strong>${texts.subtitle}</strong> ${texts.text.replace(/^<p>|<\/p>$/g, "")}`;
 
 export default function Hubs() {
-  const [active, setActive] = useState(0);
-  const [auto, setAuto] = useState(true);
-  const [inView, setInView] = useState(false);
-  const root = useRef<HTMLElement>(null);
+  const { root, active, auto, inView, pick, next } = useLitCycle(cards.length);
   const hoverTimer = useRef<number | undefined>(undefined);
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
 
-  useEffect(() => {
-    const el = root.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.35 });
-    io.observe(el);
-    return () => {
-      io.disconnect();
-      window.clearTimeout(hoverTimer.current);
-    };
-  }, []);
-
-  const pick = useCallback((i: number) => {
-    setAuto(false);
-    setActive(i);
-  }, []);
-
-  const next = useCallback(() => setActive((a) => (a + 1) % cards.length), []);
+  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
 
   const onKey = (e: KeyboardEvent) => {
     const dir = e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1 : 0;
