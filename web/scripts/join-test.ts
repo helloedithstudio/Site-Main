@@ -406,7 +406,9 @@ function fakeDiscord() {
     seed();
     fake.add(young, 1);
     const strict = cfgOf({ JOIN_MIN_DISCORD_DAYS: "7" });
-    assert.match((await handleCallback(strict, { code: "code-" + young, state }, { now: NOW.getTime() })).redirect, /status=account-young&days=7/);
+    const turned = (await handleCallback(strict, { code: "code-" + young, state }, { now: NOW.getTime() })).redirect;
+    assert.match(turned, /status=account-young&days=7/);
+    assert.equal(Number(new URL(turned).searchParams.get("until")), discordCreatedMs(young) + 7 * 86_400_000, "the page is told the exact time the account becomes old enough");
     assert.doesNotMatch((await handleCallback(cfg, { code: "code-" + young, state }, { now: NOW.getTime() })).redirect, /account-young/);
     assert.doesNotMatch((await handleCallback(strict, { code: "code-a-new", state }, { now: NOW.getTime() })).redirect, /account-young/, "an id that is not a real snowflake is not judged");
   });
@@ -439,10 +441,15 @@ function fakeDiscord() {
   });
   await t("github: an account younger than the minimum is turned away", async () => {
     seed();
-    gh("502", "fresh", { created_at: new Date(NOW.getTime() - 5 * 86_400_000).toISOString() });
+    const made = NOW.getTime() - 5 * 86_400_000;
+    gh("502", "fresh", { created_at: new Date(made).toISOString() });
     const strict = cfgOf({ JOIN_MIN_GITHUB_DAYS: "30" });
     const r = await handleGithubCallback(strict, { code: "gh-502", state: await linkOf("a-new", strict) }, { now: NOW.getTime(), store: newStore() });
     assert.match(r.redirect, /status=github-young&days=30/);
+    assert.equal(Number(new URL(r.redirect).searchParams.get("until")), made + 30 * 86_400_000);
+    const viaPublic = cfgOf({ JOIN_MIN_GITHUB_DAYS: undefined, NEXT_PUBLIC_JOIN_MIN_GITHUB_DAYS: "30", NEXT_PUBLIC_JOIN_MIN_DISCORD_DAYS: "7" });
+    assert.deepEqual([viaPublic.minGithubDays, viaPublic.minDiscordDays], [30, 7], "the public settings drive the server too");
+    assert.equal(cfgOf({ JOIN_MIN_GITHUB_DAYS: "10", NEXT_PUBLIC_JOIN_MIN_GITHUB_DAYS: "30" }).minGithubDays, 10, "a server only value wins");
   });
   await t("github: one entry per person is checked at sign in, before the form is filled", async () => {
     seed();

@@ -42,7 +42,8 @@ export async function handleCallback(cfg: JoinConfig, params: { code?: string | 
     const member = await d.getMember(user.id);
     if (!member) return to(cfg, "not-member");
     if (member.roles.includes(cfg.roleCatalyst)) return to(cfg, "done");
-    if (cfg.minDiscordDays && ageDays(discordCreatedMs(user.id), now) < cfg.minDiscordDays) return to(cfg, "account-young", `&days=${cfg.minDiscordDays}`);
+    const dcMade = discordCreatedMs(user.id);
+    if (cfg.minDiscordDays && ageDays(dcMade, now) < cfg.minDiscordDays) return to(cfg, "account-young", `&days=${cfg.minDiscordDays}&until=${dcMade + cfg.minDiscordDays * 86_400_000}`);
 
     if (cfg.requireGithub) {
       // Hand over to GitHub. Only the ids travel in the state (which GitHub sees), not the name.
@@ -75,7 +76,8 @@ export async function handleGithubCallback(cfg: JoinConfig, params: { code?: str
     const gh = await githubUser(cfg, access);
     await githubRevoke(cfg, access);
     if (gh.type !== "User") return to(cfg, "github-type");
-    if (cfg.minGithubDays && ageDays(Date.parse(gh.createdAt), now) < cfg.minGithubDays) return to(cfg, "github-young", `&days=${cfg.minGithubDays}`);
+    const ghMade = Date.parse(gh.createdAt);
+    if (cfg.minGithubDays && ageDays(ghMade, now) < cfg.minGithubDays) return to(cfg, "github-young", `&days=${cfg.minGithubDays}&until=${ghMade + cfg.minGithubDays * 86_400_000}`);
 
     const verdict = await store.check(link.u, gh.id);
     if (verdict !== "ok") return to(cfg, conflictStatus[verdict]);

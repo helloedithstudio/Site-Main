@@ -8,13 +8,13 @@ that suits you, and tell me when something is done or when you have decided. Eve
 This file lives in a public repository, so it must never contain a password, token or secret. Put secrets only in Vercel and
 GitHub settings.
 
-**Last updated:** 21 September 2026 (evening)
+**Last updated:** 21 September 2026 (night)
 
 Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, not for me.
 
 ## Start here (the three that unlock the most)
 
-1. **Decide B1 and B2** below (5 minutes). They change how the join system behaves before it goes live.
+1. ~~Decide B1 and B2~~ **Done (21 Sep):** GitHub required, and minimum account ages on (Discord 7 days, GitHub 30 days).
 2. **Set up the join flow, A1 to A7** (about 60 to 90 minutes, once). Steps are in `docs/onboarding-setup.md`; this list is the short version.
 3. **Build the share image in Affinity (C1)** (about 40 minutes). It is what every pasted link shows.
 
@@ -29,7 +29,7 @@ troubleshooting: `docs/onboarding-setup.md`. You need two spare Discord accounts
 - [ ] **A2. Discord application and bot (15 min).** developer portal: new application "edith", copy the Application ID and Client Secret, add redirect `https://edith-plum.vercel.app/api/join/callback`, create the bot and copy its token, switch on **Server Members Intent**, invite the bot (Manage Roles, Kick Members, View Channels, Send Messages, Embed Links), and drag the bot's role **above** Catalyst and Pending.
 - [ ] **A3. GitHub OAuth app (5 min).** GitHub, Developer settings, OAuth Apps, new app "edith" (ideally under the edith organisation), callback `https://edith-plum.vercel.app/api/join/github/callback`. Copy the Client ID and a new Client Secret. Change nothing else.
 - [ ] **A4. Database (5 min).** Vercel project, Storage, add **Upstash for Redis** (free plan), connect it to the project.
-- [ ] **A5. Vercel settings (10 min).** Add every variable listed in `web/.env.example`. Generate three random strings for `JOIN_SIGNING_SECRET`, `CRON_SECRET`, `JOIN_ID_SECRET`. **Save a copy of `JOIN_ID_SECRET` somewhere private and never change it** once people have joined. Leave `ONBOARDING_DRY_RUN=true`, `ONBOARDING_START` empty, `NEXT_PUBLIC_JOIN_LIVE=false`. Redeploy.
+- [ ] **A5. Vercel settings (10 min).** Add every variable listed in `web/.env.example`, including `NEXT_PUBLIC_JOIN_MIN_DISCORD_DAYS=7` and `NEXT_PUBLIC_JOIN_MIN_GITHUB_DAYS=30` (already decided). Generate three random strings for `JOIN_SIGNING_SECRET`, `CRON_SECRET`, `JOIN_ID_SECRET`. **Save a copy of `JOIN_ID_SECRET` somewhere private and never change it** once people have joined. Leave `ONBOARDING_DRY_RUN=true`, `ONBOARDING_START` empty, `NEXT_PUBLIC_JOIN_LIVE=false`. Redeploy.
 - [ ] **A6. GitHub repository secrets (3 min).** `SWEEP_URL` = `https://edith-plum.vercel.app/api/join/sweep` and `CRON_SECRET` (same value as on Vercel).
 - [ ] **A7. Test (20 min).** Dry run with curl; then the two account test, the one entry test and the removal test from the guide (step 8). If anything errors, paste me the message and I will fix it.
 - [ ] **A8. Go live.** Set `ONBOARDING_START` to the moment you choose, `ONBOARDING_DRY_RUN=false`, `NEXT_PUBLIC_JOIN_LIVE=true`, redeploy, and paste the welcome text (guide step 1.5) into your Discord rules. Do this only after A7 passes and after B1, B2 and E1 are settled.
@@ -38,8 +38,8 @@ troubleshooting: `docs/onboarding-setup.md`. You need two spare Discord accounts
 
 Tell me your choice in one line each. My recommendation is first.
 
-- [ ] **B1. Must every new member have a GitHub account?** *Recommendation: yes for now (it is the verification), and let Core give the Catalyst role by hand to designers or hardware people who have no GitHub: the system never touches anyone who already has that role.* The alternative is `JOIN_REQUIRE_GITHUB=false`, which drops the ownership check and lets one person use several Discord accounts.
-- [ ] **B2. Minimum account ages?** *Recommendation: none at first (both off).* A Discord account under 7 days or a GitHub account under 30 days can be turned away automatically, but a real student may have a brand new GitHub account. You can switch it on later if fake accounts appear.
+- [x] **B1. Must every new member have a GitHub account?** **Decided 21 Sep: yes.** Core gives the Catalyst role by hand to designers or hardware people who have no GitHub; the system never touches anyone who already has that role. (The alternative, `JOIN_REQUIRE_GITHUB=false`, would drop the ownership check and let one person use several Discord accounts.)
+- [x] **B2. Minimum account ages?** **Decided 21 Sep: on, Discord 7 days and GitHub 30 days** (you said to have both; the numbers are my choice, change them any time in one setting). A person under the limit sees the exact date they become eligible, and the 24 hours still run, so a genuine newcomer is removed and can rejoin later, or Core can grant the role by hand as an exception.
 - [ ] **B3. Colour direction.** You said you would tell me. It decides the rainbow chrome look of the Membership and Decisions objects, the brown Safety seal and the brown side-rail text. *Recommendation: cream text with gold as the one accent, dark glass objects like the Hubs stack, magenta and orange only inside glows.*
 - [ ] **B4. The section before the footer** (Beliefs, currently the same layer stack as Hubs). You said you have plans. What should it show?
 - [ ] **B5. Command palette (Cmd+K).** Add it or not? It is the strongest developer signal, but a feature rather than a tweak.
@@ -75,6 +75,7 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 ## F. Community operations (Discord)
 
 - [ ] **F1. Name the Core members** (the mediators) and tell me who should be listed publicly, if anyone.
+- [ ] **F6. Exceptions.** Agree who handles them, and what counts: a genuine person with a very new account (age rule) or with no GitHub account. The fix is always the same: a Core member gives them the Catalyst role by hand.
 - [ ] **F2. Moderators.** Who they are, who can kick, and who answers appeals (the rules say a Core member does).
 - [ ] **F3. The `apply-here` process.** Confirm the steps (30 days around, two endorsements, Core approval) are what you will actually run.
 - [ ] **F4. Demo Day.** Pick the first date, or tell me it is still open.
@@ -84,7 +85,8 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 
 - [ ] **G1.** After the join flow is live for a week, run the dry run and read `missed` to see if anyone slipped through.
 - [ ] **G2.** GitHub pauses scheduled jobs after 60 days without repository activity. If the join job stops, push any small change or run it once by hand from the Actions tab.
-- [ ] **G3.** If you turn on account age minimums (B2) or change the number of hours, tell me so I can update the site text.
+- [ ] **G3.** If you change the number of hours, tell me so I can update the site text. (The account age numbers update the site text by themselves.)
+- [ ] **G4.** A few weeks after going live, check whether the 30 day GitHub rule is turning away genuine students (ask Core how many exceptions they granted). If it is, lower it.
 
 ---
 
@@ -104,6 +106,7 @@ Nothing else is queued on my side.
 
 ## Log of what is done (newest first)
 
+- 21 Sep 2026: Decided B1 (GitHub required) and B2 (minimum ages 7 and 30 days). Built the age rule: the too-new page shows the exact eligible date and how to ask for an exception, and the public rules state the same numbers automatically. 33 browser checks pass with it on.
 - 21 Sep 2026: Catalyst join flow built: Discord then GitHub sign-in, private form, 24 hour deadline, automatic removal, one person one entry, reserved names, optional account ages, release command. Tested against fakes (39 unit and 29 browser checks). Deployed switched off.
 - 21 Sep 2026: Core defined as the mediators (FAQ, roles, home, Legion page). FAQ line about the booked meeting corrected.
 - 21 Sep 2026: Apple product site study (36 pages) and the changes from it: type ladder, motion tokens, 28 px panels; Beliefs rebuilt as a Blender sequence; share image on every page; JetBrains Mono; hover wipes with the marble gradient; copy links on Docs headings.

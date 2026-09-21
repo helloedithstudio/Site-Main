@@ -3,7 +3,14 @@
 // no dashes. The legal text is a DRAFT written for edith and has not been reviewed by a lawyer.
 
 import { brand } from "./brand";
-import { JOIN_HOURS, JOIN_LIVE } from "./join/constants";
+import { JOIN_HOURS, JOIN_LIVE, MIN_DISCORD_DAYS, MIN_GITHUB_DAYS } from "./join/constants";
+
+/** The account age rule, stated in words, only when one is set. */
+const ageParts = [
+  MIN_DISCORD_DAYS ? `your Discord account must be at least ${MIN_DISCORD_DAYS} days old` : "",
+  MIN_GITHUB_DAYS ? `your GitHub account must be at least ${MIN_GITHUB_DAYS} days old` : "",
+].filter(Boolean);
+const ageRule = ageParts.length ? `To keep fake accounts out, ${ageParts.join(" and ")}. If you are a real person with a newer account, ask a Core member for an exception.` : "";
 
 export type Clause = { title: string; body: string[] };
 
@@ -180,6 +187,7 @@ export const rules: LegalDoc = {
             body: [
               "Each person has one Catalyst entry. Your GitHub account and your Discord account are linked to it, and neither can be used for another entry. Do not make extra accounts to get around this, and do not use a name that passes you off as edith, its staff or a Maintainer.",
               "If you have lost an account and need to start again, ask a Core member.",
+              ...(ageRule ? [ageRule] : []),
             ],
           },
         ]

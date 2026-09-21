@@ -99,8 +99,9 @@ export function joinConfig(env: Record<string, string | undefined> = process.env
       githubClientSecret: env.GITHUB_CLIENT_SECRET?.trim() || undefined,
       githubOauthBase: (env.GITHUB_OAUTH_BASE?.trim() || "https://github.com").replace(/\/$/, ""),
       githubApiBase: (env.GITHUB_API_BASE?.trim() || "https://api.github.com").replace(/\/$/, ""),
-      minDiscordDays: days(env.JOIN_MIN_DISCORD_DAYS),
-      minGithubDays: days(env.JOIN_MIN_GITHUB_DAYS),
+      // JOIN_MIN_* (server only) wins if set; otherwise the NEXT_PUBLIC_JOIN_MIN_* values that the public pages also state.
+      minDiscordDays: days(env.JOIN_MIN_DISCORD_DAYS ?? env.NEXT_PUBLIC_JOIN_MIN_DISCORD_DAYS),
+      minGithubDays: days(env.JOIN_MIN_GITHUB_DAYS ?? env.NEXT_PUBLIC_JOIN_MIN_GITHUB_DAYS),
       storeUrl: storeUrl.replace(/\/$/, ""),
       storeToken,
       startAt: start && !Number.isNaN(start.getTime()) ? start : null,

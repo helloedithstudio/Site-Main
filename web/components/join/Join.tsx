@@ -38,15 +38,22 @@ const left = (ms: number) => {
   return h > 0 ? `${h}h ${String(m).padStart(2, "0")}m left` : `${m}m left`;
 };
 
-const MESSAGES: Record<Status, { title: string; text: string; action: "discord" | "start" | "none" }> = {
+type Note = { days?: number; until?: number };
+const dateOf = (ms?: number) => (ms ? new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "");
+/** The "too new" pages say exactly when the account becomes old enough, and what happens to the 24 hours meanwhile. */
+const tooNew = (what: string) => (n: Note) =>
+  `To keep the community free of fake accounts, a ${what} account must be at least ${n.days ?? "a few"} days old. ${n.until ? `Yours will be old enough on ${dateOf(n.until)}. ` : ""}` +
+  `If the ${JOIN_HOURS} hours run out before then, you are removed from the server automatically, and you are welcome to join again once the account is old enough. If you are a real person who needs an exception, ask a Core member in the Discord.`;
+
+const MESSAGES: Record<Status, { title: string; text: string | ((n: Note) => string); action: "discord" | "start" | "none" }> = {
   unavailable: { title: "The form is not switched on yet", text: "New members will get a message on Discord with a link here as soon as it is. Nothing is needed from you right now.", action: "discord" },
   "not-member": { title: "Join the Discord first", text: "We could not find you in the server. Join with the link below, then come back here to complete your form.", action: "discord" },
   done: { title: "You are already a Catalyst", text: "Your form is complete. Nothing more to do here.", action: "discord" },
   expired: { title: "That sign-in has expired", text: "Start again and it will take a moment.", action: "start" },
   cancelled: { title: "Sign-in cancelled", text: "You need to sign in with Discord so we know which member you are. We only read your username.", action: "start" },
   error: { title: "Something went wrong", text: "Discord or GitHub did not answer as expected. Please try again in a minute.", action: "start" },
-  "account-young": { title: "Your Discord account is too new", text: "To keep the community free of fake accounts, a Discord account needs to be a little older before it can finish joining. Please come back later; you have not lost your place in the server yet, but the 24 hours keep running.", action: "none" },
-  "github-young": { title: "Your GitHub account is too new", text: "To keep the community free of fake accounts, a GitHub account needs to be a little older before it can be used here. Please come back later, or ask a Core member in the Discord.", action: "none" },
+  "account-young": { title: "Your Discord account is too new", text: tooNew("Discord"), action: "none" },
+  "github-young": { title: "Your GitHub account is too new", text: tooNew("GitHub"), action: "none" },
   "github-type": { title: "That is not a personal GitHub account", text: "It looks like an organisation or a bot. Sign in with your own personal GitHub account.", action: "start" },
   "github-taken": { title: "That GitHub account is already used", text: "It is linked to another member, and each person has one entry. If that was you on another Discord account, ask a Core member for help. If someone else is using your GitHub account, please tell us.", action: "none" },
   "discord-linked": { title: "This Discord account is linked to another GitHub account", text: "Sign in with the GitHub account you used before, or ask a Core member in the Discord for help.", action: "start" },
@@ -60,11 +67,16 @@ export default function Join() {
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [banner, setBanner] = useState("");
+  const [note, setNote] = useState<Note>({});
   const [form, setForm] = useState({ name: "", github: "", interests: [] as string[], portfolio: "", about: "", rulesAck: false, listPublicly: false, website: "" });
 
   useEffect(() => {
     const t = new URLSearchParams(window.location.hash.slice(1)).get("t");
-    const status = new URLSearchParams(window.location.search).get("status") as Status | null;
+    const query = new URLSearchParams(window.location.search);
+    const status = query.get("status") as Status | null;
+    const days = Number(query.get("days"));
+    const until = Number(query.get("until"));
+    if (days > 0 || until > 0) setNote({ days: days > 0 ? days : undefined, until: until > 0 ? until : undefined });
     if (t) {
       const c = decode(t);
       if (c && c.e > Date.now()) {
@@ -167,7 +179,7 @@ export default function Join() {
         {info ? (
           <div className="join-card">
             <h2 className="type-h3">{info.title}</h2>
-            <p className="type-body-md text-white">{info.text}</p>
+            <p className="type-body-md text-white">{typeof info.text === "function" ? info.text(note) : info.text}</p>
             {info.action === "start" ? (
               <a className="join-btn" href="/api/join/start">
                 Start again

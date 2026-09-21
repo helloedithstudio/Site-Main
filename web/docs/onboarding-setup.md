@@ -20,7 +20,7 @@ Discord roles, plus one small database that only remembers one-way codes of who 
 start time you set, bots, the server owner, anyone with an exempt role, or anyone who already has the Catalyst role. It refuses to
 remove more than 10 people in one run, and only removes people it invited at least half the window (12 hours) before.
 
-It has been tested against fakes of Discord, GitHub and the database (39 unit checks, `npx tsx scripts/join-test.ts`, and 29 browser
+It has been tested against fakes of Discord, GitHub and the database (39 unit checks, `npx tsx scripts/join-test.ts`, and 33 browser
 checks). It has **not** been tried against the real services yet: do the dry run and the two-account test in step 8 before you rely on it.
 
 ## 1. In Discord (your server)
@@ -37,7 +37,8 @@ checks). It has **not** been tried against the real services yet: do the dry run
 4. Copy the ID of each role and channel, and of the server (right click the server icon).
 5. In your rules or welcome screen, say plainly what will happen. Suggested text:
    > Within 24 hours of joining you will get a message with a short Catalyst form. You sign in with Discord and GitHub to confirm
-   > both accounts are yours, then fill it in. Each person has one entry. If the form is not completed in time you are removed from
+   > both accounts are yours, then fill it in. Each person has one entry, and very new accounts (Discord under 7 days old, GitHub
+   > under 30) are turned away; ask a Core member if you are genuine. If the form is not completed in time you are removed from
    > the server automatically, and you are welcome to join again.
 6. Optional extra layer: Server Settings, Safety Setup, Verification Level. "Medium" (registered on Discord for more than five
    minutes) blocks the newest throwaway accounts before they reach the site at all.
@@ -86,11 +87,15 @@ Project Settings, Environment Variables. The full list, with comments, is in `we
   **Never change `JOIN_ID_SECRET` after people have joined**: it would make the database forget everyone and allow duplicate entries.
   Keep a copy of it somewhere safe.
 - Leave `ONBOARDING_DRY_RUN` as `true`, `ONBOARDING_START` empty and `NEXT_PUBLIC_JOIN_LIVE` as `false` for now.
-- Optional rules (default off): `JOIN_MIN_DISCORD_DAYS` and `JOIN_MIN_GITHUB_DAYS` turn away accounts newer than that many days.
-  Leave them off unless fake accounts become a problem: a real student may have a very new GitHub account.
+- **Account age rules (decided: on).** `NEXT_PUBLIC_JOIN_MIN_DISCORD_DAYS=7` and `NEXT_PUBLIC_JOIN_MIN_GITHUB_DAYS=30`. An account
+  younger than that is turned away with a page that says the exact date it becomes eligible; the public rules state the same
+  numbers. The 24 hours still run, so a genuine person with a very new account is removed and can rejoin once it is old enough, or
+  Core can give them the Catalyst role by hand as an exception. Change the numbers (or set them to 0 to switch a rule off) and
+  redeploy; the site text follows automatically.
 - `JOIN_REQUIRE_GITHUB=false` lets people without GitHub join (designers, hardware people). Then only their Discord identity is
   checked, one entry per Discord account is enforced by the Catalyst role, and nothing stops one person using two Discord accounts.
-  **Decide this before going live** (see `docs/kevin-todo.md`).
+  **Decided: leave it at the default (GitHub required).** People without GitHub, such as designers, are let in by a Core member
+  giving them the Catalyst role by hand.
 
 Redeploy after saving. Without the required settings the page shows "not switched on yet" and nothing else happens.
 
