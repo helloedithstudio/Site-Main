@@ -2,6 +2,7 @@
 // sanitising. Keep the style of the brief: plain words, British spelling, no dashes, no hype.
 
 import { brand } from "./brand";
+import { JOIN_HOURS, JOIN_LIVE } from "./join/constants";
 
 export type InternalLink = { id: string; type: string; title: string; slug?: string };
 export type LinkItem = { id?: string; label: string; internal?: InternalLink | null; external?: string };
@@ -207,8 +208,8 @@ export const home = {
     texts: {
       title: "Everyone starts as a Catalyst",
       subtitle: "Do good work and you can open a PR to become a Maintainer.",
-      text: `<p>Everyone who joins the server is a Catalyst, with full access to every public channel. Chat, ask, pitch, build and show off.</p>
-<p>Maintainers are the permanent members who keep edith running. It is earned, not bought: 30+ days around, helping people, shipping something and a public profile. Open a PR in ${ch("apply-here")}, get two endorsements and Core approval. Maintainers vote on RFCs, lead teams, and can take client work or launch a venture under the edith name.</p>
+      text: `<p>Everyone who joins the server is a Catalyst, with full access to every public channel. Chat, ask, pitch, build and show off.${JOIN_LIVE ? ` On joining you get a short form to complete within ${JOIN_HOURS} hours.` : ""}</p>
+<p>Maintainers are the permanent members who keep edith running. It is earned, not bought: 30+ days around, helping people, shipping something and a public profile. Open a PR in ${ch("apply-here")}, get two endorsements and approval from Core, the community's mediators. Maintainers vote on RFCs, lead teams, and can take client work or launch a venture under the edith name.</p>
 `,
       links: [discord()],
     },

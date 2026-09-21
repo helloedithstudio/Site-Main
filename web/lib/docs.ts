@@ -3,6 +3,7 @@
 // no dashes. The legal text is a DRAFT written for edith and has not been reviewed by a lawyer.
 
 import { brand } from "./brand";
+import { JOIN_HOURS, JOIN_LIVE } from "./join/constants";
 
 export type Clause = { title: string; body: string[] };
 
@@ -17,7 +18,7 @@ export type LegalDoc = {
 export const docsMeta = {
   title: "The edith docs",
   subtitle: "What members have shipped, where the conversation happens, and the rules and terms that keep it fair.",
-  updated: "20 September 2026",
+  updated: "21 September 2026",
   draftNotice:
     "The rules and legal documents below are a draft. They were written for edith and have not yet been reviewed by a lawyer. Until they are, read them as a statement of how edith intends to work, not as legal advice.",
 };
@@ -64,6 +65,14 @@ export const faq = {
       q: "Who is edith for?",
       a: "Developers, designers and technologists of any level: students, professionals, founders and freelancers. Web2, Web3, AI and everything else. It is stack-agnostic on purpose.",
     },
+    ...(JOIN_LIVE
+      ? [
+          {
+            q: "What happens when I join?",
+            a: `You get a message on Discord with a short Catalyst form. Complete it within ${JOIN_HOURS} hours of joining to stay in the community. If it is not completed in time, you are removed from the server automatically and can join again. The form is private; being shown on the Legion page is a separate, optional tick.`,
+          },
+        ]
+      : []),
     {
       q: "What is a Catalyst?",
       a: "Everyone who joins the server. Catalysts have full access to every public channel: chat, ask, pitch, build and show off.",
@@ -75,6 +84,10 @@ export const faq = {
     {
       q: "What can Maintainers do?",
       a: "Maintainers are the permanent members who keep edith running. They vote on RFCs, lead teams, and can take client work or launch a venture under the edith name.",
+    },
+    {
+      q: "What is Core?",
+      a: "Core is the mediators of the edith community. Core approves Maintainer applications, carries out the result of a vote, and takes the serious moderation cases and appeals.",
     },
     {
       q: "How are decisions made?",
@@ -94,7 +107,7 @@ export const faq = {
     },
     {
       q: "Can I hire someone through edith?",
-      a: "Maintainers can take client work under the edith name. The Maintainer who pitched to you is your main contact and the meeting you book is with them. The terms are in Working with edith below.",
+      a: "Maintainers can take client work under the edith name. You can book an intro call with edith, and the Maintainer who pitches to you or takes your project on is your main contact. The terms are in Working with edith below.",
     },
     {
       q: "What happens on Demo Day?",
@@ -153,6 +166,17 @@ export const rules: LegalDoc = {
         "Pitches go in `brainstorm`, teams in `find-a-team`, work in progress in `wip`, finished projects in `ship-it`, and proposals in `rfcs`. It keeps the server useful for everyone.",
       ],
     },
+    ...(JOIN_LIVE
+      ? [
+          {
+            title: "Finish your Catalyst form",
+            body: [
+              `When you join, you get a short Catalyst form by direct message, or a ping in the welcome channel if your messages are closed. Complete it within ${JOIN_HOURS} hours of joining to stay in the community. If it is not completed in time, you are removed from the server automatically. You can join again with the link on the site.`,
+              "The form is private: your answers go to the mediators (Core). Being shown on the public Legion page is a separate, optional tick.",
+            ],
+          },
+        ]
+      : []),
     {
       title: "If a rule is broken",
       body: [
@@ -185,7 +209,7 @@ export const terms: LegalDoc = {
     {
       title: "Roles",
       body: [
-        "Everyone who joins is a Catalyst. Maintainers are members who earned the role, and Core carries out community decisions. Roles do not make anyone an employee, partner or agent of edith or of each other.",
+        "Everyone who joins is a Catalyst. Maintainers are members who earned the role, and Core, the community's mediators, carries out community decisions. Roles do not make anyone an employee, partner or agent of edith or of each other.",
       ],
     },
     {
@@ -241,6 +265,7 @@ export const terms: LegalDoc = {
       title: "Leaving and removal",
       body: [
         "You can leave at any time. We can warn, mute, remove or ban you if you break the Community rules or these terms.",
+        ...(JOIN_LIVE ? [`If you do not complete the Catalyst form within ${JOIN_HOURS} hours of joining, you are removed from the server automatically. You can join again.`] : []),
       ],
     },
     {
@@ -270,7 +295,9 @@ export const privacy: LegalDoc = {
     {
       title: "This website",
       body: [
-        "The website does not use cookies, advertising or analytics tools, and it does not ask you to create an account or fill in a form. Our hosting provider may keep standard server logs, such as your IP address, the time and the page requested, to keep the site secure and running.",
+        JOIN_LIVE
+          ? "The website does not use cookies, advertising or analytics tools, and it does not ask you to create an account. Its only form is the Catalyst form for new members (see below). Our hosting provider may keep standard server logs, such as your IP address, the time and the page requested, to keep the site secure and running."
+          : "The website does not use cookies, advertising or analytics tools, and it does not ask you to create an account or fill in a form. Our hosting provider may keep standard server logs, such as your IP address, the time and the page requested, to keep the site secure and running.",
         "The fonts are served from this site itself, so no third party is involved in showing them. The profile pictures of Maintainers and Catalysts are loaded from GitHub, so your browser contacts GitHub's servers when you view them. The Discord button, the booking link and the profile links take you to other sites (Discord, Calendly, GitHub and personal portfolios), which have their own privacy policies.",
       ],
     },
@@ -281,6 +308,18 @@ export const privacy: LegalDoc = {
         `To change or remove a listing, tell ${brand.founder} in the Discord or write to ${brand.email}, and it will be taken down.`,
       ],
     },
+    ...(JOIN_LIVE
+      ? [
+          {
+            title: "The Catalyst form",
+            body: [
+              `When you join the Discord you are asked to complete a short form on this site within ${JOIN_HOURS} hours. You sign in with Discord, which gives us only your Discord user ID, username and display name, and we check that you are in the server. The form asks for the name to call you, your GitHub username, the areas you build in, an optional website, an optional one line about what you are building, and whether you agree to be shown on the public Legion page.`,
+              "We use it to welcome you as a Catalyst, to let the mediators (Core) know who is in the community, and, only if you tick the box, to show you on the Legion page. Your answers are posted in a private Discord channel that only the mediators can see. This website does not store them and sets no cookies for the form.",
+              `Discord and our hosting provider carry the sign-in and the messages. If you do not complete the form within ${JOIN_HOURS} hours, you are removed from the server automatically and can join again. To see, correct or delete your answers, or to be taken off the Legion page, write to ${brand.email} or message a Core member.`,
+            ],
+          },
+        ]
+      : []),
     {
       title: "The Discord community",
       body: [
@@ -316,6 +355,7 @@ export const privacy: LegalDoc = {
       title: "How long we keep it",
       body: [
         "Messages stay until you, a moderator or Discord deletes them. Details you send us are kept only as long as needed for the reason you sent them, or as the law requires.",
+        ...(JOIN_LIVE ? ["Your Catalyst form answers are kept while you are a member and deleted when you ask."] : []),
       ],
     },
     {

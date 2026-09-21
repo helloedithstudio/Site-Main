@@ -1,0 +1,38 @@
+name: Catalyst join sweep
+
+# Every ten minutes this asks the website to check new Discord members: message anyone who has not yet been sent their
+# Catalyst form, remind people whose 24 hours are nearly up, and remove those who did not finish in time.
+# The website decides everything (it defaults to a dry run that changes nothing). See web/docs/onboarding-setup.md.
+#
+# Needs two repository secrets: SWEEP_URL (for example https://edith-plum.vercel.app/api/join/sweep) and CRON_SECRET
+# (the same value as the CRON_SECRET setting on Vercel). Without them this job does nothing.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: join-sweep
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Skip when the secrets are not set
+        id: check
+        env:
+          SWEEP_URL: ${{ secrets.SWEEP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$SWEEP_URL" ] || [ -z "$CRON_SECRET" ]; then echo "run=false" >> "$GITHUB_OUTPUT"; echo "SWEEP_URL or CRON_SECRET is not set, skipping."; else echo "run=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Run the sweep
+        if: steps.check.outputs.run == 'true'
+        env:
+          SWEEP_URL: ${{ secrets.SWEEP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 60 -X POST -H "Authorization: Bearer $CRON_SECRET" "$SWEEP_URL" | tee sweep.json
+          echo

@@ -17,6 +17,7 @@ npm run build && npm start
 - `/legion` the Legion: one directory of Maintainers and Catalysts (Maintainers first) with search, filters by what people
   build, sort and show more, plus how to earn a Maintainer seat. Everyone is added in `lib/legion.ts` (opt-in, by GitHub
   username).
+- `/join` the Catalyst form for new members (not in the sitemap, not indexed). See "The Catalyst join flow" below.
 - `/docs` top projects, discussions, FAQ, community rules and the legal documents. Footer links such as `/docs#terms`
   deep-link to a section. `/handbook` and `/catalysts` are the old addresses and redirect (`next.config.ts`). **The rules and legal text are a draft that has not been
   reviewed by a lawyer** (the page says so); have a lawyer read them before launch.
@@ -56,10 +57,28 @@ The original stylesheet only contains the utility classes the original site used
 - Section links (`#membership` and so on) scroll through Lenis. For the pinned loop section they resolve to
   the top of its GSAP pin wrapper (`lib/runtime/scroll.ts`), so they always land on the first card. On other
   pages they become `/#section`.
-- The site is static; there is no backend and no `/api` route. It uses no cookies, storage or analytics, and
-  the privacy policy says so: update it before adding any.
+- The pages are static. The only server code is the Catalyst join flow (`app/api/join/*`, `lib/join/*`), which stores
+  nothing. The site uses no cookies, storage or analytics, and the privacy policy says so: update it before adding any.
 - Socials (Discord, Instagram, LinkedIn) live in `lib/brand.ts`. To add X, add its entry there and an icon in
   `components/ui/Social.tsx`.
+
+## The Catalyst join flow
+
+When someone joins the Discord from the site they get a message with a link to `/join`, sign in with Discord (username only),
+fill in a short form and get the Catalyst role; if they have not finished 24 hours after joining they are removed and can
+rejoin. There is no database and no server to run: a GitHub Actions job (`.github/workflows/join-sweep.yml`, every ten
+minutes) calls `/api/join/sweep`, which reads members from Discord, and Discord roles are the only state (Pending, and an
+optional Reminded). Answers are posted to a private Discord channel for Core (the mediators); being listed on the Legion page
+is a separate, optional tick and is added to `lib/legion.ts` by hand.
+
+- **Code:** `lib/join/plan.ts` (who is invited, reminded or removed: pure), `sweep.ts`, `flow.ts` (sign in and submit),
+  `discord.ts` (REST client), `form.ts` (validation), `token.ts` (signed, expiring tokens; no cookies), `config.ts`.
+- **Safe by default:** dry run until `ONBOARDING_DRY_RUN=false`; nothing happens until `ONBOARDING_START` is set; people who
+  joined before it, bots, the owner, exempt roles and Catalysts are never touched; at most 10 removals per run; only people
+  invited with at least half the window left are ever removed.
+- **What the public pages say** about the 24 hour form appears only when `NEXT_PUBLIC_JOIN_LIVE=true` (`lib/join/constants.ts`).
+- **Tests:** `npx tsx scripts/join-test.ts` runs 23 checks against a fake Discord. It has not been run against the real one.
+- **Setup steps and settings:** `docs/onboarding-setup.md` and `.env.example`.
 
 ## The backdrop
 
