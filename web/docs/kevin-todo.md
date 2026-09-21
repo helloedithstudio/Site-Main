@@ -8,14 +8,14 @@ that suits you, and tell me when something is done or when you have decided. Eve
 This file lives in a public repository, so it must never contain a password, token or secret. Put secrets only in Vercel and
 GitHub settings.
 
-**Last updated:** 21 September 2026 (night)
+**Last updated:** 21 September 2026 (late night)
 
 Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, not for me.
 
 ## Start here (the three that unlock the most)
 
 1. ~~Decide B1 and B2~~ **Done (21 Sep):** GitHub required, and minimum account ages on (Discord 7 days, GitHub 30 days).
-2. **Set up the join flow, A1 to A7** (about 60 to 90 minutes, once). Steps are in `docs/onboarding-setup.md`; this list is the short version.
+2. **Set up the join flow, A1 to A7** (about 60 to 90 minutes, once). Fastest route: paste Prompt 1 (then Prompt 2) from `docs/claude-code-setup-prompts.md` into your Claude Code terminal. Manual steps are in `docs/onboarding-setup.md`; this list is the short version.
 3. **Build the share image in Affinity (C1)** (about 40 minutes). It is what every pasted link shows.
 
 ---
@@ -24,6 +24,11 @@ Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, n
 
 Built, tested against fakes, deployed and switched off. It cannot be tried on the real services without you. Full steps and
 troubleshooting: `docs/onboarding-setup.md`. You need two spare Discord accounts and two spare GitHub accounts for the tests.
+
+**Shortcut:** `docs/claude-code-setup-prompts.md` has two ready-to-paste prompts for a Claude Code session that can use your browser.
+Prompt 1 does A1 and A2 (Discord server, application and bot). Prompt 2 (optional) does A3 to A6. Both stop before switching anything
+on, keep secrets in a folder outside the repository, and finish with a report you can paste to me. Tick the items below once the
+report looks right; the manual steps stay listed as the fallback.
 
 - [ ] **A1. Discord server (10 min).** Turn on Developer Mode. Create roles **Pending** (no permissions) and optionally **Form reminded**; make sure **Catalyst** exists. Create a **private channel** for the mediators (for example `#catalyst-forms`) and optionally a public `#welcome`. Copy every role id, channel id and the server id.
 - [ ] **A2. Discord application and bot (15 min).** developer portal: new application "edith", copy the Application ID and Client Secret, add redirect `https://edith-plum.vercel.app/api/join/callback`, create the bot and copy its token, switch on **Server Members Intent**, invite the bot (Manage Roles, Kick Members, View Channels, Send Messages, Embed Links), and drag the bot's role **above** Catalyst and Pending.
@@ -105,6 +110,8 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 Nothing else is queued on my side.
 
 ## Log of what is done (newest first)
+
+- 21 Sep 2026: Wrote two ready-to-paste Claude Code prompts for the Discord side (A1, A2) and the GitHub, database, Vercel and scheduler side (A3 to A6), in `docs/claude-code-setup-prompts.md`. Both keep everything switched off, keep secrets outside the repository, and end with a report.
 
 - 21 Sep 2026: Decided B1 (GitHub required) and B2 (minimum ages 7 and 30 days). Built the age rule: the too-new page shows the exact eligible date and how to ask for an exception, and the public rules state the same numbers automatically. 33 browser checks pass with it on.
 - 21 Sep 2026: Catalyst join flow built: Discord then GitHub sign-in, private form, 24 hour deadline, automatic removal, one person one entry, reserved names, optional account ages, release command. Tested against fakes (39 unit and 29 browser checks). Deployed switched off.
