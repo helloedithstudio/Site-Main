@@ -20,7 +20,21 @@ export type JoinConfig = {
   /** Roles that are never invited or removed (Maintainer, Core, moderators). */
   rolesExempt: string[];
   signingSecret: string;
+  /** Keys the one-way codes of Discord and GitHub ids in the entry store. Never rotate it: doing so forgets who has joined. */
+  idSecret: string;
   cronSecret: string;
+  /** GitHub sign-in proves the person owns the GitHub account they name. On by default. */
+  requireGithub: boolean;
+  githubClientId?: string;
+  githubClientSecret?: string;
+  githubOauthBase: string;
+  githubApiBase: string;
+  /** Optional minimum account ages in days (0 = no minimum). */
+  minDiscordDays: number;
+  minGithubDays: number;
+  /** Where one-person-one-entry is remembered (an Upstash Redis REST database). */
+  storeUrl: string;
+  storeToken: string;
   /** ISO time the system was switched on. Only people who joined after it are ever invited or removed. */
   startAt: Date | null;
   hours: number;
@@ -39,6 +53,7 @@ const REQUIRED = [
   "DISCORD_ROLE_PENDING",
   "DISCORD_CHANNEL_FORMS",
   "JOIN_SIGNING_SECRET",
+  "JOIN_ID_SECRET",
   "CRON_SECRET",
 ] as const;
 
@@ -52,7 +67,15 @@ export function joinConfig(env: Record<string, string | undefined> = process.env
   const missing: string[] = REQUIRED.filter((k) => !env[k]?.trim());
   if (env.JOIN_SIGNING_SECRET && env.JOIN_SIGNING_SECRET.length < 32) missing.push("JOIN_SIGNING_SECRET (at least 32 characters)");
   if (env.CRON_SECRET && env.CRON_SECRET.length < 24) missing.push("CRON_SECRET (at least 24 characters)");
+  if (env.JOIN_ID_SECRET && env.JOIN_ID_SECRET.length < 32) missing.push("JOIN_ID_SECRET (at least 32 characters)");
+  const storeUrl = (env.UPSTASH_REDIS_REST_URL || env.KV_REST_API_URL || "").trim();
+  const storeToken = (env.UPSTASH_REDIS_REST_TOKEN || env.KV_REST_API_TOKEN || "").trim();
+  if (!storeUrl) missing.push("UPSTASH_REDIS_REST_URL (or KV_REST_API_URL)");
+  if (!storeToken) missing.push("UPSTASH_REDIS_REST_TOKEN (or KV_REST_API_TOKEN)");
+  const requireGithub = env.JOIN_REQUIRE_GITHUB?.trim().toLowerCase() !== "false";
+  if (requireGithub) for (const k of ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"] as const) if (!env[k]?.trim()) missing.push(k);
   if (missing.length) return { ok: false, missing };
+  const days = (v: string | undefined) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Math.floor(Number(v)) : 0);
   const start = env.ONBOARDING_START ? new Date(env.ONBOARDING_START) : null;
   const hours = Number(env.ONBOARDING_HOURS ?? 24);
   return {
@@ -69,7 +92,17 @@ export function joinConfig(env: Record<string, string | undefined> = process.env
       roleReminded: env.DISCORD_ROLE_REMINDED?.trim() || undefined,
       rolesExempt: list(env.DISCORD_ROLES_EXEMPT),
       signingSecret: env.JOIN_SIGNING_SECRET!,
+      idSecret: env.JOIN_ID_SECRET!,
       cronSecret: env.CRON_SECRET!,
+      requireGithub,
+      githubClientId: env.GITHUB_CLIENT_ID?.trim() || undefined,
+      githubClientSecret: env.GITHUB_CLIENT_SECRET?.trim() || undefined,
+      githubOauthBase: (env.GITHUB_OAUTH_BASE?.trim() || "https://github.com").replace(/\/$/, ""),
+      githubApiBase: (env.GITHUB_API_BASE?.trim() || "https://api.github.com").replace(/\/$/, ""),
+      minDiscordDays: days(env.JOIN_MIN_DISCORD_DAYS),
+      minGithubDays: days(env.JOIN_MIN_GITHUB_DAYS),
+      storeUrl: storeUrl.replace(/\/$/, ""),
+      storeToken,
       startAt: start && !Number.isNaN(start.getTime()) ? start : null,
       hours: Number.isFinite(hours) && hours >= 2 ? hours : 24,
       dryRun: env.ONBOARDING_DRY_RUN?.trim().toLowerCase() !== "false",

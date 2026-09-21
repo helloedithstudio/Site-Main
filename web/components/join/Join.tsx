@@ -10,8 +10,8 @@ import { legionInterests } from "@/lib/legion";
 import { JOIN_HOURS } from "@/lib/join/constants";
 import Footer from "../Footer";
 
-type Claims = { u: string; n: string; d: string; j: string; e: number };
-type Status = "unavailable" | "not-member" | "done" | "expired" | "cancelled" | "error";
+type Claims = { u: string; n: string; d: string; j: string; e: number; gh?: { i: string; l: string; n: string; c: string } };
+type Status = "unavailable" | "not-member" | "done" | "expired" | "cancelled" | "error" | "account-young" | "github-young" | "github-type" | "github-taken" | "discord-linked";
 
 const HOUR = 3_600_000;
 
@@ -38,13 +38,18 @@ const left = (ms: number) => {
   return h > 0 ? `${h}h ${String(m).padStart(2, "0")}m left` : `${m}m left`;
 };
 
-const MESSAGES: Record<Status, { title: string; text: string; action: "discord" | "start" }> = {
+const MESSAGES: Record<Status, { title: string; text: string; action: "discord" | "start" | "none" }> = {
   unavailable: { title: "The form is not switched on yet", text: "New members will get a message on Discord with a link here as soon as it is. Nothing is needed from you right now.", action: "discord" },
   "not-member": { title: "Join the Discord first", text: "We could not find you in the server. Join with the link below, then come back here to complete your form.", action: "discord" },
   done: { title: "You are already a Catalyst", text: "Your form is complete. Nothing more to do here.", action: "discord" },
   expired: { title: "That sign-in has expired", text: "Start again and it will take a moment.", action: "start" },
   cancelled: { title: "Sign-in cancelled", text: "You need to sign in with Discord so we know which member you are. We only read your username.", action: "start" },
-  error: { title: "Something went wrong", text: "Discord did not answer as expected. Please try again in a minute.", action: "start" },
+  error: { title: "Something went wrong", text: "Discord or GitHub did not answer as expected. Please try again in a minute.", action: "start" },
+  "account-young": { title: "Your Discord account is too new", text: "To keep the community free of fake accounts, a Discord account needs to be a little older before it can finish joining. Please come back later; you have not lost your place in the server yet, but the 24 hours keep running.", action: "none" },
+  "github-young": { title: "Your GitHub account is too new", text: "To keep the community free of fake accounts, a GitHub account needs to be a little older before it can be used here. Please come back later, or ask a Core member in the Discord.", action: "none" },
+  "github-type": { title: "That is not a personal GitHub account", text: "It looks like an organisation or a bot. Sign in with your own personal GitHub account.", action: "start" },
+  "github-taken": { title: "That GitHub account is already used", text: "It is linked to another member, and each person has one entry. If that was you on another Discord account, ask a Core member for help. If someone else is using your GitHub account, please tell us.", action: "none" },
+  "discord-linked": { title: "This Discord account is linked to another GitHub account", text: "Sign in with the GitHub account you used before, or ask a Core member in the Discord for help.", action: "start" },
 };
 
 export default function Join() {
@@ -65,7 +70,7 @@ export default function Join() {
       if (c && c.e > Date.now()) {
         setToken(t);
         setClaims(c);
-        setForm((f) => ({ ...f, name: c.d || c.n }));
+        setForm((f) => ({ ...f, name: c.d || c.gh?.n || c.n }));
         setPhase("form");
         // The token is read once; take it out of the address bar and history.
         window.history.replaceState(null, "", "/join");
@@ -143,8 +148,8 @@ export default function Join() {
           <div className="join-card">
             <h2 className="type-h3">Sign in with Discord</h2>
             <p className="type-body-md text-white">
-              We use your Discord sign-in only to know which member you are (your username, nothing else). Then you fill in a short form. Your answers go
-              privately to the edith mediators, and nothing is stored on this website.
+              You sign in twice: with Discord, so we know which member you are, and with GitHub, to confirm the GitHub account is yours. We read only your
+              public profile from each, never your email or your code. Then you fill in a short form. Your answers go privately to the edith mediators.
             </p>
             <a className="join-btn" href="/api/join/start">
               Continue with Discord
@@ -165,13 +170,14 @@ export default function Join() {
             <p className="type-body-md text-white">{info.text}</p>
             {info.action === "start" ? (
               <a className="join-btn" href="/api/join/start">
-                Sign in with Discord
+                Start again
               </a>
-            ) : (
+            ) : null}
+            {info.action === "discord" ? (
               <a className="join-btn" href={brand.discord} target="_blank" rel="noopener noreferrer">
                 {brand.cta}
               </a>
-            )}
+            ) : null}
           </div>
         ) : null}
 
@@ -206,11 +212,21 @@ export default function Join() {
               {err("name")}
             </div>
 
-            <div className="join-field">
-              <label htmlFor="join-github">GitHub username</label>
-              <input id="join-github" value={form.github} maxLength={120} placeholder="octocat" autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(e) => set("github", e.target.value)} aria-invalid={!!errors.github} aria-describedby={errors.github ? "join-github-err" : undefined} />
-              {err("github")}
-            </div>
+            {claims.gh ? (
+              <div className="join-field">
+                <span className="join-label">GitHub account</span>
+                <p className="join-verified">
+                  <span>@{claims.gh.l}</span>
+                  <em>verified</em>
+                </p>
+              </div>
+            ) : (
+              <div className="join-field">
+                <label htmlFor="join-github">GitHub username</label>
+                <input id="join-github" value={form.github} maxLength={120} placeholder="octocat" autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(e) => set("github", e.target.value)} aria-invalid={!!errors.github} aria-describedby={errors.github ? "join-github-err" : undefined} />
+                {err("github")}
+              </div>
+            )}
 
             <fieldset className="join-field" id="join-interests" tabIndex={-1}>
               <legend>What do you build? Pick at least one.</legend>
@@ -274,7 +290,7 @@ export default function Join() {
               {busy ? "Saving" : "Complete my form"}
             </button>
             <p className="type-caption edith-muted">
-              Your answers go privately to the edith mediators (Core) in Discord. Nothing is stored on this website. See the{" "}
+              Your answers go privately to the edith mediators (Core) in Discord. This website keeps only a one-way code of your Discord and GitHub accounts, so nobody can join twice. See the{" "}
               <a className="join-link" href="/docs#privacy" target="_blank" rel="noopener noreferrer">
                 privacy policy
               </a>

@@ -94,6 +94,37 @@
 .join-field p {
   margin: 0;
 }
+.join-label {
+  font-family: "Roboto Mono", monospace;
+  font-size: max(1.2rem, 11px);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgb(var(--edith-cream) / 0.85);
+}
+/* The GitHub account they proved they own: shown, not editable. */
+.join-verified {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.4rem 1.8rem;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: var(--r-inner);
+  background: rgb(0 0 0 / 0.45);
+  font-family: "Host Grotesk", sans-serif;
+  font-size: max(1.6rem, 15px);
+  color: rgb(var(--edith-cream));
+}
+.join-verified em {
+  padding: 0.3rem 1rem;
+  border: 1px solid rgb(255 188 9 / 0.5);
+  border-radius: 999px;
+  font-family: "Roboto Mono", monospace;
+  font-size: max(1.1rem, 10px);
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffbc09;
+}
 .join-chips {
   display: flex;
   flex-wrap: wrap;

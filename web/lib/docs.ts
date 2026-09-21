@@ -69,7 +69,7 @@ export const faq = {
       ? [
           {
             q: "What happens when I join?",
-            a: `You get a message on Discord with a short Catalyst form. Complete it within ${JOIN_HOURS} hours of joining to stay in the community. If it is not completed in time, you are removed from the server automatically and can join again. The form is private; being shown on the Legion page is a separate, optional tick.`,
+            a: `You get a message on Discord with a link to a short Catalyst form. You sign in with Discord and with GitHub, so we know both accounts are really yours, then fill it in. Complete it within ${JOIN_HOURS} hours of joining to stay in the community. If it is not completed in time, you are removed from the server automatically and can join again. Each person has one entry. The form is private; being shown on the Legion page is a separate, optional tick.`,
           },
         ]
       : []),
@@ -173,6 +173,13 @@ export const rules: LegalDoc = {
             body: [
               `When you join, you get a short Catalyst form by direct message, or a ping in the welcome channel if your messages are closed. Complete it within ${JOIN_HOURS} hours of joining to stay in the community. If it is not completed in time, you are removed from the server automatically. You can join again with the link on the site.`,
               "The form is private: your answers go to the mediators (Core). Being shown on the public Legion page is a separate, optional tick.",
+            ],
+          },
+          {
+            title: "One person, one entry",
+            body: [
+              "Each person has one Catalyst entry. Your GitHub account and your Discord account are linked to it, and neither can be used for another entry. Do not make extra accounts to get around this, and do not use a name that passes you off as edith, its staff or a Maintainer.",
+              "If you have lost an account and need to start again, ask a Core member.",
             ],
           },
         ]
@@ -313,9 +320,9 @@ export const privacy: LegalDoc = {
           {
             title: "The Catalyst form",
             body: [
-              `When you join the Discord you are asked to complete a short form on this site within ${JOIN_HOURS} hours. You sign in with Discord, which gives us only your Discord user ID, username and display name, and we check that you are in the server. The form asks for the name to call you, your GitHub username, the areas you build in, an optional website, an optional one line about what you are building, and whether you agree to be shown on the public Legion page.`,
-              "We use it to welcome you as a Catalyst, to let the mediators (Core) know who is in the community, and, only if you tick the box, to show you on the Legion page. Your answers are posted in a private Discord channel that only the mediators can see. This website does not store them and sets no cookies for the form.",
-              `Discord and our hosting provider carry the sign-in and the messages. If you do not complete the form within ${JOIN_HOURS} hours, you are removed from the server automatically and can join again. To see, correct or delete your answers, or to be taken off the Legion page, write to ${brand.email} or message a Core member.`,
+              `When you join the Discord you are asked to complete a short form on this site within ${JOIN_HOURS} hours. You sign in with Discord, which gives us only your Discord user ID, username and display name, and we check that you are in the server. You then sign in with GitHub, to confirm the GitHub account is yours. We read only its public profile (its ID, username, display name and the date it was created), never your email, your code or anything private, and we cancel the GitHub sign-in straight afterwards. The form then asks for the name to call you, the areas you build in, an optional website, an optional one line about what you are building, and whether you agree to be shown on the public Legion page.`,
+              "We use it to welcome you as a Catalyst, to confirm you are a real person with one entry, to let the mediators (Core) know who is in the community, and, only if you tick the box, to show you on the Legion page. Your answers are posted in a private Discord channel that only the mediators can see, and are not kept on this website. To make sure each person has one entry, the website keeps a one-way code of your Discord ID and of your GitHub ID in a small database (not the IDs themselves, and no name or email), so one GitHub account cannot be used twice. The form sets no cookies.",
+              `Discord, GitHub, our hosting provider and our database provider (Upstash) carry the sign-ins, the messages and the one-way codes. If you do not complete the form within ${JOIN_HOURS} hours, you are removed from the server automatically and can join again. To see, correct or delete your answers or your one-way codes, or to be taken off the Legion page, write to ${brand.email} or message a Core member.`,
             ],
           },
         ]
@@ -355,7 +362,7 @@ export const privacy: LegalDoc = {
       title: "How long we keep it",
       body: [
         "Messages stay until you, a moderator or Discord deletes them. Details you send us are kept only as long as needed for the reason you sent them, or as the law requires.",
-        ...(JOIN_LIVE ? ["Your Catalyst form answers are kept while you are a member and deleted when you ask."] : []),
+        ...(JOIN_LIVE ? ["Your Catalyst form answers and your one-way codes are kept while you are a member, and deleted when you ask."] : []),
       ],
     },
     {

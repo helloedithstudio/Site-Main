@@ -41,7 +41,7 @@ npm run build && npm start
 | `styles/` | `site.css`, `scoped.css`, `chunks.css` come from the original compiled stylesheet (never edit `site.css` by hand, see Colours). `edith.css`, `docs.css` and `legion.css` hold edith's additions. |
 | `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, the Beliefs frame sequence, share images, self-hosted fonts |
 | `scripts/` | `make-logo.cjs`, `make-hub-images.cjs`, `make-beliefs-frames.cjs`, `retheme.cjs` |
-| `docs/` | Design notes: `apple-aesthetics.md` (the Apple product-site study behind the type ladder, motion and corner tokens), `affinity-brief.md` (three pieces to build in Affinity), `edith-3d-brief*.md` |
+| `docs/` | Design notes: `apple-aesthetics.md` (the Apple product-site study behind the type ladder, motion and corner tokens), `affinity-brief.md` (three pieces to build in Affinity), `onboarding-setup.md` (setting up the join flow), **`kevin-todo.md` (everything only Kevin can do; kept up to date every session)**, `edith-3d-brief*.md` |
 | `assets-in/` | Where finished Affinity pieces are dropped, named as in `docs/affinity-brief.md` |
 
 ## Working with the styles
@@ -64,20 +64,24 @@ The original stylesheet only contains the utility classes the original site used
 
 ## The Catalyst join flow
 
-When someone joins the Discord from the site they get a message with a link to `/join`, sign in with Discord (username only),
-fill in a short form and get the Catalyst role; if they have not finished 24 hours after joining they are removed and can
-rejoin. There is no database and no server to run: a GitHub Actions job (`.github/workflows/join-sweep.yml`, every ten
-minutes) calls `/api/join/sweep`, which reads members from Discord, and Discord roles are the only state (Pending, and an
-optional Reminded). Answers are posted to a private Discord channel for Core (the mediators); being listed on the Legion page
-is a separate, optional tick and is added to `lib/legion.ts` by hand.
+When someone joins the Discord from the site they get a message with a link to `/join`. They sign in with Discord (username only),
+then with GitHub (public profile only, no scope; this proves the GitHub account is theirs), fill in a short form and get the
+Catalyst role. One GitHub account is linked to one Discord account and the other way round (one person, one entry), names that
+pass someone off as edith or a Maintainer are refused, and optional minimum account ages can turn away brand new accounts. If
+they have not finished 24 hours after joining they are removed and can rejoin. There is no server to run: a GitHub Actions job
+(`.github/workflows/join-sweep.yml`, every ten minutes) calls `/api/join/sweep`. Discord roles hold the state (Pending, and an
+optional Reminded), and one small Upstash Redis database keeps only one-way codes of Discord and GitHub ids to enforce the single
+entry. Answers are posted to a private Discord channel for Core (the mediators); being listed on the Legion page is a separate,
+optional tick and is added to `lib/legion.ts` by hand.
 
 - **Code:** `lib/join/plan.ts` (who is invited, reminded or removed: pure), `sweep.ts`, `flow.ts` (sign in and submit),
-  `discord.ts` (REST client), `form.ts` (validation), `token.ts` (signed, expiring tokens; no cookies), `config.ts`.
+  `discord.ts` (REST client), `ghoauth.ts` (GitHub sign-in), `store.ts` (the one-entry database), `form.ts` (validation and reserved
+  names), `token.ts` (signed, expiring tokens; no cookies), `config.ts`. Routes: `app/api/join/{start,callback,github/callback,submit,sweep,release}`.
 - **Safe by default:** dry run until `ONBOARDING_DRY_RUN=false`; nothing happens until `ONBOARDING_START` is set; people who
   joined before it, bots, the owner, exempt roles and Catalysts are never touched; at most 10 removals per run; only people
   invited with at least half the window left are ever removed.
 - **What the public pages say** about the 24 hour form appears only when `NEXT_PUBLIC_JOIN_LIVE=true` (`lib/join/constants.ts`).
-- **Tests:** `npx tsx scripts/join-test.ts` runs 23 checks against a fake Discord. It has not been run against the real one.
+- **Tests:** `npx tsx scripts/join-test.ts` runs 39 checks against fakes of Discord, GitHub and the database. It has not been run against the real services.
 - **Setup steps and settings:** `docs/onboarding-setup.md` and `.env.example`.
 
 ## The backdrop

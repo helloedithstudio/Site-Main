@@ -3,7 +3,7 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-export type Purpose = "state" | "form";
+export type Purpose = "state" | "link" | "form";
 export type TokenPayload = {
   p: Purpose;
   /** Discord user id. Empty for "state". */
@@ -18,6 +18,8 @@ export type TokenPayload = {
   e: number;
   /** Random value, so two tokens are never identical. */
   r: string;
+  /** The GitHub account the person proved they own (id, username, name, created), once they have signed in with GitHub. */
+  gh?: { i: string; l: string; n: string; c: string };
 };
 
 const b64 = (b: Buffer | string) => Buffer.from(b).toString("base64url");
