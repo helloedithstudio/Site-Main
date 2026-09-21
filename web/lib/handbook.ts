@@ -31,13 +31,14 @@ export const maintainers = {
   intro:
     "edith is new, so the Maintainer roster is short on purpose. Maintainers are earned, not appointed in bulk. Right now there is one.",
   // Add a Maintainer with one line: their GitHub username. Their name, picture and portfolio link come from their
-  // GitHub profile when the site is built. `role`, `note`, `name` and `portfolio` here override what GitHub says.
+  // GitHub profile when the site is built. `role`, `note`, `name`, `discord` and `portfolio` here override what GitHub says.
   people: [
     {
       github: "Andrew-Kevin-007",
       name: brand.founder,
       portfolio: "https://kevinandrew.tech/",
-      role: "Founder",
+      discord: "beyond.aphelion_",
+      role: "Origin",
       note: "Approves every venture that runs under the edith name.",
     },
   ] as PersonEntry[],

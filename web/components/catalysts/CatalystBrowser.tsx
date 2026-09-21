@@ -10,14 +10,14 @@ import { catalystInterests, catalystsPage } from "@/lib/catalysts";
 import type { Person } from "@/lib/people";
 import Button from "../ui/Button";
 import Footer from "../Footer";
-import { PersonAvatar, PersonLinks } from "../ui/PersonBits";
+import { PersonAvatar, PersonHandle, PersonLinks } from "../ui/PersonBits";
 
 const PAGE = 24;
 const join: LinkItem = { id: "catalysts-join", label: brand.cta, internal: null, external: brand.discord };
 
 type Filter = "all" | "maintainers" | string;
 
-const isMaintainer = (p: Person) => p.role === "Founder" || p.role === "Maintainer";
+const isMaintainer = (p: Person) => p.role === "Origin" || p.role === "Maintainer";
 
 export default function CatalystBrowser({ people }: { people: Person[] }) {
   const [q, setQ] = useState("");
@@ -134,7 +134,7 @@ export default function CatalystBrowser({ people }: { people: Person[] }) {
                     {p.name}
                     {p.role ? <span className={`cat__role${isMaintainer(p) ? " is-maintainer" : ""}`}>{p.role}</span> : null}
                   </h2>
-                  <p className="cat__handle">@{p.login}</p>
+                  <PersonHandle person={p} className="cat__handle" />
                   {p.note ? <p className="cat__note">{p.note}</p> : null}
                   {p.interests?.length ? (
                     <p className="cat__tags">

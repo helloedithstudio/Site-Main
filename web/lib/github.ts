@@ -33,6 +33,12 @@ export function safeUrl(raw?: string | null): string | undefined {
   }
 }
 
+/** Discord usernames are 2 to 32 letters, digits, underscores or full stops. Anything else is dropped. */
+function safeDiscord(raw?: string): string | undefined {
+  const v = raw?.trim().replace(/^@/, "");
+  return v && /^[a-z0-9._]{2,32}$/i.test(v) ? v : undefined;
+}
+
 async function profile(login: string): Promise<Profile | null> {
   try {
     const headers: Record<string, string> = { Accept: "application/vnd.github+json", "User-Agent": "edith-site" };
@@ -89,6 +95,7 @@ export async function resolvePeople(entries: PersonEntry[]): Promise<Person[]> {
         avatar: p ? `${p.avatar_url}${p.avatar_url.includes("?") ? "&" : "?"}s=160` : `https://github.com/${login}.png?size=160`,
         github: p?.html_url ?? `https://github.com/${login}`,
         portfolio: safeUrl(e.portfolio) ?? safeUrl(p?.blog),
+        discord: safeDiscord(e.discord),
         role: e.role,
         note: e.note,
         interests: e.interests,

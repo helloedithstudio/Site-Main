@@ -21,7 +21,7 @@ import {
 import type { Person } from "@/lib/people";
 import Button from "../ui/Button";
 import Footer from "../Footer";
-import { PersonAvatar, PersonLinks } from "../ui/PersonBits";
+import { PersonAvatar, PersonHandle, PersonLinks } from "../ui/PersonBits";
 
 const join: LinkItem = { id: "handbook-join", label: brand.cta, internal: null, external: brand.discord };
 
@@ -62,7 +62,7 @@ function Maintainers({ people }: { people: Person[] }) {
             <PersonAvatar person={p} className="hb-avatar" />
             <h3 className="type-h3 mt-20">{p.name}</h3>
             {p.role ? <p className="type-caption uppercase text-gold mt-10">{p.role}</p> : null}
-            <p className="type-caption edith-muted mt-5">@{p.login}</p>
+            <PersonHandle person={p} className="type-caption edith-muted mt-5" />
             {p.note ? <p className="type-body-sm text-white mt-15">{p.note}</p> : null}
             <PersonLinks person={p} />
           </article>

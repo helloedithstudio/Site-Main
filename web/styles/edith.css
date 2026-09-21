@@ -1140,20 +1140,18 @@ body::-webkit-scrollbar,
   margin-top: 2rem;
 }
 .edith-plink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 1.3rem;
+  display: inline-grid;
+  place-items: center;
+  width: 4.4rem;
+  height: 4.4rem;
   border: 1px solid rgb(255 255 255 / 0.14);
-  border-radius: 999px;
-  font-family: "Roboto Mono", monospace;
-  font-size: max(1.15rem, 11px);
-  line-height: 1.4;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  border-radius: 50%;
   color: rgb(var(--edith-cream));
   text-decoration: none;
   transition: border-color 0.3s ease, color 0.3s ease;
+}
+.edith-plink svg {
+  display: block;
 }
 .edith-plink:focus-visible {
   outline: 2px solid #ffbc09;
@@ -1169,4 +1167,25 @@ body::-webkit-scrollbar,
 /* Small labels on the black pages: muted cream, readable at caption size (the old brown was too dark on black). */
 .edith-muted {
   color: rgb(var(--edith-cream) / 0.68);
+}
+
+/* The Discord username line under a role: a small Discord glyph, then the handle. */
+.edith-handle {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.edith-handle svg {
+  flex: none;
+}
+/* Text for screen readers only. */
+.edith-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
