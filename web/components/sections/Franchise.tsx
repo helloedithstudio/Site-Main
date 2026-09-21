@@ -26,6 +26,9 @@ export default function Franchise() {
                 {box.linkLabel}
               </SmartLink>
             ))}
+            <SmartLink item={item.booking} className="edith-more">
+              {item.booking.label}
+            </SmartLink>
           </div>
         </div>
       </div>

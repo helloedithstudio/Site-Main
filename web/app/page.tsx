@@ -14,7 +14,7 @@ import Beliefs from "@/components/sections/Beliefs";
 import Footer from "@/components/Footer";
 
 // The story runs: what edith is, where it happens, how an idea moves, how you level up, proof, the studio,
-// how decisions get made, trust, culture. Questions live in the handbook.
+// how decisions get made, trust, culture. Questions live in the docs.
 //
 // The wrapper spans the hero down to the end of the loop (the page is pitch black). The hero marble is
 // drawn by WebGL into the full-screen hero, then scroll-morphs toward [data-js="gl-hero-end"] (inside WhatIsEdith)

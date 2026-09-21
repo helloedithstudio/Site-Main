@@ -73,13 +73,12 @@ export const footer: {
         ],
       },
       {
-        id: "handbook",
-        title: "Handbook",
+        id: "docs",
+        title: "Docs",
         links: [
-          page("handbook#maintainers", "Maintainers"),
-          page("handbook#projects", "Top projects"),
-          page("handbook#discussions", "Discussions"),
-          page("handbook#faq", "FAQ"),
+          page("docs#projects", "Top projects"),
+          page("docs#discussions", "Discussions"),
+          page("docs#faq", "FAQ"),
         ],
       },
     ],
@@ -88,7 +87,7 @@ export const footer: {
         id: "community",
         title: "Community",
         links: [
-          page("catalysts", "Catalysts"),
+          page("legion", "The Legion"),
           external("footer-discord", "Discord", brand.discord),
           external("footer-instagram", "Instagram", brand.instagram),
           external("footer-linkedin", "LinkedIn", brand.linkedin),
@@ -97,7 +96,7 @@ export const footer: {
       {
         id: "involved",
         title: "Get involved",
-        links: [discord(), page("handbook#maintainers", "Become a Maintainer")],
+        links: [discord(), page("legion#maintainers", "Become a Maintainer")],
       },
     ],
     [
@@ -106,9 +105,9 @@ export const footer: {
         title: "Trust",
         links: [
           anchor("safety", "Safety"),
-          page("handbook#rules", "Community rules"),
-          page("handbook#terms", "Terms of use"),
-          page("handbook#privacy", "Privacy policy"),
+          page("docs#rules", "Community rules"),
+          page("docs#terms", "Terms of use"),
+          page("docs#privacy", "Privacy policy"),
         ],
       },
       {
@@ -126,12 +125,12 @@ export const footer: {
       {
         id: "clients",
         title: "For clients",
-        links: [page("handbook#clients", "Working with edith")],
+        links: [page("docs#clients", "Working with edith"), external("footer-booking", "Book a call", brand.booking)],
       },
       {
         id: "operators",
         title: "For Maintainers",
-        links: [page("handbook#operating", "Operating under edith")],
+        links: [page("docs#operating", "Operating under edith")],
       },
     ],
     [
@@ -147,10 +146,10 @@ export const footer: {
     ],
   ],
   legal: [
-    page("handbook#privacy", "Privacy policy"),
-    page("handbook#terms", "Terms of use"),
-    page("handbook#rules", "Community rules"),
-    page("handbook", "Handbook"),
+    page("docs#privacy", "Privacy policy"),
+    page("docs#terms", "Terms of use"),
+    page("docs#rules", "Community rules"),
+    page("docs", "Docs"),
   ],
 };
 
@@ -181,12 +180,10 @@ export const whatIs = {
   ],
 };
 
+// The navbar lists the site's separate pages only; the home page sections are reached by scrolling and the quick menu.
 export const nav: { label: string; href: string }[] = [
-  { label: "How it works", href: "#how-it-works" },
-  { label: "Membership", href: "#membership" },
-  { label: "Hubs", href: "#hubs" },
-  { label: "Catalysts", href: "/catalysts" },
-  { label: "Handbook", href: "/handbook" },
+  { label: "The Legion", href: "/legion" },
+  { label: "Docs", href: "/docs" },
 ];
 
 export const home = {
@@ -391,7 +388,7 @@ export const home = {
       {
         id: "freelance",
         title: "Freelance under edith",
-        text: "Maintainers can take on client work under the edith name, on the terms in the handbook, and share this site when they pitch.",
+        text: "Maintainers can take on client work under the edith name, on the terms in the docs, and share this site when they pitch.",
         link: anchor("membership", "How Maintainers work"),
         linkLabel: "How Maintainers work",
       },
@@ -403,5 +400,7 @@ export const home = {
         linkLabel: "Become a Maintainer",
       },
     ],
+    // For clients: a 30 minute intro call with edith (Calendly, opens in a new tab).
+    booking: external("studio-booking", "Book a 30 minute call", brand.booking),
   },
 };

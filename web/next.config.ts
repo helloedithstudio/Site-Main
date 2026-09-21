@@ -10,6 +10,13 @@ const nextConfig: NextConfig = {
   // development-only mount → unmount → mount cycle would dispose the WebGL context
   // on the same <canvas> and break the renderer, so it is turned off.
   reactStrictMode: false,
+  // The pages were renamed (handbook to docs, catalysts to legion); old links keep working.
+  async redirects() {
+    return [
+      { source: "/handbook", destination: "/docs", permanent: true },
+      { source: "/catalysts", destination: "/legion", permanent: true },
+    ];
+  },
   async headers() {
     return [
       { source: "/gl/:path*", headers: staticAssets },

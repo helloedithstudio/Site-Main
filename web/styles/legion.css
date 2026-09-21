@@ -1,4 +1,4 @@
-/* The Catalyst directory (/catalysts). It shares the handbook's shell (.hb-main, .hb-bg, .hb-hero): pitch black, 14% white
+/* The Legion page (/legion). It shares the docs page shell (.hb-main, .hb-bg, .hb-hero): pitch black, 14% white
    hairlines, mono labels. The list is a ruled column, not a wall of cards. */
 
 .cat {
@@ -228,4 +228,12 @@
   .cat__name {
     font-size: 3.6rem;
   }
+}
+
+/* Earn a Maintainer seat: the open seats sit under the directory, before the opt-in note. */
+.cat__seats {
+  margin-top: 9rem;
+}
+.cat__seats .hb-cards {
+  margin-top: 3.4rem;
 }

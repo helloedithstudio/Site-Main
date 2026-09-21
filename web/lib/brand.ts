@@ -13,7 +13,9 @@ export const brand = {
     process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
     (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000"),
   discord: "https://discord.gg/TmVeNgzw4K",
-  // Used on the handbook page and in the legal text. Taken from the previous edith studio repo; confirm before launch.
+  // Book a call with edith (Calendly). Opens in a new tab; nothing is embedded, so no third party loads until it is clicked.
+  booking: "https://calendly.com/hello-edithstudio/30min",
+  // Used on the docs page and in the legal text. Taken from the previous edith studio repo; confirm before launch.
   instagram: "https://www.instagram.com/edith_.studio/",
   linkedin: "https://www.linkedin.com/in/edith-studio/",
   email: "hello.edithstudio@gmail.com",

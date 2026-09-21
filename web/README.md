@@ -13,11 +13,12 @@ npm run build && npm start
 ## Pages
 
 - `/` the story: hero, Why builders stick around, Hubs, How an idea becomes a launch, Membership, Show off,
-  Studio, Decisions, Safety, Beliefs, footer. The FAQ lives only in the handbook.
-- `/catalysts` the Catalyst directory: search, filter by what people build, sort, show more. Maintainers are listed
-  automatically; everyone else is added in `lib/catalysts.ts` (opt-in, by GitHub username).
-- `/handbook` maintainers, top projects, discussions, FAQ, community rules and the legal documents. Footer links
-  such as `/handbook#terms` deep-link to a section. **The rules and legal text are a draft that has not been
+  Studio, Decisions, Safety, Beliefs, footer. The FAQ lives only in the docs. The navbar lists separate pages only (`nav` in `lib/content.ts`).
+- `/legion` the Legion: one directory of Maintainers and Catalysts (Maintainers first) with search, filters by what people
+  build, sort and show more, plus how to earn a Maintainer seat. Everyone is added in `lib/legion.ts` (opt-in, by GitHub
+  username).
+- `/docs` top projects, discussions, FAQ, community rules and the legal documents. Footer links such as `/docs#terms`
+  deep-link to a section. `/handbook` and `/catalysts` are the old addresses and redirect (`next.config.ts`). **The rules and legal text are a draft that has not been
   reviewed by a lawyer** (the page says so); have a lawyer read them before launch.
 
 ## Where things live
@@ -26,16 +27,17 @@ npm run build && npm start
 | --- | --- |
 | `lib/brand.ts` | Brand name, title, description, Discord invite, socials, founder, contact email, location. **Change links and contact details here.** |
 | `lib/content.ts` | Home page copy, header and footer menus |
-| `lib/people.ts`, `lib/github.ts` | A person is just a GitHub username: name, picture and portfolio are read from the public GitHub API at build time (daily revalidation, optional `GITHUB_TOKEN` for a long list) and shown with quick links. Add Maintainers in `lib/handbook.ts`, Catalysts in `lib/catalysts.ts`. |
-| `lib/handbook.ts` | Handbook content: maintainers, projects, discussions, FAQ, rules, terms, privacy, customer terms, Maintainer licence |
-| `app/` | Root layout (fonts, metadata, structured data), `page.tsx` (home), `handbook/page.tsx` |
+| `lib/people.ts`, `lib/github.ts` | A person is just a GitHub username: name, picture and portfolio are read from the public GitHub API at build time (daily revalidation, optional `GITHUB_TOKEN` for a long list) and shown with quick links. Add Maintainers and Catalysts in `lib/legion.ts`. |
+| `lib/docs.ts` | Docs content: projects, discussions, FAQ, rules, terms, privacy, customer terms, Maintainer licence |
+| `lib/legion.ts` | The people: Maintainers and Catalysts (by GitHub username) and the Legion page copy |
+| `app/` | Root layout (fonts, metadata, structured data), `page.tsx` (home), `docs/page.tsx`, `legion/page.tsx` |
 | `components/sections/` | Home sections: `Hero`, `WhatIsEdith`, `Hubs`, `Loop`, `Membership`, `ShowOff`, `Franchise`, `Decisions`, `Safety`, `Beliefs` |
-| `components/handbook/`, `components/catalysts/` | The handbook page and the Catalyst directory |
+| `components/docs/`, `components/legion/` | The docs page and the Legion directory |
 | `components/` | Site chrome: `SiteShell`, `Header`, `MobileMenu`, `QuickMenu`, `GlCanvas`, `Footer` (Apple style: small print, five columns of link groups from `footer.columns` in `lib/content.ts`, legal row; accordions on phones) |
 | `components/ui/` | Shared pieces: gradient-hover `Button`, `Pager`, `DragCarousel`, `Seal`, `ShowCard`, ... |
 | `lib/runtime/` | Lenis scroll, resize, device, event bus, GSAP eases and effects, UI flag store |
 | `lib/gl/` | The WebGL engine (three r180): asset loader, DOM trackers, hero marble, carousel boxes, spinning models, shaders |
-| `styles/` | `site.css`, `scoped.css`, `chunks.css` come from the original compiled stylesheet (never edit `site.css` by hand, see Colours). `edith.css`, `handbook.css` and `catalysts.css` hold edith's additions. |
+| `styles/` | `site.css`, `scoped.css`, `chunks.css` come from the original compiled stylesheet (never edit `site.css` by hand, see Colours). `edith.css`, `docs.css` and `legion.css` hold edith's additions. |
 | `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, WebP flower frames, self-hosted fonts |
 | `scripts/` | `make-logo.cjs`, `make-hub-images.cjs`, `retheme.cjs` |
 
@@ -43,7 +45,7 @@ npm run build && npm start
 
 The original stylesheet only contains the utility classes the original site used. A class that is not in
 `site.css` (for example `mt-auto`) silently does nothing, so new rules go in `styles/edith.css` (home) or
-`styles/handbook.css` (handbook) or `styles/catalysts.css` (directory).
+`styles/docs.css` (docs) or `styles/legion.css` (Legion).
 
 ## Notes
 
@@ -60,7 +62,7 @@ The original stylesheet only contains the utility classes the original site used
 ## The backdrop
 
 The page is pitch black (`#000`). There is no backdrop image or plane: the WebGL layer draws only the hero marble, the
-carousel boxes and the spinning Membership and Decisions objects, and the handbook uses a plain black fixed layer. The
+carousel boxes and the spinning Membership and Decisions objects, and the docs page uses a plain black fixed layer. The
 WebGL clear colour, the loader, the menu and the Safety section are black too, so nothing shows a slightly lighter edge
 against the canvas (`setClearColor(0x000000)` in `lib/gl/core.ts`).
 
@@ -169,6 +171,6 @@ The header, loading screen and footer all read those files.
 ## Next
 
 - Final logo (see above).
-- A lawyer's review of the handbook's rules and legal documents, and the legal entity details for the terms.
+- A lawyer's review of the docs page's rules and legal documents, and the legal entity details for the terms.
 - Work section and Maintainer booking (Calendly).
 - X (Twitter) link once the page exists.

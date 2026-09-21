@@ -1,4 +1,4 @@
-// People shown on the site (Maintainers on the handbook, everyone on /catalysts). An entry only needs a GitHub username:
+// People shown on the site (Maintainers and Catalysts together on /legion). An entry only needs a GitHub username:
 // the name, picture and portfolio link are read from that GitHub profile when the site is built (see lib/github.ts), and
 // any field written here wins over what GitHub says.
 

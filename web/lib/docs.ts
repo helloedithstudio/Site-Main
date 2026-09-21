@@ -1,9 +1,8 @@
-// Content of the handbook page (/handbook): the club (maintainers, projects, discussions, FAQ) and the
-// rules and legal documents. Plain strings only; `backticks` mark a Discord channel name. British spelling,
+// Content of the docs page (/docs): projects, discussions, the FAQ and the rules and legal documents. The people
+// (Maintainers and Catalysts) live in lib/legion.ts. Plain strings only; `backticks` mark a Discord channel name. British spelling,
 // no dashes. The legal text is a DRAFT written for edith and has not been reviewed by a lawyer.
 
 import { brand } from "./brand";
-import type { PersonEntry } from "./people";
 
 export type Clause = { title: string; body: string[] };
 
@@ -15,39 +14,12 @@ export type LegalDoc = {
   clauses: Clause[];
 };
 
-export const handbookMeta = {
-  title: "The edith handbook",
-  subtitle: "Who runs edith, what members have shipped, how to get involved, and the rules and terms that keep it fair.",
+export const docsMeta = {
+  title: "The edith docs",
+  subtitle: "What members have shipped, where the conversation happens, and the rules and terms that keep it fair.",
   updated: "20 September 2026",
   draftNotice:
     "The rules and legal documents below are a draft. They were written for edith and have not yet been reviewed by a lawyer. Until they are, read them as a statement of how edith intends to work, not as legal advice.",
-};
-
-export const maintainers = {
-  id: "maintainers",
-  label: "Maintainers",
-  status: "Currently brewing",
-  title: "Who keeps edith running",
-  intro:
-    "edith is new, so the Maintainer roster is short on purpose. Maintainers are earned, not appointed in bulk. Right now there is one.",
-  // Add a Maintainer with one line: their GitHub username. Their name, picture and portfolio link come from their
-  // GitHub profile when the site is built. `role`, `note`, `name`, `discord` and `portfolio` here override what GitHub says.
-  people: [
-    {
-      github: "Andrew-Kevin-007",
-      name: brand.founder,
-      portfolio: "https://kevinandrew.tech/",
-      discord: "beyond.aphelion_",
-      role: "Origin",
-      note: "Approves every venture that runs under the edith name.",
-    },
-  ] as PersonEntry[],
-  openSeat: {
-    title: "Open seat",
-    text: "Could be you. Help people, ship something, then open a PR in `apply-here`.",
-  },
-  openSeats: 3,
-  path: "Becoming a Maintainer takes 30+ days around, helping people, shipping something and a public profile. Open a PR in `apply-here`, get two endorsements and Core approval. You hear back in about a week.",
 };
 
 export const projects = {
@@ -244,7 +216,7 @@ export const terms: LegalDoc = {
     {
       title: "Other services",
       body: [
-        "edith relies on other services such as Discord and GitHub, and links to other sites. They have their own terms and privacy practices, and edith is not responsible for them.",
+        "edith relies on other services such as Discord, GitHub and Calendly (used to book calls), and links to other sites. They have their own terms and privacy practices, and edith is not responsible for them.",
       ],
     },
     {
@@ -299,13 +271,13 @@ export const privacy: LegalDoc = {
       title: "This website",
       body: [
         "The website does not use cookies, advertising or analytics tools, and it does not ask you to create an account or fill in a form. Our hosting provider may keep standard server logs, such as your IP address, the time and the page requested, to keep the site secure and running.",
-        "The fonts are served from this site itself, so no third party is involved in showing them. The profile pictures of Maintainers and Catalysts are loaded from GitHub, so your browser contacts GitHub's servers when you view them. The Discord button and the profile links take you to other sites (Discord, GitHub and personal portfolios), which have their own privacy policies.",
+        "The fonts are served from this site itself, so no third party is involved in showing them. The profile pictures of Maintainers and Catalysts are loaded from GitHub, so your browser contacts GitHub's servers when you view them. The Discord button, the booking link and the profile links take you to other sites (Discord, Calendly, GitHub and personal portfolios), which have their own privacy policies.",
       ],
     },
     {
       title: "People listed on this site",
       body: [
-        "The Maintainers section and the Catalysts page show the name, username, picture and website link from a person's public GitHub profile, and only for people who asked to be listed. GitHub is the source of that information, so changing it on GitHub changes it here within a day.",
+        "The Legion page shows the name, username, picture and website link from a person's public GitHub profile (and a Discord username if they gave one), and only for people who asked to be listed. GitHub is the source of that information, so changing it on GitHub changes it here within a day.",
         `To change or remove a listing, tell ${brand.founder} in the Discord or write to ${brand.email}, and it will be taken down.`,
       ],
     },
@@ -389,7 +361,7 @@ export const clients: LegalDoc = {
     {
       title: "Who you work with",
       body: [
-        "The Maintainer who pitched to you leads your project and is your main contact. The meeting you book through this site is with that Maintainer, who may bring in others to help. The founder oversees work done under the edith name and may join where needed.",
+        "An introductory call booked through this site is with edith. The Maintainer who pitched to you, or who takes your project on, leads it and is your main contact, and may bring in others to help. The founder oversees work done under the edith name and may join where needed.",
       ],
     },
     {
@@ -515,8 +487,8 @@ export const operating: LegalDoc = {
 
 export const legalDocs: LegalDoc[] = [rules, terms, privacy, clients, operating];
 
-/** Sticky navigation: club sections first, then rules and legal documents. */
-export const handbookNav = [
-  { group: "The club", items: [maintainers, projects, discussions, faq].map((s) => ({ id: s.id, label: s.label })) },
+/** Sticky navigation: community sections first, then rules and legal documents. */
+export const docsNav = [
+  { group: "Community", items: [projects, discussions, faq].map((s) => ({ id: s.id, label: s.label })) },
   { group: "Rules and legal", items: legalDocs.map((d) => ({ id: d.id, label: d.label })) },
 ];
