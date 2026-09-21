@@ -63,6 +63,7 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 - [ ] **D2. Check Instagram and LinkedIn.** The links in the site (`edith_.studio`, `edith-studio`) came from the old repository. Confirm they are yours and current.
 - [ ] **D3. Check the Calendly page** (`calendly.com/hello-edithstudio/30min`): hours, the meeting title, and a reminder email that sounds like edith.
 - [ ] **D4. Check `hello.edithstudio@gmail.com`** is monitored: the privacy policy, terms and footer send people there.
+- [ ] **D6. Connect `D:\page_content` to GitHub (2 minutes, optional).** VS Code's Source Control panel is now at zero changes and matches GitHub, but the folder has no link to it, so Sync and Push in that panel have nowhere to go. In the VS Code terminal (Ctrl+backtick) run `git remote add origin https://github.com/helloedithstudio/Site-Main.git` and then `git branch --set-upstream-to=origin/main main`. Until then, please do not press Commit in that panel: leave commits to me (I push through a separate copy and then bring this folder back in step). My safety layer blocked me from changing the remote myself, so this one is yours.
 - [ ] **D5. Custom domain, if you ever add one.** Then change three things together: `NEXT_PUBLIC_SITE_URL`, the Discord redirect and the GitHub callback. Tell me and I will check the rest.
 
 ## E. Legal and business
