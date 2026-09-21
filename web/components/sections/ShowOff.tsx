@@ -20,14 +20,14 @@ const pans = ["0%", "50%", "100%"];
 const AUTO_MS = 5200;
 
 export default function ShowOff() {
-  const { root, active, auto, inView, pick, next } = useLitCycle(item.cards.length);
+  const { root, active, auto, setAuto, inView, pick, next } = useLitCycle(item.cards.length);
 
   return (
     <section
       id="show-off"
       data-quick-link="Show off"
       ref={root}
-      className="bg-brown-darker relative border-t border-brown-dark overflow-hidden z-3"
+      className="bg-black relative border-t border-brown-dark overflow-hidden z-3"
     >
       <div
         className="edith-lineup relative site-max pt-65 s:pt-180 pb-65 s:pb-180 px-20 s:px-0"
@@ -92,7 +92,11 @@ export default function ShowOff() {
           ))}
         </ol>
 
-        <Button to={brand.discord} className="mt-55">
+        <button type="button" className="edith-lineup__pause" aria-pressed={!auto} onClick={() => setAuto((a) => !a)}>
+          {auto ? "Pause autoplay" : "Play autoplay"}
+        </button>
+
+        <Button to={brand.discord} className="mt-40">
           {brand.cta}
         </Button>
       </div>

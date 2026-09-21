@@ -75,7 +75,7 @@ export default function Social({ id, href, "aria-label": ariaLabel }: { id: Soci
     <a
       href={href}
       target="_blank"
-      rel="noopener"
+      rel="noopener noreferrer"
       className="relative inline-block"
       style={maskStyle(icon.viewBox, icon.d)}
       aria-label={ariaLabel}

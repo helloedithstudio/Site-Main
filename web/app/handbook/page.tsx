@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Handbook from "@/components/handbook/Handbook";
-import { handbookMeta } from "@/lib/handbook";
+import { handbookMeta, maintainers } from "@/lib/handbook";
+import { resolvePeople } from "@/lib/github";
 import { seo } from "@/lib/content";
 import "@/styles/handbook.css";
 
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function HandbookPage() {
-  return <Handbook />;
+export default async function HandbookPage() {
+  const people = await resolvePeople(maintainers.people);
+  return <Handbook people={people} />;
 }

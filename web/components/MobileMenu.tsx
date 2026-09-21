@@ -84,7 +84,7 @@ export default function MobileMenu() {
         aria-label="Menu"
         className="fixed inset-0 z-98 overflow-hidden pointer-events-none"
       >
-        <div ref={bg} className="absolute inset-0 bg-brown-darker/80" />
+        <div ref={bg} className="absolute inset-0 bg-black/80" />
         <div ref={mask} className="absolute inset-0 overflow-hidden">
           <div
             ref={content}
@@ -111,7 +111,7 @@ export default function MobileMenu() {
                 {socials.map((s) => (
                   <div
                     key={s.id}
-                    className="flex-1 flex items-center justify-center aspect-square rounded-3 bg-brown-darker border border-brown-dark"
+                    className="flex-1 flex items-center justify-center aspect-square rounded-3 bg-black border border-brown-dark"
                   >
                     <Social id={s.id} href={s.href} aria-label={s.label} />
                   </div>

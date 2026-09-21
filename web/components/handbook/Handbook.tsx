@@ -1,7 +1,7 @@
 "use client";
 
 // The handbook page: who runs edith, what has shipped, where the conversation happens, the FAQ, and the
-// rules and legal documents. Same look as the home page (tech grid, hairlines, gradient rule), laid out like
+// rules and legal documents. Same look as the home page (pitch black, hairlines, gradient rule), laid out like
 // an Apple spec page: a sticky section index on the left and the long content on the right.
 
 import { useEffect, useState, type MouseEvent } from "react";
@@ -18,8 +18,10 @@ import {
   projects,
   type LegalDoc,
 } from "@/lib/handbook";
+import type { Person } from "@/lib/people";
 import Button from "../ui/Button";
 import Footer from "../Footer";
+import { PersonAvatar, PersonLinks } from "../ui/PersonBits";
 
 const join: LinkItem = { id: "handbook-join", label: brand.cta, internal: null, external: brand.discord };
 
@@ -47,26 +49,27 @@ function Head({ title, intro, status }: { title: string; intro?: string; status?
   );
 }
 
-function Maintainers() {
+function Maintainers({ people }: { people: Person[] }) {
   const m = maintainers;
   return (
     <section id={m.id} className="hb-section">
       <Head status={m.status} title={m.title} intro={m.intro} />
       <div className="hb-cards">
-        <article className="hb-card hb-card--founder">
-          <div className="edith-rule hb-card__rule" />
-          <span className="type-caption uppercase text-brown">Seat 01</span>
-          <div className="hb-avatar" aria-hidden="true">
-            {m.founder.name.charAt(0)}
-          </div>
-          <h3 className="type-h3 mt-20">{m.founder.name}</h3>
-          <p className="type-caption uppercase text-gold mt-10">{m.founder.role}</p>
-          <p className="type-caption uppercase text-brown mt-5">{m.founder.place}</p>
-          <p className="type-body-sm text-white mt-15">{m.founder.note}</p>
-        </article>
-        {Array.from({ length: m.seats }, (_, i) => (
-          <article key={i} className="hb-card hb-card--open">
-            <span className="type-caption uppercase text-brown">{`Seat ${String(i + 2).padStart(2, "0")}`}</span>
+        {people.map((p, i) => (
+          <article key={p.login} className="hb-card hb-card--founder">
+            <div className="edith-rule hb-card__rule" />
+            <span className="type-caption uppercase edith-muted">{`Seat ${String(i + 1).padStart(2, "0")}`}</span>
+            <PersonAvatar person={p} className="hb-avatar" />
+            <h3 className="type-h3 mt-20">{p.name}</h3>
+            {p.role ? <p className="type-caption uppercase text-gold mt-10">{p.role}</p> : null}
+            <p className="type-caption edith-muted mt-5">@{p.login}</p>
+            {p.note ? <p className="type-body-sm text-white mt-15">{p.note}</p> : null}
+            <PersonLinks person={p} />
+          </article>
+        ))}
+        {Array.from({ length: m.openSeats }, (_, i) => (
+          <article key={`open-${i}`} className="hb-card hb-card--open">
+            <span className="type-caption uppercase edith-muted">{`Seat ${String(people.length + i + 1).padStart(2, "0")}`}</span>
             <h3 className="type-h3 mt-15">{m.openSeat.title}</h3>
             <Rich className="type-body-sm text-white mt-15" text={m.openSeat.text} />
           </article>
@@ -88,7 +91,7 @@ function Projects() {
       <div className="hb-cards hb-cards--three">
         {Array.from({ length: p.slots }, (_, i) => (
           <article key={i} className="hb-card hb-card--open">
-            <span className="type-caption uppercase text-brown">{`Project ${String(i + 1).padStart(2, "0")}`}</span>
+            <span className="type-caption uppercase edith-muted">{`Project ${String(i + 1).padStart(2, "0")}`}</span>
             <h3 className="type-h3 mt-15">{p.empty.title}</h3>
             <Rich className="type-body-sm text-white mt-15" text={p.empty.text} />
           </article>
@@ -111,7 +114,7 @@ function Discussions() {
         {d.channels.map((c) => (
           <li key={c.channel} className="hb-channel">
             <span className="edith-ch hb-channel__name">{c.channel}</span>
-            <span className="type-caption uppercase text-brown">{c.hub}</span>
+            <span className="type-caption uppercase edith-muted">{c.hub}</span>
             <p className="type-body-sm text-white">{c.text}</p>
           </li>
         ))}
@@ -144,11 +147,11 @@ function Doc({ doc }: { doc: LegalDoc }) {
   return (
     <section id={doc.id} className="hb-section">
       <Head title={doc.title} intro={doc.summary} />
-      <p className="type-caption uppercase text-brown hb-updated">{`Draft, last updated ${handbookMeta.updated}`}</p>
+      <p className="type-caption uppercase edith-muted hb-updated">{`Draft, last updated ${handbookMeta.updated}`}</p>
       <ol className="hb-clauses">
         {doc.clauses.map((c, i) => (
           <li key={c.title} className="hb-clause">
-            <span className="type-caption text-brown hb-clause__n">{String(i + 1).padStart(2, "0")}</span>
+            <span className="type-caption edith-muted hb-clause__n">{String(i + 1).padStart(2, "0")}</span>
             <div>
               <h3 className="type-body-lg">{c.title}</h3>
               {c.body.map((para) => (
@@ -162,7 +165,7 @@ function Doc({ doc }: { doc: LegalDoc }) {
   );
 }
 
-export default function Handbook() {
+export default function Handbook({ people }: { people: Person[] }) {
   const [current, setCurrent] = useState(handbookNav[0].items[0].id);
 
   useEffect(() => {
@@ -224,7 +227,7 @@ export default function Handbook() {
         <nav className="hb-nav" aria-label="Handbook sections">
           {handbookNav.map((g) => (
             <div key={g.group} className="hb-nav__block">
-              <p className="hb-nav__group type-caption uppercase text-brown">{g.group}</p>
+              <p className="hb-nav__group type-caption uppercase edith-muted">{g.group}</p>
               <ul>
                 {g.items.map((i) => (
                   <li key={i.id}>
@@ -243,7 +246,7 @@ export default function Handbook() {
           ))}
         </nav>
         <div className="hb-content">
-          <Maintainers />
+          <Maintainers people={people} />
           <Projects />
           <Discussions />
           <Faq />

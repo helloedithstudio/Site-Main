@@ -3,6 +3,15 @@ node_modules/
 out/
 *.log
 .env*
+!.env.example
 *.blend1
 __pycache__/
 .DS_Store
+Thumbs.db
+
+# Rendered frames and scratch output from the Blender scripts (regenerable, large)
+blender/work/
+blender/export/
+
+# Local tooling
+.claude/

@@ -73,7 +73,7 @@ function Accordions() {
 
 export default function Footer() {
   return (
-    <footer className="edith-apf relative z-2">
+    <footer className="edith-apf relative z-2" role="contentinfo">
       <div className="site-max --l">
         <div className="edith-apf__notes">
           {footer.notes.map((note) => (

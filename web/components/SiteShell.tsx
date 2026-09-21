@@ -104,7 +104,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
       >
         Skip to content
       </a>
-      <div ref={temp} className="fixed inset-0 pointer-events-none bg-brown-darker z-[9999]" />
+      <div ref={temp} className="fixed inset-0 pointer-events-none bg-black z-[9999]" />
       <svg
         ref={mask}
         className="fixed inset-0 size-full z-[9999] pointer-events-none text-brown-darker will-change-transform js-t-mask"

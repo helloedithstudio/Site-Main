@@ -1,20 +1,16 @@
 "use client";
 
-// "Six hubs, one server", shown the way Apple shows a product: one lit hero image and a list of six hubs. The image
-// is a stack of six glossy layers (rendered in Blender, see docs/edith-3d-brief-v2.md and blender/scripts/hub_stack.py)
-// and the hub you pick lights its layer. Without a choice the hubs play in turn, the live row's hairline drawing
-// left to right as the timer (see useLitCycle). Rows are buttons, so it works on touch and keyboard as well as by hover.
+// "Six hubs, one server", told as the story of one project rather than pitched as a product. Each of the six beats is a
+// moment every builder knows (the idea at 11pm, needing someone else, getting stuck), set in the hub where it happens.
+// The layered image on the side is the server: the beat you are reading lights its layer. It was rendered in Blender
+// (blender/scripts/hub_stack.py), and stays put while you scroll.
 
-import { useEffect, useRef, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState } from "react";
 import { home } from "@/lib/content";
 import { theme } from "@/lib/theme";
-import { useLitCycle } from "@/lib/runtime/useLitCycle";
 import Button from "../ui/Button";
 
 const { texts, cards } = home.hubs;
-
-const AUTO_MS = 5200;
-const HOVER_INTENT_MS = 140;
 
 // Same ramp the render uses for the six layers: gold, amber, red-pink, magenta.
 function hex(n: number) {
@@ -31,122 +27,103 @@ function rampColour(t: number) {
 }
 const colours = cards.map((_, i) => rampColour(i / (cards.length - 1)));
 
-const lit = `<strong>${texts.subtitle}</strong> ${texts.text.replace(/^<p>|<\/p>$/g, "")}`;
-
 export default function Hubs() {
-  const { root, active, auto, inView, pick, next } = useLitCycle(cards.length);
-  const hoverTimer = useRef<number | undefined>(undefined);
-  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const [active, setActive] = useState(0);
+  const beats = useRef<(HTMLLIElement | null)[]>([]);
 
-  useEffect(() => () => window.clearTimeout(hoverTimer.current), []);
-
-  const onKey = (e: KeyboardEvent) => {
-    const dir = e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1 : 0;
-    if (!dir) return;
-    e.preventDefault();
-    const i = (active + dir + cards.length) % cards.length;
-    pick(i);
-    buttons.current[i]?.focus();
-  };
+  useEffect(() => {
+    // The beat crossing a thin band near the middle of the screen is the live one. On a phone the image is pinned at
+    // the top, so the band sits lower.
+    const small = window.matchMedia("(max-width: 649px)").matches;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(Number((e.target as HTMLElement).dataset.beat));
+        });
+      },
+      { rootMargin: small ? "-52% 0px -24% 0px" : "-42% 0px -42% 0px", threshold: 0 },
+    );
+    beats.current.forEach((el) => el && io.observe(el));
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <section id="hubs" data-quick-link="Hubs" ref={root} className="relative border-t border-brown-dark z-2">
-      <div
-        className="edith-show relative site-max pt-65 s:pt-180 pb-65 s:pb-180 px-20 s:px-0"
-        data-auto={auto}
-        data-inview={inView}
-        style={{ "--edith-auto": `${AUTO_MS}ms` } as React.CSSProperties}
-      >
-        <div className="edith-show__head">
+    <section id="hubs" data-quick-link="Hubs" className="relative border-t border-brown-dark z-2">
+      <div className="edith-story relative site-max pt-65 s:pt-180 pb-65 s:pb-180 px-20 s:px-0">
+        <div className="edith-story__intro">
           <div className="edith-rule edith-rule--short" />
-          <h2 className="edith-show__h2" dangerouslySetInnerHTML={{ __html: texts.title }} />
-          <p className="edith-lit edith-show__lit" dangerouslySetInnerHTML={{ __html: lit }} />
-          <div className="edith-show__cta flex items-center gap-x-15">
+          <h2 className="edith-story__h2" dangerouslySetInnerHTML={{ __html: texts.title }} />
+          <p className="edith-story__stand" dangerouslySetInnerHTML={{ __html: texts.subtitle }} />
+          <div className="edith-lit edith-story__lit" dangerouslySetInnerHTML={{ __html: texts.text }} />
+        </div>
+
+        <div className="edith-story__layout">
+          <div className="edith-story__stagewrap">
+            <div
+              className="edith-stage"
+              style={{ "--hub": colours[active] } as React.CSSProperties}
+              aria-hidden="true"
+            >
+              {/* eslint-disable @next/next/no-img-element */}
+              <img
+                src="/images/hubs/stack-base-2x.webp"
+                srcSet="/images/hubs/stack-base-1x.webp 640w, /images/hubs/stack-base-2x.webp 1120w"
+                sizes="(min-width: 900px) 500px, 260px"
+                alt=""
+                width={1120}
+                height={1760}
+                loading="lazy"
+                decoding="async"
+                draggable={false}
+              />
+              {cards.map((card, i) => (
+                <img
+                  key={card.id}
+                  className={`edith-stage__glow${i === active ? " is-on" : ""}`}
+                  src={`/images/hubs/stack-glow-${i}-2x.webp`}
+                  srcSet={`/images/hubs/stack-glow-${i}-1x.webp 640w, /images/hubs/stack-glow-${i}-2x.webp 1120w`}
+                  sizes="(min-width: 900px) 500px, 260px"
+                  alt=""
+                  width={1120}
+                  height={1760}
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
+              ))}
+              {/* eslint-enable @next/next/no-img-element */}
+            </div>
+          </div>
+
+          <ol className="edith-beats">
+            {cards.map((card, i) => (
+              <li
+                key={card.id}
+                ref={(el) => {
+                  beats.current[i] = el;
+                }}
+                data-beat={i}
+                aria-current={i === active ? "step" : undefined}
+                className={`edith-beat${i === active ? " is-active" : ""}`}
+                style={{ "--hub": colours[i] } as React.CSSProperties}
+              >
+                <span className="edith-beat__tag">
+                  {String(i + 1).padStart(2, "0")} {card.hub}
+                </span>
+                <h3 className="edith-beat__line">{card.line}</h3>
+                <p className="edith-lit edith-beat__text" dangerouslySetInnerHTML={{ __html: card.story }} />
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="edith-story__end">
+          <p className="edith-lit edith-story__closing" dangerouslySetInnerHTML={{ __html: texts.closing }} />
+          <div className="edith-story__cta">
             {texts.links.map((link) => (
               <Button key={link.label} item={link} />
             ))}
           </div>
-        </div>
-
-        <ul className="edith-index" onKeyDown={onKey}>
-            {cards.map((card, i) => (
-              <li
-                key={card.id}
-                className={`edith-row${i === active ? " is-active" : ""}`}
-                style={{ "--hub": colours[i] } as React.CSSProperties}
-                onAnimationEnd={i === active && auto ? next : undefined}
-              >
-                <div className="edith-rule edith-row__rule" aria-hidden="true" />
-                <h3 className="edith-row__head">
-                  <button
-                    type="button"
-                    ref={(el) => {
-                      buttons.current[i] = el;
-                    }}
-                    className="edith-row__btn"
-                    aria-expanded={i === active}
-                    aria-controls={`hub-panel-${card.id}`}
-                    onClick={() => pick(i)}
-                    onPointerEnter={(e) => {
-                      if (e.pointerType !== "mouse" || i === active) return;
-                      window.clearTimeout(hoverTimer.current);
-                      hoverTimer.current = window.setTimeout(() => pick(i), HOVER_INTENT_MS);
-                    }}
-                    onPointerLeave={() => window.clearTimeout(hoverTimer.current)}
-                  >
-                    <span className="edith-row__dot" aria-hidden="true" />
-                    <span className="edith-row__name">{card.hub}</span>
-                  </button>
-                </h3>
-                <div id={`hub-panel-${card.id}`} className="edith-row__panel" role="region" aria-label={card.hub}>
-                  <div className="edith-row__inner">
-                    <p className="edith-row__what">{card.what}</p>
-                    <div className="edith-row__ch">
-                      {card.channels.map((c) => (
-                        <span key={c} className="edith-ch">
-                          {c}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </li>
-            ))}
-        </ul>
-
-        <div
-          className="edith-stage"
-          style={{ "--hub": colours[active] } as React.CSSProperties}
-          role="img"
-          aria-label={`Six stacked layers, one for each hub. The ${cards[active].hub} layer is lit.`}>
-          {/* eslint-disable @next/next/no-img-element */}
-          <img
-            src="/images/hubs/stack-base-2x.webp"
-            srcSet="/images/hubs/stack-base-1x.webp 640w, /images/hubs/stack-base-2x.webp 1120w"
-            sizes="(min-width: 900px) 500px, 260px"
-            alt=""
-            width={1120}
-            height={1760}
-            loading="lazy"
-            decoding="async"
-            draggable={false}
-          />
-          {cards.map((card, i) => (
-            <img
-              key={card.id}
-              className={`edith-stage__glow${i === active ? " is-on" : ""}`}
-              src={`/images/hubs/stack-glow-${i}-2x.webp`}
-              srcSet={`/images/hubs/stack-glow-${i}-1x.webp 640w, /images/hubs/stack-glow-${i}-2x.webp 1120w`}
-              sizes="(min-width: 900px) 500px, 260px"
-              alt=""
-              width={1120}
-              height={1760}
-              loading="lazy"
-            decoding="async"
-              draggable={false}
-            />
-          ))}
-          {/* eslint-enable @next/next/no-img-element */}
         </div>
       </div>
     </section>

@@ -1,4 +1,4 @@
-/* The handbook page (/handbook). Same language as the home page: dark grid backdrop, 14% white hairlines,
+/* The handbook page (/handbook). Same language as the home page: pitch black, 14% white hairlines,
    the gradient rule, mono labels. Desktop lays out as a sticky index on the left and the content on the right. */
 
 .hb-main {
@@ -11,13 +11,7 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: #030304 url("/gl/images/tech-grid.webp") center / cover no-repeat;
-}
-.hb-bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.7));
+  background: #000;
 }
 .hb-hero,
 .hb-layout,
@@ -199,17 +193,7 @@
   right: 0;
 }
 .hb-avatar {
-  display: grid;
-  place-items: center;
-  width: 7rem;
-  height: 7rem;
   margin-top: 2rem;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 25%, #f70c5a, #e803d1 48%, #ff8301 100%);
-  color: #000;
-  font-family: "Funnel Display", sans-serif;
-  font-size: 3.4rem;
-  line-height: 1;
 }
 
 /* Discussions */

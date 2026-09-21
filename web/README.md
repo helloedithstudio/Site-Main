@@ -14,6 +14,8 @@ npm run build && npm start
 
 - `/` the story: hero, Why builders stick around, Hubs, How an idea becomes a launch, Membership, Show off,
   Studio, Decisions, Safety, Beliefs, footer. The FAQ lives only in the handbook.
+- `/catalysts` the Catalyst directory: search, filter by what people build, sort, show more. Maintainers are listed
+  automatically; everyone else is added in `lib/catalysts.ts` (opt-in, by GitHub username).
 - `/handbook` maintainers, top projects, discussions, FAQ, community rules and the legal documents. Footer links
   such as `/handbook#terms` deep-link to a section. **The rules and legal text are a draft that has not been
   reviewed by a lawyer** (the page says so); have a lawyer read them before launch.
@@ -24,23 +26,24 @@ npm run build && npm start
 | --- | --- |
 | `lib/brand.ts` | Brand name, title, description, Discord invite, socials, founder, contact email, location. **Change links and contact details here.** |
 | `lib/content.ts` | Home page copy, header and footer menus |
+| `lib/people.ts`, `lib/github.ts` | A person is just a GitHub username: name, picture and portfolio are read from the public GitHub API at build time (daily revalidation, optional `GITHUB_TOKEN` for a long list) and shown with quick links. Add Maintainers in `lib/handbook.ts`, Catalysts in `lib/catalysts.ts`. |
 | `lib/handbook.ts` | Handbook content: maintainers, projects, discussions, FAQ, rules, terms, privacy, customer terms, Maintainer licence |
 | `app/` | Root layout (fonts, metadata, structured data), `page.tsx` (home), `handbook/page.tsx` |
 | `components/sections/` | Home sections: `Hero`, `WhatIsEdith`, `Hubs`, `Loop`, `Membership`, `ShowOff`, `Franchise`, `Decisions`, `Safety`, `Beliefs` |
-| `components/handbook/` | The handbook page |
+| `components/handbook/`, `components/catalysts/` | The handbook page and the Catalyst directory |
 | `components/` | Site chrome: `SiteShell`, `Header`, `MobileMenu`, `QuickMenu`, `GlCanvas`, `Footer` (Apple style: small print, five columns of link groups from `footer.columns` in `lib/content.ts`, legal row; accordions on phones) |
 | `components/ui/` | Shared pieces: gradient-hover `Button`, `Pager`, `DragCarousel`, `Seal`, `ShowCard`, ... |
 | `lib/runtime/` | Lenis scroll, resize, device, event bus, GSAP eases and effects, UI flag store |
-| `lib/gl/` | The WebGL engine (three r180): asset loader, DOM trackers, hero marble, tech-grid backdrop, spinning models, shaders |
-| `styles/` | `site.css`, `scoped.css`, `chunks.css` come from the original compiled stylesheet (never edit `site.css` by hand, see Colours). `edith.css` and `handbook.css` hold edith's additions. |
+| `lib/gl/` | The WebGL engine (three r180): asset loader, DOM trackers, hero marble, carousel boxes, spinning models, shaders |
+| `styles/` | `site.css`, `scoped.css`, `chunks.css` come from the original compiled stylesheet (never edit `site.css` by hand, see Colours). `edith.css`, `handbook.css` and `catalysts.css` hold edith's additions. |
 | `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, WebP flower frames, self-hosted fonts |
-| `scripts/` | `make-logo.cjs`, `make-tech-grid.cjs`, `make-hub-images.cjs`, `retheme.cjs` |
+| `scripts/` | `make-logo.cjs`, `make-hub-images.cjs`, `retheme.cjs` |
 
 ## Working with the styles
 
 The original stylesheet only contains the utility classes the original site used. A class that is not in
 `site.css` (for example `mt-auto`) silently does nothing, so new rules go in `styles/edith.css` (home) or
-`styles/handbook.css` (handbook).
+`styles/handbook.css` (handbook) or `styles/catalysts.css` (directory).
 
 ## Notes
 
@@ -56,15 +59,25 @@ The original stylesheet only contains the utility classes the original site used
 
 ## The backdrop
 
-The dark engineering grid behind the hero, Why edith, Hubs and Loop is a generated image,
-`public/gl/images/tech-grid.webp` (`node scripts/make-tech-grid.cjs` redraws it). `HomeHero.ts` draws it on a sticky
-plane inside the `[data-js="gl-hero-bg-desktop"]` wrapper in `app/page.tsx` and drifts it against scroll (the image
-tiles vertically). The handbook uses the same image as a fixed CSS background.
+The page is pitch black (`#000`). There is no backdrop image or plane: the WebGL layer draws only the hero marble, the
+carousel boxes and the spinning Membership and Decisions objects, and the handbook uses a plain black fixed layer. The
+WebGL clear colour, the loader, the menu and the Safety section are black too, so nothing shows a slightly lighter edge
+against the canvas (`setClearColor(0x000000)` in `lib/gl/core.ts`).
+
+## How an idea becomes a launch
+
+Each card in the pinned carousel (`Loop.tsx`) carries a small worked-example panel (`LoopCard.tsx`) instead of a 3D
+object: what a good post at that step contains (a brainstorm post, a team request, a work-in-progress update, a
+rubber-duck thread, a ship-it post, the launch path). Each one is labelled "Example", uses no real people or numbers,
+and is a cream panel with a black pill button, like an Apple sheet on a black page. The WebGL layer only tracks the
+card boxes (`.js-slide-box`).
 
 ## Showcase renders (hub stack and project lineup)
 
-"Six hubs, one server" (`components/sections/Hubs.tsx`) is shown like an Apple product page: one lit hero image and a
-list of hubs. The image is a stack of six glossy layers, one per hub, each engraved with a glyph. It is rendered in
+"Every project starts the same way" (`components/sections/Hubs.tsx`, copy in `home.hubs` in `lib/content.ts`) is a
+scroll story written in the second person: six beats, one per hub of the Discord server, next to one sticky image. The
+beat in the middle of the screen is live (an `IntersectionObserver`) and lights its layer of the image. The image is a
+stack of six glossy layers, one per hub, each engraved with a glyph. It is rendered in
 Blender (Cycles, transparent film), not drawn in the WebGL engine:
 
 - `blender/scripts/hub_stack.py` builds and renders it (`blender -b --factory-startup -P blender/scripts/hub_stack.py --
@@ -77,36 +90,36 @@ Blender (Cycles, transparent film), not drawn in the WebGL engine:
   so the stack blends into the page.
 - The hub colours are the marble ramp (`theme.hoverStops`), the same six stops in the render, the row dots and the
   colour pool behind the stack (`--hub`).
-- Behaviour: the live hub plays in turn (its row hairline draws left to right as the timer) until you hover, tap or
-  arrow-key to another; reduced motion turns autoplay off.
+- Behaviour: scrolling moves the live beat and its lit layer together. On a phone the image sits above the beats.
 
 - **Project lineup** ("Shipped by members", `components/sections/ShowOff.tsx`): three plinths with floating skeleton project
   cards that rise left to right (ship it, show it, launch it), the middle one largest. `blender/scripts/ship_lineup.py`
   renders it, `node scripts/make-hub-images.cjs ship` writes `lineup-base-*` and `lineup-glow-N-*`. The three steps beneath
-  select and light a card the same way the hubs do. On a phone the image is cropped to one card and pans to the lit one.
+  select and light a card. They autoplay (the row hairline is the timer, drawn by a CSS animation in
+  `lib/runtime/useLitCycle.ts`) until you pick one; a visible Pause button stops it, hovering or focusing the list
+  pauses it, and reduced motion turns it off. On a phone the image is cropped to one card and pans to the lit one.
   Nothing is invented: the cards are placeholders because nothing has shipped yet.
 - **Studio** ("Build under the edith name", `Franchise.tsx`): a left-aligned statement over one wide panel of the footer
   marble (`data-js="gl-marble-footer"`), no boxes.
 
 ## The 3D layer
 
-Eight hard-surface objects (machined, chamfered, engraved), built in Blender by `blender/scripts/v2_objects.py`
+Two hard-surface objects (machined, chamfered, engraved), built in Blender by `blender/scripts/v2_objects.py`
 (see `docs/edith-3d-brief-v2.md`). There are no baked maps: the finish is the geometry under the site matcap.
 
-- `public/gl/models/loop-1-pitch.glb` to `loop-6-launch.glb`: bulb, meshing gears, CPU chip, open padlock,
-  crate, rocket. One per carousel card, keyed `loop-N-model` in `lib/gl/resources.ts` and tracked from the
-  `[data-js="gl-loop-N"]` anchors in `Loop.tsx`.
 - `membership-pr.glb` (git merge glyph made of hex nuts and rods) and `decisions-rfc.glb` (document slab with a
   check badge) for the two portrait sections.
 - Tuning for the two spinning models is in `lib/gl/theatre.ts` under `Spinning-membership-model` and
   `Spinning-decisions-model`.
-- The carousel tilt sits on a parent of the spinning pivot (`HomeHero.ts`), so the camera keeps seeing a little
-  of the top instead of swinging between the top and the underside.
+- The six loop sculptures (bulb, gears, chip, padlock, crate, rocket) were replaced by the example panels above; their
+  Blender sources are still in `blender/` if they are ever wanted again.
+- The carousel tilt sits on a parent of the carousel group (`HomeHero.ts`), so the camera keeps seeing a little of the
+  top of each card.
 
 Known, and inherited from the original site: while the carousel is still settling, the pager ignores an
 arrow click. The original does the same at the same point, so a click can be swallowed once on the way in.
 
-To rebuild every object: `D:\blender\blender.exe -b --factory-startup -P blender\scripts\v2_objects.py`
+To rebuild the objects: `D:\blender\blender.exe -b --factory-startup -P blender\scripts\v2_objects.py`
 (or add object numbers after `--`). Each run checks the mesh (closed, one shell, triangle budget) and writes the
 GLB and a preview sheet.
 
@@ -124,7 +137,7 @@ GLB and a preview sheet.
   emits `<link rel="preload">` hints, so downloads start with the HTML instead of after the scripts run. Add a new
   asset to the manifest and it is preloaded automatically. Responsive textures use the `-desktop` variant on every
   device on purpose (the `-mobile` ones make the marble blocky).
-- **Images**: `tech-grid.webp` (near-lossless), an 8-bit `blue-noise.png`. Only the red channel of the blue noise is used.
+- **Images**: an 8-bit `blue-noise.png` (only its red channel is used).
 - **Fonts** are self-hosted in `public/fonts` (latin subset, variable weight) and declared in `styles/fonts.css`, with
   preload hints in the layout. Nothing is fetched from Google.
 - **Caching** (`next.config.ts`): `/gl`, `/images` one day plus a week of stale-while-revalidate, `/fonts` one year.

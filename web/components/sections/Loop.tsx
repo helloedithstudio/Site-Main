@@ -1,7 +1,7 @@
 "use client";
 
-// "How an idea becomes a launch": the pinned six-card carousel. The card boxes and the
-// sculpture on each card are drawn by the WebGL layer, tracked from the [data-js] anchors below.
+// "How an idea becomes a launch": the pinned six-card carousel. The rounded black boxes are drawn by the WebGL layer
+// (tracked from .js-slide-box); the content of each card is DOM: a worked example of what a post at that step looks like.
 
 import { useEffect, useRef, useState } from "react";
 import { home } from "@/lib/content";
@@ -11,6 +11,7 @@ import { store, useFlag } from "@/lib/runtime/store";
 import Pager, { type PagerHandle } from "../ui/Pager";
 import Arrow from "../ui/Arrow";
 import { TransitionSwitch } from "../ui/Transition";
+import LoopCard from "./LoopCard";
 
 const item = home.intro;
 const GAP = 35;
@@ -69,25 +70,21 @@ export default function Loop() {
           >
             {slides.map((slide, i) => (
               <div key={i} className="js-slide relative origin-top will-change-transform">
-                <div className="relative rounded-5 overflow-hidden aspect-[365/345] s:aspect-[5/3] js-slide-box">
+                <div className="edith-loopcard relative rounded-5 overflow-hidden s:aspect-[5/3] js-slide-box">
                   <button
                     type="button"
-                    className="s:hidden absolute inset-x-0 top-0 pt-15 px-20 type-caption uppercase text-white z-4"
+                    className="edith-loopcard__label s:hidden type-caption uppercase text-white z-4"
                     aria-current={current === i ? "true" : "false"}
                     onClick={() => pager.current?.scrollToCard(i)}
                   >
                     {slide.label}
                   </button>
-                  <div className="max-s:absolute max-s:inset-x-0 max-s:top-40 max-s:bottom-20 max-s:flex max-s:flex-col max-s:justify-end max-s:gap-y-15 s:contents">
-                    <p
-                      className="js-slide-copy s:hidden relative px-20 type-body-md text-white z-4"
-                      dangerouslySetInnerHTML={{ __html: slide.text }}
-                    />
+                  <div className="edith-loopcard__ui z-3">
+                    <LoopCard index={i} />
                   </div>
-                  {/* the sculpture for this step, drawn by the WebGL layer (lib/gl/objects/HomeHero.ts) */}
-                  <div
-                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 size-150 s:size-240 pointer-events-none z-3"
-                    data-js={`gl-loop-${i + 1}`}
+                  <p
+                    className="edith-loopcard__copy js-slide-copy s:hidden type-body-md text-white z-4"
+                    dangerouslySetInnerHTML={{ __html: slide.text }}
                   />
                 </div>
               </div>

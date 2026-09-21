@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     description: seo.description,
     url: `${seo.baseUrl}/`,
     siteName: seo.siteName,
-    locale: "en_US",
+    locale: "en_GB",
   },
   twitter: {
     card: "summary_large_image",

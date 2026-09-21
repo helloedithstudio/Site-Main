@@ -24,14 +24,6 @@ export const manifest: ResourceEntry[] = [
     path: "/gl/images/misc/model-matcap.jpg",
     compress: { responsive: true, maxResolution: [256, 256] },
   },
-  { key: "tech-grid", type: "texture", path: "/gl/images/tech-grid.webp", colorSpace: "SRGBColorSpace" },
-  // One hard-surface object per carousel card. No baked maps: the finish comes from the geometry and the matcap.
-  { key: "loop-1-model", type: "gltf", path: "/gl/models/loop-1-pitch.glb" },
-  { key: "loop-2-model", type: "gltf", path: "/gl/models/loop-2-crew.glb" },
-  { key: "loop-3-model", type: "gltf", path: "/gl/models/loop-3-build.glb" },
-  { key: "loop-4-model", type: "gltf", path: "/gl/models/loop-4-unstuck.glb" },
-  { key: "loop-5-model", type: "gltf", path: "/gl/models/loop-5-ship.glb" },
-  { key: "loop-6-model", type: "gltf", path: "/gl/models/loop-6-launch.glb" },
   { key: "hero-marble-colorA", type: "texture", path: "/gl/images/hero/colorA.jpg", colorSpace: "SRGBColorSpace" },
   {
     key: "hero-marble",
@@ -58,7 +50,7 @@ export const manifest: ResourceEntry[] = [
     path: "/gl/images/hero/marble-03.jpg",
     compress: { responsive: true, maxResolution: [1024, 256], flipY: true },
   },
-  // The two portrait pieces (Membership, Decisions), also map-free.
+  // The two portrait pieces (Membership, Decisions): hard-surface objects with no baked maps.
   { key: "membership-model", type: "gltf", path: "/gl/models/membership-pr.glb" },
   { key: "decisions-model", type: "gltf", path: "/gl/models/decisions-rfc.glb" },
 ];

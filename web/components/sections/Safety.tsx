@@ -40,7 +40,7 @@ export default function Safety() {
   }, []);
 
   return (
-    <section id="safety" data-quick-link="Safety" className="border-t border-brown-dark bg-brown-darker relative z-2">
+    <section id="safety" data-quick-link="Safety" className="border-t border-brown-dark bg-black relative z-2">
       <Columns />
       <div className="site-max flex flex-col relative z-2">
         <div className="pt-65 s:pt-250 pb-30 flex justify-center w-full">

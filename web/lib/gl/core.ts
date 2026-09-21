@@ -252,7 +252,7 @@ export class Renderer {
     });
     this.#gl.outputColorSpace = SRGBColorSpace;
     this.#gl.shadowMap.enabled = false;
-    this.#gl.setClearColor(526344);
+    this.#gl.setClearColor(0x000000);
     this.#gl.setClearAlpha(1);
     this.#gl.setPixelRatio(dpr);
     d.dpr = dpr;

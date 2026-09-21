@@ -17,7 +17,11 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..");
-const SRC = process.argv[2] || "C:/Users/kavin/OneDrive/Documents/Red and Black Minimalist Studio Logo/3.png";
+const SRC = process.argv[2];
+if (!SRC) {
+  console.error("usage: node scripts/make-logo.cjs <path to the logo PNG>");
+  process.exit(1);
+}
 const OUT = path.join(ROOT, "public/images");
 const CREAM = [239, 238, 235];
 const RED = [214, 66, 56];

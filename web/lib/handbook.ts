@@ -3,6 +3,7 @@
 // no dashes. The legal text is a DRAFT written for edith and has not been reviewed by a lawyer.
 
 import { brand } from "./brand";
+import type { PersonEntry } from "./people";
 
 export type Clause = { title: string; body: string[] };
 
@@ -29,17 +30,22 @@ export const maintainers = {
   title: "Who keeps edith running",
   intro:
     "edith is new, so the Maintainer roster is short on purpose. Maintainers are earned, not appointed in bulk. Right now there is one.",
-  founder: {
-    name: brand.founder,
-    role: "Founder",
-    place: brand.location,
-    note: "Approves every venture that runs under the edith name.",
-  },
+  // Add a Maintainer with one line: their GitHub username. Their name, picture and portfolio link come from their
+  // GitHub profile when the site is built. `role`, `note`, `name` and `portfolio` here override what GitHub says.
+  people: [
+    {
+      github: "Andrew-Kevin-007",
+      name: brand.founder,
+      portfolio: "https://kevinandrew.tech/",
+      role: "Founder",
+      note: "Approves every venture that runs under the edith name.",
+    },
+  ] as PersonEntry[],
   openSeat: {
     title: "Open seat",
     text: "Could be you. Help people, ship something, then open a PR in `apply-here`.",
   },
-  seats: 3,
+  openSeats: 3,
   path: "Becoming a Maintainer takes 30+ days around, helping people, shipping something and a public profile. Open a PR in `apply-here`, get two endorsements and Core approval. You hear back in about a week.",
 };
 
@@ -130,7 +136,7 @@ export const faq = {
 
 const contact = `Questions about this document can be sent to ${brand.email}.`;
 const law =
-  "These terms are governed by the laws of India. If a disagreement cannot be settled by talking it through in good faith for 30 days, it goes to arbitration under the Arbitration and Conciliation Act, 1996, before a sole arbitrator, seated in Chennai and conducted in English. Subject to that, the courts at Chennai, Tamil Nadu have exclusive jurisdiction.";
+  "These terms are governed by the laws of India. If a disagreement cannot be settled by talking it through in good faith for 30 days, it goes to arbitration under the Arbitration and Conciliation Act, 1996, before a sole arbitrator, conducted in English. Subject to that, the courts of India have exclusive jurisdiction.";
 
 export const rules: LegalDoc = {
   id: "rules",
@@ -237,7 +243,7 @@ export const terms: LegalDoc = {
     {
       title: "Other services",
       body: [
-        "edith relies on other services such as Discord and Google Fonts, and links to other sites. They have their own terms and privacy practices, and edith is not responsible for them.",
+        "edith relies on other services such as Discord and GitHub, and links to other sites. They have their own terms and privacy practices, and edith is not responsible for them.",
       ],
     },
     {
@@ -292,7 +298,14 @@ export const privacy: LegalDoc = {
       title: "This website",
       body: [
         "The website does not use cookies, advertising or analytics tools, and it does not ask you to create an account or fill in a form. Our hosting provider may keep standard server logs, such as your IP address, the time and the page requested, to keep the site secure and running.",
-        "The site loads fonts from Google Fonts, so your browser contacts Google's servers when you visit. The Discord button takes you to Discord, which has its own privacy policy.",
+        "The fonts are served from this site itself, so no third party is involved in showing them. The profile pictures of Maintainers and Catalysts are loaded from GitHub, so your browser contacts GitHub's servers when you view them. The Discord button and the profile links take you to other sites (Discord, GitHub and personal portfolios), which have their own privacy policies.",
+      ],
+    },
+    {
+      title: "People listed on this site",
+      body: [
+        "The Maintainers section and the Catalysts page show the name, username, picture and website link from a person's public GitHub profile, and only for people who asked to be listed. GitHub is the source of that information, so changing it on GitHub changes it here within a day.",
+        `To change or remove a listing, tell ${brand.founder} in the Discord or write to ${brand.email}, and it will be taken down.`,
       ],
     },
     {

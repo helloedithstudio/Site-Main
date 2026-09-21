@@ -88,6 +88,7 @@ export const footer: {
         id: "community",
         title: "Community",
         links: [
+          page("catalysts", "Catalysts"),
           external("footer-discord", "Discord", brand.discord),
           external("footer-instagram", "Instagram", brand.instagram),
           external("footer-linkedin", "LinkedIn", brand.linkedin),
@@ -184,12 +185,13 @@ export const nav: { label: string; href: string }[] = [
   { label: "How it works", href: "#how-it-works" },
   { label: "Membership", href: "#membership" },
   { label: "Hubs", href: "#hubs" },
+  { label: "Catalysts", href: "/catalysts" },
   { label: "Handbook", href: "/handbook" },
 ];
 
 export const home = {
   hero: {
-    title: "A club of builders<br>that runs itself.",
+    title: "A legion of builders<br>that runs itself.",
     link: discord(),
   },
   intro: {
@@ -218,20 +220,59 @@ export const home = {
       { label: "Maintainer", value: "earned, not bought" },
     ],
   },
+  // "Six hubs, one server", told as one project's story. Second person, present tense, illustrative: nothing here claims a
+  // number, a member or an event that has not happened. Each beat lights its hub's layer in the stack image.
   hubs: {
     texts: {
-      title: "Six hubs, one server",
-      subtitle: "Everything lives in Discord, sorted by what you came to do.",
-      text: `<p>Pick your interests when you join. There is a hangout for everything else, and ${ch("touch-grass")} for when you need it.</p>`,
+      title: "Every project starts the same way",
+      subtitle: "You, an idea, and nobody to tell.",
+      text: "<p>Here is what happens next, in the six hubs of one Discord server.</p>",
+      closing: `Pick your interests when you join. There is a hangout for everything else, and ${ch("touch-grass")} for when you need it.`,
       links: [discord()],
     },
     cards: [
-      { id: "ideas", hub: "Ideas", what: "Pitch an idea and get real feedback.", channels: ["brainstorm"] },
-      { id: "build", hub: "Build", what: "Web2, Web3, AI, hardware and design.", channels: ["web2", "web3", "ai"] },
-      { id: "team-up", hub: "Team up", what: "Find a crew and join hackathons.", channels: ["find-a-team"] },
-      { id: "help", hub: "Help", what: "Get unstuck, ask, talk careers.", channels: ["rubber-duck"] },
-      { id: "feedback", hub: "Feedback", what: "Request features and propose RFCs.", channels: ["rfcs"] },
-      { id: "show-off", hub: "Show off", what: "Share what you shipped.", channels: ["ship-it"] },
+      {
+        id: "ideas",
+        hub: "Ideas",
+        channels: ["brainstorm"],
+        line: "It starts at 11pm, with an idea nobody has heard yet.",
+        story: `You have a folder of half-finished projects and no one to say them out loud to. So you say it in ${ch("brainstorm")} before you write a single line, and people who build things tell you what they honestly think.`,
+      },
+      {
+        id: "build",
+        hub: "Build",
+        channels: ["web2", "web3", "ai"],
+        line: "Then you build it, in whatever stack the idea wants.",
+        story: `Web2, Web3, AI, hardware, design. Nobody asks you to pick a side or defend your framework. You work in ${ch("web2")}, ${ch("web3")} or ${ch("ai")}, wherever the thing you are making lives.`,
+      },
+      {
+        id: "team-up",
+        hub: "Team up",
+        channels: ["find-a-team"],
+        line: "Somewhere in week two, you realise you need someone else.",
+        story: `A designer. A backend brain. A second pair of hands for the weekend. You say what you need in ${ch("find-a-team")}, or you join a hackathon and meet people who are already looking.`,
+      },
+      {
+        id: "help",
+        hub: "Help",
+        channels: ["rubber-duck"],
+        line: "Then you get stuck, because everyone does.",
+        story: `You explain the problem out loud in ${ch("rubber-duck")}. Often that is enough. If it is not, someone has probably hit the same wall and can point you the way round. Career questions are welcome too.`,
+      },
+      {
+        id: "feedback",
+        hub: "Feedback",
+        channels: ["rfcs"],
+        line: "And when something about the club is not working, you say so.",
+        story: `Request a feature, or write a proposal as an RFC in ${ch("rfcs")}. Maintainers vote on proposals in the open, where everyone can see the result.`,
+      },
+      {
+        id: "show-off",
+        hub: "Show off",
+        channels: ["ship-it"],
+        line: "Then you ship it, and you tell everyone.",
+        story: `You post it in ${ch("ship-it")} with a demo and credit the people who helped. Shipped projects get shown live at Demo Day.`,
+      },
     ],
   },
   safety: {
@@ -350,7 +391,7 @@ export const home = {
       {
         id: "freelance",
         title: "Freelance under edith",
-        text: "Maintainers can take on client work under the edith name and share this site when they pitch.",
+        text: "Maintainers can take on client work under the edith name, on the terms in the handbook, and share this site when they pitch.",
         link: anchor("membership", "How Maintainers work"),
         linkLabel: "How Maintainers work",
       },
