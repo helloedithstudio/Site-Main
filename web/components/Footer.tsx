@@ -9,7 +9,6 @@ import { brand } from "@/lib/brand";
 import SmartLink from "./ui/SmartLink";
 import { ARROW_PATH } from "./ui/Arrow";
 
-const credit = { label: "Design: Griflan", href: "https://griflan.com" };
 const groups: FooterGroup[] = footer.columns.flat();
 
 function Columns() {
@@ -97,9 +96,7 @@ export default function Footer() {
               </li>
             ))}
             <li>
-              <a href={credit.href} target="_blank" rel="noopener noreferrer" className="edith-apf__link edith-apf__link--legal">
-                {credit.label}
-              </a>
+              <span className="edith-apf__credit">{`Designed by ${brand.name}`}</span>
             </li>
           </ul>
           <p className="edith-apf__region">{brand.location}</p>
