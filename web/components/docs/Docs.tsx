@@ -3,7 +3,7 @@
 // The docs page: what has shipped, where the conversation happens, the FAQ, and the rules and legal documents. Same look as the home page (pitch black, hairlines, gradient rule), laid out like
 // an Apple spec page: a sticky section index on the left and the long content on the right.
 
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { getRuntime } from "@/lib/runtime";
 import { brand } from "@/lib/brand";
 import type { LinkItem } from "@/lib/content";
@@ -21,7 +21,37 @@ function Rich({ text, className }: { text: string; className?: string }) {
   return <p className={className} dangerouslySetInnerHTML={{ __html: rich(text) }} />;
 }
 
-function Head({ title, intro, status }: { title: string; intro?: string; status?: string }) {
+/** A "#" beside a section title: sets the address bar to that section and copies the link (standard in developer docs). */
+function HeadingLink({ id, title }: { id: string; title: string }) {
+  const [copied, setCopied] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.history.replaceState(null, "", `#${id}`);
+    getRuntime().scroll.to(`#${id}`);
+    navigator.clipboard?.writeText(window.location.href).then(
+      () => {
+        setCopied(true);
+        window.clearTimeout(timer.current);
+        timer.current = window.setTimeout(() => setCopied(false), 1600);
+      },
+      () => {},
+    );
+  };
+  return (
+    <>
+      <a href={`#${id}`} onClick={onClick} className={`hb-anchor${copied ? " is-copied" : ""}`} aria-label={`Link to ${title}`}>
+        {copied ? "copied" : "#"}
+      </a>
+      <span className="edith-vh" role="status" aria-live="polite">
+        {copied ? "Link copied" : ""}
+      </span>
+    </>
+  );
+}
+
+function Head({ id, title, intro, status }: { id: string; title: string; intro?: string; status?: string }) {
   return (
     <header className="hb-head">
       {status ? (
@@ -31,7 +61,10 @@ function Head({ title, intro, status }: { title: string; intro?: string; status?
         </span>
       ) : null}
       <div className="edith-rule edith-rule--short" />
-      <h2 className="type-h2">{title}</h2>
+      <div className="hb-head__row">
+        <h2 className="type-h2">{title}</h2>
+        <HeadingLink id={id} title={title} />
+      </div>
       {intro ? <Rich className="type-body-lg text-white hb-lead" text={intro} /> : null}
     </header>
   );
@@ -41,7 +74,7 @@ function Projects() {
   const p = projects;
   return (
     <section id={p.id} className="hb-section">
-      <Head status={p.status} title={p.title} intro={p.intro} />
+      <Head id={p.id} status={p.status} title={p.title} intro={p.intro} />
       <div className="hb-cards hb-cards--three">
         {Array.from({ length: p.slots }, (_, i) => (
           <article key={i} className="hb-card hb-card--open">
@@ -63,7 +96,7 @@ function Discussions() {
   const d = discussions;
   return (
     <section id={d.id} className="hb-section">
-      <Head title={d.title} intro={d.intro} />
+      <Head id={d.id} title={d.title} intro={d.intro} />
       <ul className="hb-channels">
         {d.channels.map((c) => (
           <li key={c.channel} className="hb-channel">
@@ -84,7 +117,7 @@ function Discussions() {
 function Faq() {
   return (
     <section id={faq.id} className="hb-section">
-      <Head title={faq.title} />
+      <Head id={faq.id} title={faq.title} />
       <div className="hb-faq">
         {faq.items.map((item) => (
           <details key={item.q} className="hb-faq__item">
@@ -100,7 +133,7 @@ function Faq() {
 function Doc({ doc }: { doc: LegalDoc }) {
   return (
     <section id={doc.id} className="hb-section">
-      <Head title={doc.title} intro={doc.summary} />
+      <Head id={doc.id} title={doc.title} intro={doc.summary} />
       <p className="type-caption uppercase edith-muted hb-updated">{`Draft, last updated ${docsMeta.updated}`}</p>
       <ol className="hb-clauses">
         {doc.clauses.map((c, i) => (

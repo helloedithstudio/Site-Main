@@ -1,13 +1,13 @@
 "use client";
 
-// Social icon link: the glyph is used as a CSS mask over a cream rect, and a gold
-// rect wipes across through a noise displacement filter on hover (mouse only).
+// Social icon link: the glyph is used as a CSS mask over a cream rect, and a
+// rect filled with the marble gradient wipes across through a noise displacement filter on hover (mouse only).
 
 import { useEffect, useId, useRef } from "react";
-import { theme } from "@/lib/theme";
 import { gsap } from "@/lib/runtime/gsap";
 import { useResizeFlags } from "@/lib/runtime/hooks";
 import { cleanId } from "./Button";
+import MarbleGradient from "./MarbleGradient";
 import { DISCORD, INSTAGRAM, LINKEDIN } from "./glyphs";
 import { socialLinks } from "@/lib/brand";
 
@@ -41,6 +41,7 @@ const maskStyle = (viewBox: string, d: string) => {
 export default function Social({ id, href, "aria-label": ariaLabel }: { id: SocialId; href: string; "aria-label"?: string }) {
   const icon = ICONS[id];
   const filterId = `sf-${cleanId(useId())}`;
+  const gradId = `${filterId}-g`;
   const fill = useRef<SVGRectElement>(null);
   const displacement = useRef<SVGFEDisplacementMapElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
@@ -94,6 +95,7 @@ export default function Social({ id, href, "aria-label": ariaLabel }: { id: Soci
               yChannelSelector="G"
             />
           </filter>
+          <MarbleGradient id={gradId} />
         </defs>
         <rect x="-25%" y="-20%" width="150%" height="140%" fill="#ECE7E0" />
         <rect
@@ -102,7 +104,7 @@ export default function Social({ id, href, "aria-label": ariaLabel }: { id: Soci
           y="-20%"
           width="0"
           height="140%"
-          fill={theme.accent}
+          fill={`url(#${gradId})`}
           style={{ filter: `url(#${filterId})` }}
         />
       </svg>

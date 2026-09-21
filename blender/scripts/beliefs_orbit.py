@@ -4,10 +4,10 @@ scroll step, so the page scrubs it like a film.
 
     blender -b --factory-startup -P blender/scripts/beliefs_orbit.py -- preview            # every 12th frame, small
     blender -b --factory-startup -P blender/scripts/beliefs_orbit.py -- final 0 30         # frames 0 to 29 at full size
-    blender -b --factory-startup -P blender/scripts/beliefs_orbit.py -- final all frames=96 size=1600x900 samples=48
+    blender -b --factory-startup -P blender/scripts/beliefs_orbit.py -- final all frames=96 size=1000x1400 samples=40
 
 Raw RGBA PNGs go to blender/work/beliefs/; web/scripts/make-beliefs-frames.cjs flattens them onto black and writes the WebP
-frames the page loads (public/images/flower/frame_NNNN.webp).
+frames the page loads (public/images/beliefs/frame_NNNN.webp).
 """
 import bpy
 import os
@@ -34,9 +34,17 @@ sys.argv = sys.argv_backup
 
 N = h.N
 FRAMES = 96
+# The page draws this full-bleed under the header (top ~8%) and above the caption plate (bottom ~35%), so the stack is pulled
+# back and shifted up to sit in the free band. dist= and shift= tune that; both are measured with web/scripts (bbox of the last frame).
+DIST = 78.0
+SHIFT = -0.13
 for a in ARGS:
     if a.startswith("frames="):
         FRAMES = int(a[7:])
+    if a.startswith("dist="):
+        DIST = float(a[5:])
+    if a.startswith("shift="):
+        SHIFT = float(a[6:])
 
 
 def smooth(t):
@@ -69,25 +77,35 @@ def pose(sc, glows, cam, mid, t):
     swing = seg(t, 0.0, 0.92)
     az = 30.0 + (1.0 - swing) * 130.0
     el = 27.0 + (1.0 - swing) * 22.0
-    dist = 46.0 + (1.0 - swing) * 4.0
+    dist = DIST + (1.0 - swing) * 4.0
     top = (N - 1) * (pitch) / 2.0
     h.aim(cam, (0.0, 0.0, top + 0.4), az, el, dist, 70.0)
+    # A wide frame would otherwise take its field of view from the width and crop the tall stack: fix it to the height.
+    cam.data.sensor_fit = 'VERTICAL'
+    cam.data.sensor_height = 36
+    cam.data.shift_y = SHIFT
 
 
 def main():
     t0 = time.time()
     sc, glows, mid = h.build()
-    size = (1600, 900)
-    samples = 48
+    # A tall crop, not a wide frame: the stack only fills the middle fifth of a 16:9 canvas, and the page draws this
+    # fitted to the canvas height. The vertical field of view is fixed in pose(), so the crop only trims the black sides.
+    size = (1000, 1400)
+    samples = 40
     which = None
+    explicit = False
     for a in ARGS:
         if a.startswith("size="):
             size = tuple(int(v) for v in a[5:].split("x"))
+            explicit = True
         if a.startswith("samples="):
             samples = int(a[8:])
     nums = [a for a in ARGS[1:] if a.isdigit()]
     if MODE == "preview":
-        size, samples = (640, 360), 16
+        if not explicit:
+            size = (500, 700)
+        samples = 16
         which = list(range(0, FRAMES, 12)) + [FRAMES - 1]
     elif "all" in ARGS:
         which = list(range(FRAMES))

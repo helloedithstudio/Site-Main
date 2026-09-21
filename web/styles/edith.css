@@ -16,6 +16,46 @@ body::-webkit-scrollbar,
   height: 0;
 }
 
+/* Shared tokens, taken from the Apple product-page study (docs/apple-aesthetics.md).
+   Motion: Apple's UI transitions are overwhelmingly one symmetric curve at 240 to 320 ms, a decelerate curve for things
+   arriving, and a long soft curve for large moves; only opacity, transform and colour are animated.
+   Surfaces: cards use a 28 px corner (3.1rem here, the site's rem is 9 px at 1440), inner elements 16 px. */
+:root {
+  --ease-ui: cubic-bezier(0.4, 0, 0.6, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-glide: cubic-bezier(0.28, 0.11, 0.32, 1);
+  --t-fast: 240ms;
+  --t-mid: 320ms;
+  --t-slow: 500ms;
+  --t-glide: 900ms;
+  --r-panel: 3.1rem;
+  --r-inner: 1.8rem;
+}
+
+/* Type ladder. The four sections that came with the template all used one 44 px headline; Apple's dark product pages
+   step through 48, 56, 64 and 80 with tight tracking. The claim-carrying sections take the second tier (57.6 px at 1440,
+   the same as Hubs and Studio). Phones keep the original size. */
+@media (min-width: 650px) {
+  #how-it-works .type-h2,
+  #membership .type-h2,
+  #decisions .type-h2,
+  #safety .type-h2 {
+    font-size: 5.2rem;
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+    /* the gap to the copy below stays about half a headline height, as on Apple's pages (0.47 to 0.5) */
+    margin-bottom: 0.2em;
+  }
+}
+@media (min-width: 1100px) {
+  #how-it-works .type-h2,
+  #membership .type-h2,
+  #decisions .type-h2,
+  #safety .type-h2 {
+    font-size: 6.4rem;
+  }
+}
+
 /* The hero headline wraps to two lines; the original display style (line-height .75) was for one line. */
 .edith-hero-title {
   line-height: 0.95;
@@ -156,7 +196,7 @@ body::-webkit-scrollbar,
   color: rgb(var(--apf-cream) / 0.68);
   font-size: max(1.3rem, 12.5px);
   text-decoration: none;
-  transition: color 0.2s ease;
+  transition: color var(--t-fast) var(--ease-ui);
 }
 .edith-apf__link:focus-visible {
   outline: 2px solid #ffbc09;
@@ -198,7 +238,7 @@ body::-webkit-scrollbar,
   display: block;
   width: 0.8rem;
   color: rgb(var(--apf-cream) / 0.68);
-  transition: transform 0.4s ease;
+  transition: transform var(--t-mid) var(--ease-ui);
 }
 .edith-apf__chev.is-open {
   transform: scaleY(-1);
@@ -414,7 +454,7 @@ body::-webkit-scrollbar,
   aspect-ratio: 1400 / 2200;
   margin: 0 auto;
   animation: edith-float 9s ease-in-out infinite;
-  transition: --hub 0.9s ease;
+  transition: --hub var(--t-glide) var(--ease-glide);
 }
 /* A wide soft pool of the live hub's colour behind the stack, so it sits in the page light rather than on it. */
 .edith-stage::before {
@@ -437,7 +477,7 @@ body::-webkit-scrollbar,
 }
 .edith-stage__glow {
   opacity: 0;
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity var(--t-slow) var(--ease-ui);
 }
 .edith-stage__glow.is-on {
   opacity: 1;
@@ -461,7 +501,7 @@ body::-webkit-scrollbar,
   min-height: 58svh;
   padding: 3rem 0 3rem 3rem;
   opacity: 0.62;
-  transition: opacity 0.6s ease;
+  transition: opacity var(--t-slow) var(--ease-ui);
 }
 .edith-beat.is-active {
   opacity: 1;
@@ -486,7 +526,7 @@ body::-webkit-scrollbar,
   border-radius: 50%;
   background: var(--hub);
   opacity: 0.6;
-  transition: opacity 0.5s ease, box-shadow 0.5s ease, transform 0.5s ease;
+  transition: opacity var(--t-slow) var(--ease-ui), box-shadow var(--t-slow) var(--ease-ui), transform var(--t-slow) var(--ease-ui);
 }
 .edith-beat.is-active .edith-beat__tag::before {
   opacity: 1;
@@ -594,7 +634,7 @@ body::-webkit-scrollbar,
   right: 0;
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--t-glide) var(--ease-glide);
   pointer-events: none;
 }
 @keyframes edith-progress {
@@ -641,7 +681,7 @@ body::-webkit-scrollbar,
   height: 100%;
   object-fit: cover;
   object-position: var(--pan, 50%) 50%;
-  transition: object-position 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: object-position var(--t-glide) var(--ease-glide), opacity var(--t-slow) var(--ease-ui);
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
@@ -675,7 +715,7 @@ body::-webkit-scrollbar,
   text-align: left;
   cursor: pointer;
   color: rgb(var(--edith-cream) / 0.5);
-  transition: color 0.45s ease;
+  transition: color var(--t-mid) var(--ease-ui);
 }
 .edith-step__btn:focus-visible {
   outline: 2px solid #ffbc09;
@@ -702,7 +742,7 @@ body::-webkit-scrollbar,
   border-radius: 50%;
   background: var(--hub);
   opacity: 0.55;
-  transition: opacity 0.45s ease, box-shadow 0.45s ease, transform 0.45s ease;
+  transition: opacity var(--t-mid) var(--ease-ui), box-shadow var(--t-mid) var(--ease-ui), transform var(--t-mid) var(--ease-ui);
 }
 .edith-step.is-active .edith-step__tag::before {
   opacity: 1;
@@ -716,7 +756,7 @@ body::-webkit-scrollbar,
   line-height: 1.05;
   letter-spacing: -0.01em;
   color: rgb(var(--edith-cream) / 0.55);
-  transition: color 0.45s ease;
+  transition: color var(--t-mid) var(--ease-ui);
 }
 .edith-step.is-active .edith-step__title {
   color: rgb(var(--edith-cream));
@@ -758,7 +798,7 @@ body::-webkit-scrollbar,
   text-transform: uppercase;
   color: rgb(var(--edith-cream) / 0.78);
   cursor: pointer;
-  transition: color 0.3s ease, border-color 0.3s ease;
+  transition: color var(--t-fast) var(--ease-ui), border-color var(--t-fast) var(--ease-ui);
 }
 .edith-lineup__pause:hover {
   color: rgb(var(--edith-cream));
@@ -889,7 +929,7 @@ body::-webkit-scrollbar,
   content: "\203A";
   display: inline-block;
   margin-left: 0.5rem;
-  transition: transform 0.3s ease;
+  transition: transform var(--t-fast) var(--ease-ui);
 }
 .edith-more:focus-visible {
   outline: 2px solid #ffbc09;
@@ -973,7 +1013,7 @@ body::-webkit-scrollbar,
   flex-direction: column;
   gap: 1.3rem;
   padding: 1.8rem 1.8rem 1.6rem;
-  border-radius: 1.8rem;
+  border-radius: var(--r-panel);
   background: #ece7e0;
   color: #101010;
   box-shadow: 0 2.4rem 7rem rgb(0 0 0 / 0.7), 0 0 0 1px rgb(255 255 255 / 0.08);
@@ -1010,7 +1050,7 @@ body::-webkit-scrollbar,
 .edith-ui__field,
 .edith-ui__step {
   padding: 1rem 1.2rem;
-  border-radius: 1rem;
+  border-radius: var(--r-inner);
   background: rgb(0 0 0 / 0.05);
 }
 .edith-ui__label {
@@ -1076,7 +1116,7 @@ body::-webkit-scrollbar,
 .edith-ui__code {
   display: block;
   padding: 1rem 1.2rem;
-  border-radius: 1rem;
+  border-radius: var(--r-inner);
   background: #141414;
   color: #ece7e0;
   font-family: "Roboto Mono", monospace;
@@ -1148,7 +1188,7 @@ body::-webkit-scrollbar,
   border-radius: 50%;
   color: rgb(var(--edith-cream));
   text-decoration: none;
-  transition: border-color 0.3s ease, color 0.3s ease;
+  transition: border-color var(--t-fast) var(--ease-ui), color var(--t-fast) var(--ease-ui);
 }
 .edith-plink svg {
   display: block;

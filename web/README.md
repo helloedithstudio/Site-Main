@@ -38,8 +38,10 @@ npm run build && npm start
 | `lib/runtime/` | Lenis scroll, resize, device, event bus, GSAP eases and effects, UI flag store |
 | `lib/gl/` | The WebGL engine (three r180): asset loader, DOM trackers, hero marble, carousel boxes, spinning models, shaders |
 | `styles/` | `site.css`, `scoped.css`, `chunks.css` come from the original compiled stylesheet (never edit `site.css` by hand, see Colours). `edith.css`, `docs.css` and `legion.css` hold edith's additions. |
-| `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, WebP flower frames, self-hosted fonts |
-| `scripts/` | `make-logo.cjs`, `make-hub-images.cjs`, `retheme.cjs` |
+| `public/` | Images, KTX2 textures, GLB models, Draco/Basis decoders, the Beliefs frame sequence, share images, self-hosted fonts |
+| `scripts/` | `make-logo.cjs`, `make-hub-images.cjs`, `make-beliefs-frames.cjs`, `retheme.cjs` |
+| `docs/` | Design notes: `apple-aesthetics.md` (the Apple product-site study behind the type ladder, motion and corner tokens), `affinity-brief.md` (three pieces to build in Affinity), `edith-3d-brief*.md` |
+| `assets-in/` | Where finished Affinity pieces are dropped, named as in `docs/affinity-brief.md` |
 
 ## Working with the styles
 
@@ -125,23 +127,39 @@ To rebuild the objects: `D:\blender\blender.exe -b --factory-startup -P blender\
 (or add object numbers after `--`). Each run checks the mesh (closed, one shell, triangle budget) and writes the
 GLB and a preview sheet.
 
-## Still Saffron (temporary)
+## The Beliefs sequence
 
-- **Crocus frames** in the Beliefs scroll (no text, kept for now).
+`Beliefs.tsx` scrubs 96 frames as you scroll: the six hub layers of the server open, light one by one in the hub colours
+and the camera settles. It replaced the original template's crocus footage. Made in Blender (`blender/scripts/beliefs_orbit.py`,
+about 20 minutes on 16 cores at 1000x1400, 40 samples) and turned into WebP by `node scripts/make-beliefs-frames.cjs`, which
+flattens each frame onto pure black (the page is `#000`, so the frame edge is invisible) and adds a soft glow. The frames are
+a tall crop (the stack fills only the middle of a wide screen) drawn fitted to the canvas height, and neighbouring frames
+are cross-faded so 96 frames scrub smoothly. To change the look, edit the script (`dist=`, `shift=` set the framing so the
+stack sits between the header and the caption plate) and rerun both steps.
+
+## Motion, type and corner tokens
+
+`styles/edith.css` starts with shared tokens taken from a rendered study of 36 Apple product pages
+(`docs/apple-aesthetics.md`): three easings (`--ease-ui`, `--ease-out`, `--ease-glide`), four durations (240, 320, 500 and
+900 ms) and two corner radii (`--r-panel` 28 px, `--r-inner` 16 px). New transitions should use them. The same file has the
+type ladder for the four template sections. Apple is a source of composition only: no Apple fonts, colours or copy.
 
 ## Performance
 
-- **Flower sequence** (`Beliefs.tsx`): 267 WebP frames (4.7 MB, from the original JPEG set at quality 72). They are not
+- **Beliefs sequence** (`Beliefs.tsx`): 96 WebP frames (about 1.7 MB, down from 5.5 MB for the old 267). They are not
   fetched at page load. Four at a time, in passes (every 8th frame, then 4th, 2nd, the rest), once the section is
   within three screens or about 9 s after mount (only near the section on a slow or data-saving connection).
-  Scrubbing draws the nearest frame that has arrived.
+  Scrubbing draws the nearest frame that has arrived and fades the next one in.
 - **WebGL assets** are listed once in `lib/gl/manifest.ts`. `components/GlPreload.tsx` reads that list on the server and
   emits `<link rel="preload">` hints, so downloads start with the HTML instead of after the scripts run. Add a new
   asset to the manifest and it is preloaded automatically. Responsive textures use the `-desktop` variant on every
   device on purpose (the `-mobile` ones make the marble blocky).
 - **Images**: an 8-bit `blue-noise.png` (only its red channel is used).
 - **Fonts** are self-hosted in `public/fonts` (latin subset, variable weight) and declared in `styles/fonts.css`, with
-  preload hints in the layout. Nothing is fetched from Google.
+  preload hints in the layout. Nothing is fetched from Google. The monospace is JetBrains Mono (SIL Open Font
+  License), declared under the family name "Roboto Mono" so every existing rule uses it without other edits.
+- **Share image:** `app/opengraph-image.jpg` and `app/twitter-image.jpg` (1200x630, made from the real hero). `/docs` and
+  `/legion` set their own `openGraph`, which would drop the root image, so each has its own copy of `opengraph-image.jpg`.
 - **Caching** (`next.config.ts`): `/gl`, `/images` one day plus a week of stale-while-revalidate, `/fonts` one year.
   Replaced files reach returning visitors within a day. Give a file a new name to force it sooner.
 
@@ -172,5 +190,5 @@ The header, loading screen and footer all read those files.
 
 - Final logo (see above).
 - A lawyer's review of the docs page's rules and legal documents, and the legal entity details for the terms.
-- Work section and Maintainer booking (Calendly).
+- Work section and per-Maintainer booking (the general edith booking link is `brand.booking`).
 - X (Twitter) link once the page exists.

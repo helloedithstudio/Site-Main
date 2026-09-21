@@ -1,8 +1,9 @@
 "use client";
 
-// Beliefs (500vh): a pinned canvas plays the 267-frame flower sequence (WebP, loaded lazily) with scroll,
-// the frame scales 0.75 → 1, the gold rule grows, and the six belief captions swap with
-// SplitText line reveals.
+// Beliefs (500vh): a pinned canvas plays a 96-frame Blender sequence (WebP, loaded lazily) with scroll: the six hub
+// layers of the server open, light one by one in the hub colours and the camera settles (blender/scripts/beliefs_orbit.py,
+// frames made by scripts/make-beliefs-frames.cjs). Neighbouring frames are cross-faded so 96 frames scrub smoothly.
+// The frame scales 0.75 → 1, the gold rule grows, and the six belief captions swap with SplitText line reveals.
 
 import { useEffect, useRef, useState } from "react";
 import { home } from "@/lib/content";
@@ -11,9 +12,11 @@ import { getRuntime } from "@/lib/runtime";
 import { TransitionSwitch } from "../ui/Transition";
 
 const item = home.beliefs;
-const FRAMES = 267;
-const FRAME_W = 1800;
-const FRAME_H = 949;
+const FRAMES = 96;
+// Tall crop of the render: the stack only fills the middle of a wide screen, so the frames are fitted to the canvas
+// height and the black sides are not stored.
+const FRAME_W = 1000;
+const FRAME_H = 1400;
 const FRAME_CONCURRENCY = 4;
 // Start fetching the sequence this long after mount even if the section is far away (ms).
 const FRAME_IDLE_START = 9000;
@@ -34,7 +37,7 @@ export default function Beliefs() {
     const state = { frame: 0 };
     let tl: gsap.core.Timeline | null = null;
     let disposed = false;
-    let drawn = -1;
+    let drawn = "";
 
     const ready = (i: number) => (frames[i]?.naturalWidth ?? 0) > 0;
     // The closest frame that has arrived, so scrubbing never shows a hole while the sequence is still loading.
@@ -46,36 +49,46 @@ export default function Beliefs() {
       }
       return -1;
     };
-    const draw = (img: HTMLImageElement) => {
+    const draw = (a: HTMLImageElement, b: HTMLImageElement | null, mix: number) => {
       const c = canvas.current;
       if (!c) return;
       const ctx = c.getContext("2d")!;
       const { width, height } = c;
-      const s = Math.max(width / FRAME_W, height / FRAME_H);
+      const s = height / FRAME_H;
       const w = FRAME_W * s;
-      const h = FRAME_H * s;
+      const x = (width - w) / 2;
       ctx.clearRect(0, 0, width, height);
-      ctx.filter = "saturate(1.6) contrast(1.15)";
-      ctx.drawImage(img, (width - w) / 2, (height - h) / 2, w, h);
-      ctx.filter = "none";
+      ctx.drawImage(a, x, 0, w, height);
+      if (b) {
+        ctx.globalAlpha = mix;
+        ctx.drawImage(b, x, 0, w, height);
+        ctx.globalAlpha = 1;
+      }
     };
+    // `target` is fractional: the frame below is drawn, and the one above fades in over it by the remainder.
     const render = (target: number, force = false) => {
-      const n = nearest(target);
-      if (n < 0 || (n === drawn && !force)) return;
-      drawn = n;
-      draw(frames[n]!);
+      const f = Math.min(FRAMES - 1, Math.max(0, target));
+      const lo = Math.floor(f);
+      const mix = f - lo;
+      const a = nearest(lo);
+      if (a < 0) return;
+      const b = mix > 0.004 ? nearest(Math.min(FRAMES - 1, lo + 1)) : -1;
+      const key = `${a}:${b}:${Math.round(mix * 32)}`;
+      if (key === drawn && !force) return;
+      drawn = key;
+      draw(frames[a]!, b >= 0 && b !== a ? frames[b]! : null, mix);
     };
     const onResize = (ww: number, wh: number) => {
       const c = canvas.current;
       if (!c) return;
       c.width = ww;
       c.height = wh;
-      render(Math.round(state.frame), true);
+      render(state.frame, true);
     };
 
     resize.add(onResize);
 
-    // The sequence is 4.7 MB, so it must not compete with the WebGL assets at page load. Frames load a few at a
+    // The sequence is a few MB, so it must not compete with the WebGL assets at page load. Frames load a few at a
     // time in passes (every 8th, then 4th, 2nd, the rest) once the section is near, or a little after the page
     // has settled, whichever comes first. Scrubbing draws the nearest frame that has arrived.
     const order: number[] = [0, FRAMES - 1];
@@ -100,7 +113,7 @@ export default function Beliefs() {
         const settle = () => {
           inFlight--;
           if (disposed) return;
-          if (ready(i) && nearest(Math.round(state.frame)) === i) render(Math.round(state.frame));
+          if (ready(i)) render(state.frame);
           pump();
         };
         img.onload = settle;
@@ -109,7 +122,7 @@ export default function Beliefs() {
           settle();
         };
         frames[i] = img;
-        img.src = `/images/flower/frame_${pad(i + 1)}.webp`;
+        img.src = `/images/beliefs/frame_${pad(i + 1)}.webp`;
       }
     };
     const start = () => {
@@ -158,8 +171,7 @@ export default function Beliefs() {
         state,
         {
           frame: FRAMES - 1,
-          snap: 1,
-          onUpdate: () => render(Math.round(state.frame)),
+          onUpdate: () => render(state.frame),
         } as unknown as gsap.TweenVars,
         0,
       );

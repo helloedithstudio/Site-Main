@@ -25,6 +25,7 @@
   display: block;
 }
 .cat__search input {
+  caret-color: #ffbc09;
   width: 100%;
   padding: 1.5rem 2rem;
   border: 1px solid rgb(255 255 255 / 0.14);
@@ -33,7 +34,7 @@
   color: rgb(236 231 224);
   font-family: "Host Grotesk", sans-serif;
   font-size: max(1.6rem, 14px);
-  transition: border-color 0.3s ease;
+  transition: border-color var(--t-fast) var(--ease-ui);
 }
 .cat__search input::placeholder {
   color: rgb(236 231 224 / 0.5);
@@ -82,7 +83,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.3s ease, color 0.3s ease;
+  transition: border-color var(--t-fast) var(--ease-ui), color var(--t-fast) var(--ease-ui);
 }
 .cat__chip span {
   color: rgb(236 231 224 / 0.5);

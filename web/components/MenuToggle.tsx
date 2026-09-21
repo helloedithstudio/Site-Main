@@ -1,14 +1,14 @@
 "use client";
 
-// Round burger toggle (client-only, like the original). Its gold noise fill wipes in
+// Round burger toggle (client-only, like the original). Its marble-gradient noise fill wipes in
 // while the store flag it controls is on; the three lines morph into a cross.
 
 import { useEffect, useId, useRef, type MouseEventHandler } from "react";
-import { theme } from "@/lib/theme";
 import { gsap } from "@/lib/runtime/gsap";
 import { useFlag, type Flags } from "@/lib/runtime/store";
 import ClientOnly from "./ui/ClientOnly";
 import { cleanId } from "./ui/Button";
+import MarbleGradient from "./ui/MarbleGradient";
 
 const scope = { "data-v-90a5d995": "" };
 
@@ -27,6 +27,7 @@ function Toggle({
 }) {
   const active = useFlag(flag);
   const id = `toggle-filter-${cleanId(useId())}`;
+  const gradId = `${id}-g`;
   const fill = useRef<SVGRectElement>(null);
   const displacement = useRef<SVGFEDisplacementMapElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
@@ -82,10 +83,11 @@ function Toggle({
               yChannelSelector="G"
             />
           </filter>
+          <MarbleGradient id={gradId} />
         </defs>
         <rect
           ref={fill}
-          fill={theme.accent}
+          fill={`url(#${gradId})`}
           x="-25%"
           y="-20%"
           width="150%"

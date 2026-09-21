@@ -50,7 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
       <head>
-        {["funnel-display", "host-grotesk", "roboto-mono"].map((f) => (
+        {["funnel-display", "host-grotesk", "jetbrains-mono"].map((f) => (
           <link key={f} rel="preload" href={`/fonts/${f}-latin.woff2`} as="font" type="font/woff2" crossOrigin="anonymous" />
         ))}
         {jsonLd.map((data, i) => (

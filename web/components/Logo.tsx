@@ -1,15 +1,15 @@
 "use client";
 
 // Header wordmark: the letters (public/images/edith-letters.png) are a CSS mask over a cream rect, with a
-// rect in the accent colour that wipes in through a noise displacement filter on hover (mouse only). The red dot is drawn
+// rect in the marble gradient (ui/MarbleGradient) that wipes in through a noise displacement filter on hover (mouse only). The red dot is drawn
 // on top, outside the mask, so it stays red. Regenerate the assets with scripts/make-logo.cjs.
 
 import { useEffect, useId, useRef } from "react";
-import { theme } from "@/lib/theme";
 import { gsap } from "@/lib/runtime/gsap";
 import { useResizeFlags } from "@/lib/runtime/hooks";
 import { LOGO } from "@/lib/logo";
 import { cleanId } from "./ui/Button";
+import MarbleGradient from "./ui/MarbleGradient";
 
 const VIEWBOX = `0 0 ${LOGO.width} ${LOGO.height}`;
 
@@ -35,6 +35,7 @@ const dot = LOGO.dot
 
 export default function Logo(props: Record<`data-${string}`, string>) {
   const id = `sl-${cleanId(useId())}`;
+  const gradId = `${id}-g`;
   const fill = useRef<SVGRectElement>(null);
   const displacement = useRef<SVGFEDisplacementMapElement>(null);
   const tl = useRef<gsap.core.Timeline | null>(null);
@@ -81,9 +82,10 @@ export default function Logo(props: Record<`data-${string}`, string>) {
                 yChannelSelector="G"
               />
             </filter>
+            <MarbleGradient id={gradId} />
           </defs>
           <rect x="-25%" y="-20%" width="150%" height="140%" fill="#EFEEEB" />
-          <rect ref={fill} x="-25%" y="-20%" width="0" height="140%" fill={theme.accent} style={{ filter: `url(#${id})` }} />
+          <rect ref={fill} x="-25%" y="-20%" width="0" height="140%" fill={`url(#${gradId})`} style={{ filter: `url(#${id})` }} />
         </svg>
       </div>
       {dot ? <span aria-hidden="true" className="absolute rounded-full pointer-events-none" style={{ ...dot, background: "#D64238" }} /> : null}

@@ -38,7 +38,7 @@
   max-width: 80rem;
   padding: 1.6rem 1.8rem;
   border: 1px solid rgb(255 188 9 / 0.4);
-  border-radius: 0.8rem;
+  border-radius: var(--r-panel);
   background: rgb(255 188 9 / 0.06);
 }
 .hb-notice--quiet {
@@ -98,7 +98,7 @@
   padding: 0.6rem 0;
   white-space: nowrap;
   color: #962817;
-  transition: color 0.3s ease;
+  transition: color var(--t-fast) var(--ease-ui);
 }
 .hb-nav__link.is-active {
   color: #ffbc09;
@@ -179,8 +179,9 @@
   padding: 2.8rem 2.4rem 2.6rem;
   overflow: hidden;
   border: 1px solid var(--hb-line);
-  border-radius: 0.8rem;
-  background: rgb(0 0 0 / 0.55);
+  border-radius: var(--r-panel);
+  /* tone on tone, as on Apple's dark pages (a lighter panel on black), instead of a stroke alone */
+  background: rgb(255 255 255 / 0.04);
 }
 .hb-card--open {
   border-style: dashed;
@@ -344,5 +345,40 @@
   }
   .hb-cards--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Section title with a copy-link "#" (shown on hover or focus; always faintly visible on touch, where there is no hover). */
+.hb-head__row {
+  display: flex;
+  align-items: baseline;
+  gap: 1.4rem;
+}
+.hb-anchor {
+  font-family: "Roboto Mono", monospace;
+  font-size: max(1.6rem, 13px);
+  line-height: 1;
+  color: rgb(236 231 224 / 0.68);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity var(--t-fast) var(--ease-ui), color var(--t-fast) var(--ease-ui);
+}
+.hb-head:hover .hb-anchor,
+.hb-anchor:focus-visible,
+.hb-anchor.is-copied {
+  opacity: 1;
+}
+.hb-anchor:hover,
+.hb-anchor.is-copied {
+  color: #ffbc09;
+}
+.hb-anchor:focus-visible {
+  outline: 2px solid #ffbc09;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+@media (hover: none) {
+  .hb-anchor {
+    opacity: 0.6;
   }
 }
