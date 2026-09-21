@@ -1,6 +1,21 @@
 /* edith additions. Kept apart from site.css / scoped.css / chunks.css, which are verbatim copies of the
    original compiled stylesheet and are not edited by hand. */
 
+/* No visible scrollbars anywhere (page, phone scroll wrapper, inner scrollers). Scrolling itself is untouched. */
+html,
+body,
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /* The hero headline wraps to two lines; the original display style (line-height .75) was for one line. */
 .edith-hero-title {
   line-height: 0.95;
