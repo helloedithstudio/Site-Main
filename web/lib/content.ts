@@ -56,7 +56,7 @@ export const footer: {
   legal: LinkItem[];
 } = {
   notes: [
-    "edith is an autonomous, decentralised organisation for developers and technologists to connect, collaborate, build and launch ideas across Web2, Web3, AI and emerging technology.",
+    "edith is a community that runs itself, for developers and technologists to connect, collaborate, build and launch ideas across Web2, Web3, AI and emerging technology.",
     "There is no token, treasury or on-chain governance, and this site uses no cookies or analytics. Open by default. Reputation is earned.",
   ],
   columns: [

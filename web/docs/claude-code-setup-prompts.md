@@ -1,8 +1,12 @@
-# Prompts for a Claude Code session that has your browser: setting up the join flow
+# Prompts for a Claude Code terminal: setting up the join flow and building the share image
 
 Paste **Prompt 1** into a Claude Code session that can use your browser (Discord and the Discord developer portal). It does
 checklist items A1 and A2 (`docs/kevin-todo.md`). **Prompt 2** is optional and does A3 to A6 (GitHub app, database, Vercel
 settings, GitHub secrets) the same way. Both are written so the session cannot switch anything on or remove anyone.
+
+**Prompt 3** is unrelated to Discord: it builds checklist item C1, the share image, in code from the exact spec in
+`docs/affinity-brief.md`, using the fonts and reference images already in the repository. No Affinity, no browser login needed,
+just a normal Claude Code terminal session opened in `D:\page_content\web`.
 
 The repository is public. The prompts tell the session to keep every secret in a folder outside the repository.
 
@@ -144,3 +148,58 @@ FINAL REPORT
 A short report: which steps passed, the exact JSON the dry run returned (it contains no secrets), which Vercel variables you
 added (names only), and anything unsure. Then stop. Do not do anything else.
 ```
+
+---
+
+## Prompt 3: the share image (C1), no Affinity needed
+
+Paste this into an ordinary Claude Code terminal session opened at `D:\page_content\web`. It only reads the repository and
+writes one new file; it does not touch Discord, GitHub, Vercel or any account.
+
+```text
+You are building the share image for the edith website (the picture shown when a link to the site is pasted into Discord,
+LinkedIn, WhatsApp or X). Work inside D:\page_content\web only. Do not edit any existing file. Do not commit or push anything;
+just create the new image file and show me a preview.
+
+READ FIRST, in full: docs/affinity-brief.md, section "Shared rules" and section "A. Share image (1200 x 630)". That is the exact
+spec: sizes, colours, fonts, copy, layout, safe area, export settings. Follow it precisely, including that there must be NO
+en dash or em dash anywhere and the spelling is British.
+
+WHAT TO USE (already in the repository, do not download anything else)
+- Fonts, self hosted: public/fonts/funnel-display-latin.woff2 (Funnel Display, use weight 300 for the headline) and
+  public/fonts/jetbrains-mono-latin.woff2 (JetBrains Mono, for the small line). Load them with local @font-face rules pointing
+  at these files with file:// paths, or run a tiny local static server, your choice.
+- Backdrop: assets-in/reference/hero-marble-2400x1260.png (the marble reference, no text on it).
+- Logo: assets-in/reference/logo-current.png (the current wordmark, cream with the red dot). Use it as is; do not redraw it.
+- Palette reference (for exact hex values, cross check against the brief): assets-in/reference/palette.png.
+
+HOW TO BUILD IT
+1. Write a small HTML file (in a scratch location outside web/, for example your own temp folder) at exactly 2400x1260 px:
+   pure black page background; the marble backdrop image placed full bleed (crop, scale or mask it, but keep the middle 60
+   percent of the canvas visually quiet so the headline reads clearly); the logo top left, about 140 px tall; the headline
+   in Funnel Display weight 300, cream colour #ECE7E0, set on two lines exactly "A legion of builders" and "that runs itself.",
+   letter spacing about minus 1.5 percent, line height about 1.02, font size in the 150 to 190 px range so it fits well within
+   the safe area; a small line in JetBrains Mono, 44 px, cream at 70 percent opacity, reading exactly "discord.gg/TmVeNgzw4K",
+   bottom left. Keep everything at least 120 px from every edge. Do not add a button, a photo, any colour outside the palette
+   (cream #ECE7E0, gold #FFBC09, black #000000, the red #D64238, or the marble ramp #FEAF01 #FF8301 #FF3702 #F70C5A #E803D1
+   #CE3AAD used only as small existing light in the backdrop image, not as new flat shapes), or more than the two lines of
+   headline above.
+2. Render it with a headless browser (Playwright or Puppeteer, whichever is already available; install one locally with npm if
+   neither is, in a scratch folder, not inside web/) at exactly 2400x1260 viewport and device scale factor 1, wait for the two
+   fonts and the images to finish loading, then screenshot the full page.
+3. Save the screenshot as a JPEG, quality 90, sRGB colour, exactly 2400x1260, to web/assets-in/opengraph-image.jpg. This is a
+   NEW file in a folder that already exists (web/assets-in/); do not touch any other file in web/assets-in/ or anywhere else in
+   the repository.
+4. Also save a version scaled down to 300 px wide as web/assets-in/opengraph-image-preview-300.jpg, purely so I can eyeball it
+   at the size the brief asks you to check it at. This second file is temporary for review; say clearly in your report that I
+   may delete it once I have looked.
+5. Look at both files yourself (open the 300 px preview) and confirm: the headline is fully readable, nothing touches an edge,
+   no colour outside the palette appears as a flat shape, there is no dash of any kind anywhere in the text, and the spelling
+   is British throughout.
+
+FINAL REPORT
+Tell me: the exact path of web/assets-in/opengraph-image.jpg and its pixel size and file size; that the preview file exists and
+what you saw when you checked it; anything in the brief you could not match exactly and why; and confirm you touched no other
+file. Then stop.
+```
+
