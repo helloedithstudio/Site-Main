@@ -14,10 +14,10 @@ Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, n
 
 ## Start here (the three that unlock the most)
 
-0. **Rotate the Discord bot token (5 min, urgent).** The terminal session that ran Prompt 2 exposed `DISCORD_BOT_TOKEN` in its own transcript during a bulk paste. It tried to rotate it and could not finish because Discord asked for your MFA, so the current token is still the old, exposed one. Discord Developer Portal, your application, Bot, Reset Token; paste the new value into `DISCORD_BOT_TOKEN` on Vercel yourself (do not paste it to me or into any chat), then redeploy and tell me it is done so I can tick this off.
-1. ~~Decide B1 and B2~~ **Done (21 Sep):** GitHub required, and minimum account ages on (Discord 7 days, GitHub 30 days).
-2. **A7: test the join flow** (about 20 minutes). A1 to A6 are done (see below); this is what is left before going live. Two spare Discord accounts and two spare GitHub accounts, steps in `docs/onboarding-setup.md` step 8.
-3. **Build the share image (C1)** (about 40 minutes in Affinity, or a few minutes if you hand it to a Claude Code terminal with Prompt 3 in `docs/claude-code-setup-prompts.md`). It is what every pasted link shows.
+0. **Rotate the Discord bot token (5 min, urgent).** Exposed in a terminal transcript during setup. Discord Developer Portal, your application, Bot, Reset Token (needs your MFA). Either paste the new value into `DISCORD_BOT_TOKEN` on Vercel yourself, or give it to the same terminal session and let it do that step, since it already offered. Tell me either way is done.
+1. **Confirm `DISCORD_ROLES_EXEMPT` covers all four staff roles (2 min), see A2b below.** You told the setup session to keep the bot (Friday) as Administrator, above staff in the role order. That is your call, but it means the exempt list is now the *only* thing stopping the sweep from ever kicking staff.
+2. ~~Decide B1 and B2~~ **Done (21 Sep):** GitHub required, and minimum account ages on (Discord 7 days, GitHub 30 days).
+3. **A7: test the join flow** (about 20 minutes). A1 to A6 are done (see below); this is what is left before going live. Two spare Discord accounts and two spare GitHub accounts, steps in `docs/onboarding-setup.md` step 8.
 
 ---
 
@@ -31,7 +31,8 @@ in `missed`), `/join` loads and shows the form. Everything stays switched off (`
 `ONBOARDING_START` unset). One thing came out of that run that needs you first: **A0 above, rotate the Discord bot token.**
 
 - [x] **A1. Discord server.** Roles, private forms channel, ids copied.
-- [x] **A2. Discord application and bot.** Redirect set, Server Members Intent on, bot invited and ranked above Catalyst and Pending. **Token needs rotating, see A0.**
+- [x] **A2. Discord application and bot.** Renamed to Friday, reused an old unused application (confirmed with you: nothing else depended on it), redirect set, only Server Members Intent on, Public Bot off. **Token needs rotating, see A0.**
+- [ ] **A2b. Confirm the exempt role list (2 min).** You kept Friday as Administrator and above Founder, Core Team, Mods and Maintainer in the role order, so Discord's own hierarchy will not stop the bot kicking staff. `DISCORD_ROLES_EXEMPT` on Vercel is the only thing that does. Check it lists all four of those role ids and tell me if any are missing.
 - [x] **A3. GitHub OAuth app.** Created under your own account (confirmed with the terminal session), callback set.
 - [x] **A4. Database.** Upstash for Redis connected; it landed on the `KV_REST_API_URL` / `KV_REST_API_TOKEN` pair, which the site accepts (either name works, see `lib/join/config.ts`).
 - [x] **A5. Vercel settings.** All 21 variables set on Production, secrets marked non-retrievable, the four `NEXT_PUBLIC_*` ones left readable on purpose (they ship to the browser). Redeployed and Ready.
@@ -57,7 +58,7 @@ Tell me your choice in one line each. My recommendation is first.
 
 Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are in `web/assets-in/reference/`. Drop finished files in `web/assets-in/` and tell me; I wire each in. Nothing is blocked while you work: the site already has stand-ins.
 
-- [ ] **C1. Share image** (about 40 minutes): `opengraph-image.jpg`, 2400 by 1260. **Shortcut:** Prompt 3 in `docs/claude-code-setup-prompts.md` builds it in code from the exact brief, no Affinity needed; drop it into `web/assets-in/` for me to wire in either way.
+- [x] **C1. Share image.** **Done 22 Sep**, built by a Claude Code terminal from the brief (Prompt 3), no Affinity needed. Wired into all four spots (`app/`, `app/docs/`, `app/legion/`, plus `twitter-image.jpg`), rebuilt, and checked live: each route returns 200, `image/jpeg`, exactly 1200x630.
 - [ ] **C2. Logo pack** (about 20 minutes, only if the final logo is ready): wordmark SVG and PNG, square mark.
 - [ ] **C3. Six hub glyphs** (about 30 minutes): ideas, build, team-up, help, feedback, show-off, as SVG. I then re-render the layer stack and the Beliefs sequence.
 - [ ] **C4. Optional: Discord server icon and banner** in the same style, so the community looks like the site.
@@ -99,21 +100,23 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 
 | Waiting on you | I will do as soon as you finish it |
 | --- | --- |
-| A0 bot token rotation | Tick A2's note off, and re-check nothing else needs the new token |
+| A0 bot token rotation | Tick A2's note off |
+| A2b exempt role check | Note it and move on, or fix `DISCORD_ROLES_EXEMPT` with you if a role is missing |
 | A7 testing | Fix anything that breaks against the real Discord, GitHub and database; then help you go live (A8) |
 | B3 colour | Re-render the Membership and Decisions objects, restyle the Safety seal and the side rail |
 | B4 section plan | Build the section before the footer |
 | B5 | Add the Cmd+K palette |
-| C1 to C3 | Wire each file in and re-render where needed |
+| C2, C3 | Wire each file in and re-render where needed |
 | D1 (X page, coming soon) | Add the X icon |
 | E2 | Replace the placeholder in the legal text |
 
-Done since the last update: B6, B8 decided and applied; D2, D3, D4, D6 confirmed by you.
+Done since the last update: B6, B8 decided and applied; D2, D3, D4, D6 confirmed by you; C1 built and wired in.
 
 Nothing else is queued on my side.
 
 ## Log of what is done (newest first)
 
+- 22 Sep 2026: C1 (share image) built by a Claude Code terminal (Prompt 3), resized and wired into `app/`, `app/docs/`, `app/legion/` and `twitter-image.jpg`; build, lint and a live check of all four routes (200, `image/jpeg`, 1200x630) pass. Confirmed with you that the reused Discord application ("E.D.I.T.H.", renamed to Friday) was an unused leftover, nothing else broke. Flagged A2b: you kept Friday as Administrator above staff in the role order, so `DISCORD_ROLES_EXEMPT` is now the only thing protecting Founder, Core Team, Mods and Maintainer from the sweep; asked you to confirm it lists all four.
 - 22 Sep 2026: A1 to A6 done, run through the two Claude Code terminal prompts (GitHub OAuth app, Upstash database, Vercel env vars, GitHub repo secrets). Dry run against the real services came back clean, `/join` loads. Two follow ups: rotate `DISCORD_BOT_TOKEN` (it was exposed in that terminal session's own transcript, added as A0), and fixed the `Get-Random -Count 48` line in `docs/onboarding-setup.md` and `docs/claude-code-setup-prompts.md`, which had been silently generating 36 character secrets instead of 48 (still a huge keyspace, not a security problem, just not what it said).
 - 22 Sep 2026: Decided B6 (footer wording changed to "a community that runs itself") and B8 (retention text kept as written); implemented B6 in `lib/content.ts`. Confirmed by you: D2 (Instagram and LinkedIn links), D3 (Calendly), D4 (inbox monitored), D6 (git remote connected, Sync and Push work). Added a code-built option for C1 (Prompt 3 in `docs/claude-code-setup-prompts.md`). D1 (X) still open: no page yet, you will make one and say when.
 - 21 Sep 2026: Wrote two ready-to-paste Claude Code prompts for the Discord side (A1, A2) and the GitHub, database, Vercel and scheduler side (A3 to A6), in `docs/claude-code-setup-prompts.md`. Both keep everything switched off, keep secrets outside the repository, and end with a report.
