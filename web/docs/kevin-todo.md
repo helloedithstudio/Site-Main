@@ -8,14 +8,15 @@ that suits you, and tell me when something is done or when you have decided. Eve
 This file lives in a public repository, so it must never contain a password, token or secret. Put secrets only in Vercel and
 GitHub settings.
 
-**Last updated:** 22 September 2026 (early hours)
+**Last updated:** 22 September 2026 (morning)
 
 Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, not for me.
 
 ## Start here (the three that unlock the most)
 
+0. **Rotate the Discord bot token (5 min, urgent).** The terminal session that ran Prompt 2 exposed `DISCORD_BOT_TOKEN` in its own transcript during a bulk paste. It tried to rotate it and could not finish because Discord asked for your MFA, so the current token is still the old, exposed one. Discord Developer Portal, your application, Bot, Reset Token; paste the new value into `DISCORD_BOT_TOKEN` on Vercel yourself (do not paste it to me or into any chat), then redeploy and tell me it is done so I can tick this off.
 1. ~~Decide B1 and B2~~ **Done (21 Sep):** GitHub required, and minimum account ages on (Discord 7 days, GitHub 30 days).
-2. **Set up the join flow, A1 to A7** (about 60 to 90 minutes, once). Fastest route: paste Prompt 1 (then Prompt 2) from `docs/claude-code-setup-prompts.md` into your Claude Code terminal. Manual steps are in `docs/onboarding-setup.md`; this list is the short version.
+2. **A7: test the join flow** (about 20 minutes). A1 to A6 are done (see below); this is what is left before going live. Two spare Discord accounts and two spare GitHub accounts, steps in `docs/onboarding-setup.md` step 8.
 3. **Build the share image (C1)** (about 40 minutes in Affinity, or a few minutes if you hand it to a Claude Code terminal with Prompt 3 in `docs/claude-code-setup-prompts.md`). It is what every pasted link shows.
 
 ---
@@ -25,19 +26,18 @@ Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, n
 Built, tested against fakes, deployed and switched off. It cannot be tried on the real services without you. Full steps and
 troubleshooting: `docs/onboarding-setup.md`. You need two spare Discord accounts and two spare GitHub accounts for the tests.
 
-**Shortcut:** `docs/claude-code-setup-prompts.md` has two ready-to-paste prompts for a Claude Code session that can use your browser.
-Prompt 1 does A1 and A2 (Discord server, application and bot). Prompt 2 (optional) does A3 to A6. Both stop before switching anything
-on, keep secrets in a folder outside the repository, and finish with a report you can paste to me. Tick the items below once the
-report looks right; the manual steps stay listed as the fallback.
+**Done 22 Sep, via the two Claude Code terminal prompts:** A1 to A6. The dry run came back clean (`"ok":true,"dryRun":true`, nothing
+in `missed`), `/join` loads and shows the form. Everything stays switched off (`ONBOARDING_DRY_RUN=true`, `NEXT_PUBLIC_JOIN_LIVE=false`,
+`ONBOARDING_START` unset). One thing came out of that run that needs you first: **A0 above, rotate the Discord bot token.**
 
-- [ ] **A1. Discord server (10 min).** Turn on Developer Mode. Create roles **Pending** (no permissions) and optionally **Form reminded**; make sure **Catalyst** exists. Create a **private channel** for the mediators (for example `#catalyst-forms`) and optionally a public `#welcome`. Copy every role id, channel id and the server id.
-- [ ] **A2. Discord application and bot (15 min).** developer portal: new application "edith", copy the Application ID and Client Secret, add redirect `https://edith-plum.vercel.app/api/join/callback`, create the bot and copy its token, switch on **Server Members Intent**, invite the bot (Manage Roles, Kick Members, View Channels, Send Messages, Embed Links), and drag the bot's role **above** Catalyst and Pending.
-- [ ] **A3. GitHub OAuth app (5 min).** GitHub, Developer settings, OAuth Apps, new app "edith" (ideally under the edith organisation), callback `https://edith-plum.vercel.app/api/join/github/callback`. Copy the Client ID and a new Client Secret. Change nothing else.
-- [ ] **A4. Database (5 min).** Vercel project, Storage, add **Upstash for Redis** (free plan), connect it to the project.
-- [ ] **A5. Vercel settings (10 min).** Add every variable listed in `web/.env.example`, including `NEXT_PUBLIC_JOIN_MIN_DISCORD_DAYS=7` and `NEXT_PUBLIC_JOIN_MIN_GITHUB_DAYS=30` (already decided). Generate three random strings for `JOIN_SIGNING_SECRET`, `CRON_SECRET`, `JOIN_ID_SECRET`. **Save a copy of `JOIN_ID_SECRET` somewhere private and never change it** once people have joined. Leave `ONBOARDING_DRY_RUN=true`, `ONBOARDING_START` empty, `NEXT_PUBLIC_JOIN_LIVE=false`. Redeploy.
-- [ ] **A6. GitHub repository secrets (3 min).** `SWEEP_URL` = `https://edith-plum.vercel.app/api/join/sweep` and `CRON_SECRET` (same value as on Vercel).
+- [x] **A1. Discord server.** Roles, private forms channel, ids copied.
+- [x] **A2. Discord application and bot.** Redirect set, Server Members Intent on, bot invited and ranked above Catalyst and Pending. **Token needs rotating, see A0.**
+- [x] **A3. GitHub OAuth app.** Created under your own account (confirmed with the terminal session), callback set.
+- [x] **A4. Database.** Upstash for Redis connected; it landed on the `KV_REST_API_URL` / `KV_REST_API_TOKEN` pair, which the site accepts (either name works, see `lib/join/config.ts`).
+- [x] **A5. Vercel settings.** All 21 variables set on Production, secrets marked non-retrievable, the four `NEXT_PUBLIC_*` ones left readable on purpose (they ship to the browser). Redeployed and Ready.
+- [x] **A6. GitHub repository secrets.** `SWEEP_URL` and `CRON_SECRET` added to `helloedithstudio/Site-Main`.
 - [ ] **A7. Test (20 min).** Dry run with curl; then the two account test, the one entry test and the removal test from the guide (step 8). If anything errors, paste me the message and I will fix it.
-- [ ] **A8. Go live.** Set `ONBOARDING_START` to the moment you choose, `ONBOARDING_DRY_RUN=false`, `NEXT_PUBLIC_JOIN_LIVE=true`, redeploy, and paste the welcome text (guide step 1.5) into your Discord rules. Do this only after A7 passes and after B1, B2 and E1 are settled.
+- [ ] **A8. Go live.** Set `ONBOARDING_START` to the moment you choose, `ONBOARDING_DRY_RUN=false`, `NEXT_PUBLIC_JOIN_LIVE=true`, redeploy, and paste the welcome text (guide step 1.5) into your Discord rules. Do this only after A0, A7 pass and after B1, B2 and E1 are settled.
 
 ## B. Decisions only you can make
 
@@ -99,7 +99,8 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 
 | Waiting on you | I will do as soon as you finish it |
 | --- | --- |
-| A1 to A7 | Fix anything that breaks against the real Discord, GitHub and database; then help you go live (A8) |
+| A0 bot token rotation | Tick A2's note off, and re-check nothing else needs the new token |
+| A7 testing | Fix anything that breaks against the real Discord, GitHub and database; then help you go live (A8) |
 | B3 colour | Re-render the Membership and Decisions objects, restyle the Safety seal and the side rail |
 | B4 section plan | Build the section before the footer |
 | B5 | Add the Cmd+K palette |
@@ -113,6 +114,7 @@ Nothing else is queued on my side.
 
 ## Log of what is done (newest first)
 
+- 22 Sep 2026: A1 to A6 done, run through the two Claude Code terminal prompts (GitHub OAuth app, Upstash database, Vercel env vars, GitHub repo secrets). Dry run against the real services came back clean, `/join` loads. Two follow ups: rotate `DISCORD_BOT_TOKEN` (it was exposed in that terminal session's own transcript, added as A0), and fixed the `Get-Random -Count 48` line in `docs/onboarding-setup.md` and `docs/claude-code-setup-prompts.md`, which had been silently generating 36 character secrets instead of 48 (still a huge keyspace, not a security problem, just not what it said).
 - 22 Sep 2026: Decided B6 (footer wording changed to "a community that runs itself") and B8 (retention text kept as written); implemented B6 in `lib/content.ts`. Confirmed by you: D2 (Instagram and LinkedIn links), D3 (Calendly), D4 (inbox monitored), D6 (git remote connected, Sync and Push work). Added a code-built option for C1 (Prompt 3 in `docs/claude-code-setup-prompts.md`). D1 (X) still open: no page yet, you will make one and say when.
 - 21 Sep 2026: Wrote two ready-to-paste Claude Code prompts for the Discord side (A1, A2) and the GitHub, database, Vercel and scheduler side (A3 to A6), in `docs/claude-code-setup-prompts.md`. Both keep everything switched off, keep secrets outside the repository, and end with a report.
 

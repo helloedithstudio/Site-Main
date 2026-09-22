@@ -126,7 +126,9 @@ STEPS
    project (Production and Preview). Note which environment variable NAMES Vercel added for it (they start with
    UPSTASH_REDIS_REST_ or KV_REST_API_). Do not copy the values anywhere.
 3. Generate three separate random strings of 48 letters and digits with a cryptographically secure generator (for example
-   PowerShell: -join ((48..57 + 97..122) | Get-Random -Count 48 | ForEach-Object { [char]$_ }) run three times, or node crypto).
+   PowerShell: -join (1..48 | ForEach-Object { [char]((48..57 + 97..122) | Get-Random) }) run three times, or node crypto.
+   (Do not use "Get-Random -Count 48" over that same set: -Count never resamples past the size of the set, so over a 36
+   character set it silently returns only 36 characters. The version above asks for one fresh character 48 times instead.)
    Save them to other.env as JOIN_SIGNING_SECRET, CRON_SECRET and JOIN_ID_SECRET. Tell me plainly that JOIN_ID_SECRET must never be
    changed after people have joined and that I should keep a private copy.
 4. Vercel settings: in the edith project, Settings, Environment Variables, add these for the Production environment (values from

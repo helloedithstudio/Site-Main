@@ -83,7 +83,10 @@ Project Settings, Environment Variables. The full list, with comments, is in `we
 - `DISCORD_CHANNEL_FORMS`, `DISCORD_CHANNEL_WELCOME` (optional)
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
 - Three random strings: `JOIN_SIGNING_SECRET`, `CRON_SECRET` and `JOIN_ID_SECRET`. In PowerShell:
-  `-join ((48..57 + 97..122) | Get-Random -Count 48 | ForEach-Object { [char]$_ })`
+  `-join (1..48 | ForEach-Object { [char]((48..57 + 97..122) | Get-Random) })`
+  (an earlier version of this line, `Get-Random -Count 48` over the same 36 character set, silently returns only 36 characters:
+  `-Count` never resamples past the size of the set it is drawing from. The version above asks for one fresh character 48 times,
+  so it is always exactly 48 long.)
   **Never change `JOIN_ID_SECRET` after people have joined**: it would make the database forget everyone and allow duplicate entries.
   Keep a copy of it somewhere safe.
 - Leave `ONBOARDING_DRY_RUN` as `true`, `ONBOARDING_START` empty and `NEXT_PUBLIC_JOIN_LIVE` as `false` for now.
