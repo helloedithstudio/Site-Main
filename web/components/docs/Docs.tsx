@@ -11,7 +11,7 @@ import { discussions, docsMeta, docsNav, faq, legalDocs, projects, type LegalDoc
 import Button from "../ui/Button";
 import Footer from "../Footer";
 
-const join: LinkItem = { id: "docs-join", label: brand.cta, internal: null, external: brand.discord };
+const join: LinkItem = { id: "docs-join", label: brand.cta, internal: { id: "join", type: "page", title: brand.cta, slug: "join" }, external: "" };
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 /** Escapes the text, then turns `channel` into the mono channel style. */

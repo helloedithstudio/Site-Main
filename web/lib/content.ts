@@ -22,7 +22,14 @@ export type MediaItem = { id: string; width: number; height: number; responsiveI
 /** A Discord channel name in running text (rendered in the mono font, see styles/edith.css). */
 const ch = (name: string) => `<span class="edith-ch">${name}</span>`;
 
-const discord = (label: string = brand.cta): LinkItem => ({ id: `discord-${label}`, label, internal: null, external: brand.discord });
+// "Become a Catalyst" and its like: the site's own join page, not the raw invite. /join explains the two sign-ins and,
+// for someone not in the server yet, links on to Discord itself from there.
+const discord = (label: string = brand.cta): LinkItem => ({
+  id: `discord-${label}`,
+  label,
+  internal: { id: "join", type: "page", title: label, slug: "join" },
+  external: "",
+});
 const anchor = (slug: string, label: string): LinkItem => ({
   id: `anchor-${slug}-${label}`,
   label,

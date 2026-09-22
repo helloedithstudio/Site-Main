@@ -96,7 +96,7 @@ export default function ShowOff() {
           {auto ? "Pause autoplay" : "Play autoplay"}
         </button>
 
-        <Button to={brand.discord} className="mt-40">
+        <Button to="/join" className="mt-40">
           {brand.cta}
         </Button>
       </div>

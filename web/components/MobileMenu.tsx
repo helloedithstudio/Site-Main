@@ -92,7 +92,7 @@ export default function MobileMenu() {
           >
             <div className="flex flex-col">
               <div className="flex justify-center py-25">
-                <Button to={brand.discord} item={{ label: brand.cta }} />
+                <Button to="/join" item={{ label: brand.cta }} />
               </div>
               <nav>
                 <ul className="border-y border-brown-dark divide-y divide-brown-dark">

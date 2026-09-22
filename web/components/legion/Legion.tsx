@@ -14,7 +14,7 @@ import Footer from "../Footer";
 import { PersonAvatar, PersonHandle, PersonLinks } from "../ui/PersonBits";
 
 const PAGE = 24;
-const join: LinkItem = { id: "legion-join", label: brand.cta, internal: null, external: brand.discord };
+const join: LinkItem = { id: "legion-join", label: brand.cta, internal: { id: "join", type: "page", title: brand.cta, slug: "join" }, external: "" };
 
 type Filter = "all" | "maintainers" | string;
 

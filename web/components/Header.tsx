@@ -63,7 +63,7 @@ export default function Header() {
               ))}
             </ul>
             <div className="relative hidden s:flex items-center gap-x-15" {...scope}>
-              <Button to={brand.discord} item={{ label: brand.cta }} {...scope} />
+              <Button to="/join" item={{ label: brand.cta }} {...scope} />
               <SocialsMenu scopeAttrs={scope} />
             </div>
             <MenuToggle
