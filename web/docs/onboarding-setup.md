@@ -117,8 +117,11 @@ jobs run once a day at most.
 - **In Discord:** the Catalyst role, and one message per completed form in your private channel (name, verified GitHub username,
   areas, optional website and one line, whether they ticked public listing, the two account creation dates and the deadline).
   Delete a message to delete that record.
-- **On the Legion page:** nobody, automatically. Only people who ticked "Show me on the public Legion page" are eligible. Core
-  checks the entry in the private channel and adds one line to `web/lib/legion.ts` (their GitHub username, areas and a note).
+- **On the Legion page:** only people who ticked "Show me on the public Legion page". Ticking it adds them automatically, in the
+  same database as the one-way codes but a different, plainly readable key space (`legion:*`): their GitHub username, name,
+  areas, portfolio link, X handle and the one line, exactly what they typed. It shows up the moment they submit; nothing for
+  Core to review first. `web/lib/legion.ts` still exists as a hand-written fallback list, for anyone added before this or added
+  by hand for any reason.
 
 ## 8. Test it, then switch it on
 

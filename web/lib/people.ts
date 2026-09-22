@@ -12,6 +12,8 @@ export type PersonEntry = {
   portfolio?: string;
   /** Discord username (no @), shown under the role instead of the GitHub username, e.g. "name_here". */
   discord?: string;
+  /** X (Twitter) handle (no @), shown as a link icon, e.g. "octocat". */
+  x?: string;
   /** Origin (the founder), Maintainer or Catalyst. Origin and Maintainer count as Maintainers in the directory. */
   role?: string;
   /** One line under the name. */
@@ -30,6 +32,7 @@ export type Person = {
   github: string;
   portfolio?: string;
   discord?: string;
+  x?: string;
   role?: string;
   note?: string;
   interests?: string[];

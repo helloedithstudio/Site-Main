@@ -68,7 +68,7 @@ export default function Join() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [banner, setBanner] = useState("");
   const [note, setNote] = useState<Note>({});
-  const [form, setForm] = useState({ name: "", github: "", interests: [] as string[], portfolio: "", about: "", rulesAck: false, listPublicly: false, website: "" });
+  const [form, setForm] = useState({ name: "", github: "", interests: [] as string[], portfolio: "", x: "", about: "", rulesAck: false, listPublicly: false, website: "" });
 
   useEffect(() => {
     const t = new URLSearchParams(window.location.hash.slice(1)).get("t");
@@ -258,6 +258,14 @@ export default function Join() {
               </label>
               <input id="join-portfolio" value={form.portfolio} maxLength={300} placeholder="https://" inputMode="url" autoCapitalize="none" spellCheck={false} onChange={(e) => set("portfolio", e.target.value)} aria-invalid={!!errors.portfolio} aria-describedby={errors.portfolio ? "join-portfolio-err" : undefined} />
               {err("portfolio")}
+            </div>
+
+            <div className="join-field">
+              <label htmlFor="join-x">
+                X profile <span className="edith-muted">(optional)</span>
+              </label>
+              <input id="join-x" value={form.x} maxLength={120} placeholder="@handle" autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(e) => set("x", e.target.value)} aria-invalid={!!errors.x} aria-describedby={errors.x ? "join-x-err" : undefined} />
+              {err("x")}
             </div>
 
             <div className="join-field">

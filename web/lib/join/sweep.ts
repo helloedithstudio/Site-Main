@@ -27,7 +27,10 @@ const link = (cfg: JoinConfig) => `${cfg.siteUrl}/join`;
 
 export const messages = {
   invite: (cfg: JoinConfig, m: Member) =>
-    `Welcome to edith. To stay in the community, complete your short Catalyst form <t:${stamp(cfg, m)}:R> (by <t:${stamp(cfg, m)}:F>).\n\n${link(cfg)}\n\nIt takes about two minutes. If it is not done in time you will be removed from the server automatically. You are welcome to join again with the link on the site.`,
+    `Hello, I am Friday. Welcome to edith.\n\n` +
+    `edith is six hubs in one server: pitch an idea in #brainstorm, find a crew in #find-a-team, build in public in #wip, get unstuck in #rubber-duck, ship it in #ship-it, and #touch-grass when you need to. Pick whatever fits and say hello.\n\n` +
+    `One thing to do first: a short Catalyst form, due <t:${stamp(cfg, m)}:R> (by <t:${stamp(cfg, m)}:F>). It takes about two minutes: ${link(cfg)}\n\n` +
+    `If it is not done in time you will be removed from the server automatically, and you are welcome to join again. I only send this one message. For anything else, ask in the server, any Core member will help.`,
   channel: (cfg: JoinConfig, m: Member) =>
     `<@${m.id}> we could not send you a message. Please complete your Catalyst form <t:${stamp(cfg, m)}:R> to stay in the community: ${link(cfg)}`,
   remind: (cfg: JoinConfig, m: Member) =>

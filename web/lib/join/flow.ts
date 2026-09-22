@@ -11,6 +11,7 @@ import { esc, validateForm } from "./form";
 import { ageDays, discordCreatedMs, githubAuthorizeUrl, githubRevoke, githubToken, githubUser } from "./ghoauth";
 import { storeFor, type Claim, type EntryStore } from "./store";
 import { signToken, verifyToken } from "./token";
+import { writeDirectoryEntry } from "../legion/directory";
 
 const HOUR = 3_600_000;
 export const FORM_TOKEN_HOURS = 2;
@@ -152,6 +153,10 @@ export async function handleSubmit(cfg: JoinConfig, body: unknown, deps: Deps = 
     await d.addRole(tok.u, cfg.roleCatalyst, "Catalyst form completed");
     await d.removeRole(tok.u, cfg.rolePending, "Catalyst form completed");
     if (cfg.roleReminded) await d.removeRole(tok.u, cfg.roleReminded, "Catalyst form completed");
+    if (v.listPublicly) {
+      // Best effort: a directory hiccup never fails the form itself, since the role and the private record already went through.
+      await writeDirectoryEntry(cfg, { github: v.github, name: v.name, interests: v.interests, portfolio: v.portfolio, x: v.x, note: v.about, joined: new Date(now).toISOString().slice(0, 10) }).catch(() => {});
+    }
     return { status: 200, body: { ok: true, state: "done" } };
   } catch {
     return { status: 502, body: { ok: false, message: "We could not save your form just now. Please try again in a minute." } };

@@ -11,6 +11,7 @@ import { clean, esc, validateForm } from "../lib/join/form";
 import { runSweep, MAX_KICKS_PER_RUN } from "../lib/join/sweep";
 import { handleCallback, handleGithubCallback, handleSubmit, startUrl } from "../lib/join/flow";
 import { entryStore, memoryRun, upstash, type EntryStore } from "../lib/join/store";
+import { readDirectory, removeDirectoryEntry, writeDirectoryEntry } from "../lib/legion/directory";
 import { discordCreatedMs } from "../lib/join/ghoauth";
 import { isReservedName } from "../lib/join/form";
 
@@ -43,6 +44,7 @@ function fakeDiscord() {
   const ghUsers = new Map<string, { login: string; name: string; created_at: string; type: string }>();
   const revoked: string[] = [];
   const redis = new Map<string, string>();
+  const redisSets = new Map<string, Set<string>>();
   const redisCalls: string[][] = [];
   const add = (id: string, hoursAgo: number, roles: string[] = [], extra: Partial<FM["user"]> = {}) =>
     members.set(id, { user: { id, username: "user" + id, ...extra }, roles: [...roles], joined_at: ago(hoursAgo) });
@@ -75,6 +77,9 @@ function fakeDiscord() {
       if (op === "GET") return send(200, { result: redis.get(a[0]) ?? null });
       if (op === "MGET") return send(200, { result: a.map((k) => redis.get(k) ?? null) });
       if (op === "DEL") return send(200, { result: a.reduce((n, k) => n + (redis.delete(k) ? 1 : 0), 0) });
+      if (op === "SADD") { const s = redisSets.get(a[0]) ?? new Set<string>(); const before = s.size; a.slice(1).forEach((v) => s.add(v)); redisSets.set(a[0], s); return send(200, { result: s.size - before }); }
+      if (op === "SMEMBERS") return send(200, { result: [...(redisSets.get(a[0]) ?? [])] });
+      if (op === "SREM") { const s = redisSets.get(a[0]); const before = s?.size ?? 0; a.slice(1).forEach((v) => s?.delete(v)); return send(200, { result: before - (s?.size ?? 0) }); }
       return send(200, { error: "ERR unknown command" });
     }
     if (path === "/oauth2/token" && req.method === "POST") {
@@ -114,7 +119,7 @@ function fakeDiscord() {
     }
     send(404, { message: "Not found " + path });
   });
-  return { members, dmClosed, messages, kicked, state, add, server, ghUsers, revoked, redis, redisCalls };
+  return { members, dmClosed, messages, kicked, state, add, server, ghUsers, revoked, redis, redisSets, redisCalls };
 }
 
 (async () => {
@@ -208,7 +213,7 @@ function fakeDiscord() {
   });
 
   // ------------------------------------------------------------ form
-  const good = { name: "  Ada  Lovelace ", github: "https://github.com/ada-l", interests: ["AI", "Nope", "Web3"], portfolio: "ada.dev", about: "Building a\nCLI.", listPublicly: true, rulesAck: true, website: "" };
+  const good = { name: "  Ada  Lovelace ", github: "https://github.com/ada-l", interests: ["AI", "Nope", "Web3"], portfolio: "ada.dev", x: "@ada_lovelace", about: "Building a\nCLI.", listPublicly: true, rulesAck: true, website: "" };
   await t("form: a valid submission is cleaned", () => {
     const r = validateForm(good);
     assert.equal(r.ok, true);
@@ -217,9 +222,18 @@ function fakeDiscord() {
       assert.equal(r.value.github, "ada-l");
       assert.deepEqual(r.value.interests, ["Web3", "AI"]);
       assert.equal(r.value.portfolio, "https://ada.dev/");
+      assert.equal(r.value.x, "ada_lovelace");
       assert.equal(r.value.about, "Building a CLI.");
       assert.equal(r.value.listPublicly, true);
     }
+  });
+  await t("form: an X handle is cleaned, accepts a profile URL, and an invalid one is refused", () => {
+    assert.equal(validateForm({ ...good, x: "https://x.com/ada_lovelace" }).ok && true, true);
+    const r = validateForm({ ...good, x: "not a handle!" });
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.match(r.errors.x, /X handle/);
+    const empty = validateForm({ ...good, x: "" });
+    assert.equal(empty.ok && empty.value.x, undefined);
   });
   await t("form: bad input is refused with messages, and public listing defaults to no", () => {
     const r = validateForm({ name: "", github: "not a user!", interests: [], portfolio: "javascript:alert(1)", rulesAck: false });
@@ -360,6 +374,21 @@ function fakeDiscord() {
     await assert.rejects(upstash({ storeUrl: env.UPSTASH_REDIS_REST_URL, storeToken: "wrong" })("GET", "k"), /entry store/);
     await assert.rejects(good("FLUSHALL"), /unknown command/);
   });
+  await t("legion directory: writes, reads and removes a public profile", async () => {
+    const creds = { storeUrl: env.UPSTASH_REDIS_REST_URL, storeToken: "store-token" };
+    await writeDirectoryEntry(creds, { github: "octocat", name: "The Octocat", interests: ["AI"], joined: "2026-09-22" });
+    await writeDirectoryEntry(creds, { github: "Hubot", name: "Hubot" });
+    const rows = await readDirectory(creds);
+    assert.deepEqual(rows.map((r) => r.github).sort(), ["Hubot", "octocat"]);
+    assert.equal(rows.find((r) => r.github === "octocat")?.name, "The Octocat");
+    await removeDirectoryEntry(creds, "octocat");
+    assert.deepEqual((await readDirectory(creds)).map((r) => r.github), ["Hubot"]);
+    await removeDirectoryEntry(creds, "Hubot"); // leave the shared fake store as this test found it
+    assert.deepEqual(await readDirectory(creds), []);
+  });
+  await t("legion directory: a database problem is swallowed, never breaks the page", async () => {
+    assert.deepEqual(await readDirectory({ storeUrl: env.UPSTASH_REDIS_REST_URL, storeToken: "wrong" }), []);
+  });
 
   // ------------------------------------------------------------ sign in (Discord, then GitHub)
   const fragToken = (redirect: string) => decodeURIComponent(redirect.split("#t=")[1] ?? "");
@@ -481,6 +510,12 @@ function fakeDiscord() {
     assert.ok(!fields.includes("someone-else-entirely"), "what was typed is ignored when the account is proven");
     assert.match(fields, /Public listing: Asked to be listed/);
     assert.match(fields, /Accounts: Discord made .*GitHub made/);
+    assert.deepEqual([...(fake.redisSets.get("legion:index") ?? [])], ["ada-l"], "ticking public listing adds the verified login to the directory");
+    const entry = JSON.parse(fake.redis.get("legion:profile:ada-l")!);
+    assert.equal(entry.github, "ada-l");
+    assert.deepEqual(entry.interests, ["Web3", "AI"]);
+    assert.equal(entry.x, "ada_lovelace");
+    assert.equal(entry.note, "Building a CLI.");
   });
   await t("submit: doing it twice does not post twice", async () => {
     const before = formsPosts().length;
@@ -490,12 +525,14 @@ function fakeDiscord() {
   });
   await t("submit: private by default, and typed markdown or mentions cannot ping anyone", async () => {
     seed();
+    const callsBefore = fake.redisCalls.length;
     const r = await handleSubmit(cfg, { token: formToken("a-new"), fields: { ...good, listPublicly: false, about: "@everyone <@1> **hi** [x](http://e)" } }, { now: NOW.getTime(), store: newStore() });
     assert.equal(r.status, 200);
     const f = formsPosts().pop()!.body.embeds[0].fields;
     assert.match(f.find((x: any) => x.name === "Public listing").value, /Not listed/);
     const about = f.find((x: any) => x.name === "Building").value;
     assert.ok(!about.includes("@e") && !about.includes("**") && !about.includes("]("));
+    assert.ok(!fake.redisCalls.slice(callsBefore).some((c) => c[0] === "SADD"), "not ticking public listing never touches the directory");
   });
   await t("submit: a reserved name is refused with a message", async () => {
     seed();

@@ -8,7 +8,7 @@ that suits you, and tell me when something is done or when you have decided. Eve
 This file lives in a public repository, so it must never contain a password, token or secret. Put secrets only in Vercel and
 GitHub settings.
 
-**Last updated:** 22 September 2026 (morning)
+**Last updated:** 22 September 2026 (midday)
 
 Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, not for me.
 
@@ -37,7 +37,7 @@ in `missed`), `/join` loads and shows the form. Everything stays switched off (`
 - [x] **A4. Database.** Upstash for Redis connected; it landed on the `KV_REST_API_URL` / `KV_REST_API_TOKEN` pair, which the site accepts (either name works, see `lib/join/config.ts`).
 - [x] **A5. Vercel settings.** All 21 variables set on Production, secrets marked non-retrievable, the four `NEXT_PUBLIC_*` ones left readable on purpose (they ship to the browser). Redeployed and Ready.
 - [x] **A6. GitHub repository secrets.** `SWEEP_URL` and `CRON_SECRET` added to `helloedithstudio/Site-Main`.
-- [ ] **A7. Test (20 min).** Dry run with curl; then the two account test, the one entry test and the removal test from the guide (step 8). If anything errors, paste me the message and I will fix it.
+- [~] **A7. Test (20 min).** Your two friends joining and getting no DM is expected, not a bug: `ONBOARDING_START` is not set, so the sweep runs every 10 minutes and does nothing (the job's own safety switch). That is also why the two account test in the guide (step 8) starts with setting `ONBOARDING_START` to now and `ONBOARDING_DRY_RUN=false` on Vercel and redeploying. Your friends are already in the server, so you can do that now and they should get the welcome DM within 10 minutes; then check the dry run, the one entry test and the removal test. When you are done testing, you may want to set `ONBOARDING_START` back to empty and `ONBOARDING_DRY_RUN=true` until you are ready for A8. If anything errors, paste me the message.
 - [ ] **A8. Go live.** Set `ONBOARDING_START` to the moment you choose, `ONBOARDING_DRY_RUN=false`, `NEXT_PUBLIC_JOIN_LIVE=true`, redeploy, and paste the welcome text (guide step 1.5) into your Discord rules. Do this only after A0, A7 pass and after B1, B2 and E1 are settled.
 
 ## B. Decisions only you can make
@@ -52,7 +52,8 @@ Tell me your choice in one line each. My recommendation is first.
 - [x] **B6. Wording.** **Decided 22 Sep: change it.** The footer note no longer says "autonomous, decentralised organisation"; it now says "edith is a community that runs itself, for developers and technologists to connect, collaborate, build and launch ideas..." (`lib/content.ts`). The Beliefs section's "Autonomous."/"Decentralised." value names were left as they are: they are explained in plain terms right there and are not the DAO phrase.
 - [ ] **B7. Positioning.** Community first with client work as one outlet for Maintainers, or the studio first? And is the coin and seal look (Membership object, Safety seal) meant to stay? These decide what the first ten seconds should feel like.
 - [x] **B8. Data retention.** **Decided 22 Sep: yes, keep it as written.** Form answers and the one-way codes are kept while someone is a member and deleted when they ask.
-- [ ] **B9. Public listing.** For now Core adds people who ticked the box to `web/lib/legion.ts` by hand. Do you want me to automate it later (needs a small extra database and a review step)?
+- [x] **B9. Public listing.** **Decided 22 Sep: automate it.** Ticking "Show me on the public Legion page" now adds someone to the Legion page itself, the moment they submit. Built and wired in (see the log).
+- [x] **B10. Should Friday show online in Discord?** **Left as the recommendation: no, for now.** The green dot needs a second, always-on service outside Vercel; everything Friday actually does (DMs, roles, removal) already works without it. Say the word if you still want that built.
 
 ## C. Files only you can make (Affinity, about 90 minutes)
 
@@ -102,7 +103,7 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 | --- | --- |
 | A0 bot token rotation | Tick A2's note off |
 | A2b exempt role check | Note it and move on, or fix `DISCORD_ROLES_EXEMPT` with you if a role is missing |
-| A7 testing | Fix anything that breaks against the real Discord, GitHub and database; then help you go live (A8) |
+| A7 testing (start by setting `ONBOARDING_START`, see A7) | Fix anything that breaks against the real Discord, GitHub and database; then help you go live (A8) |
 | B3 colour | Re-render the Membership and Decisions objects, restyle the Safety seal and the side rail |
 | B4 section plan | Build the section before the footer |
 | B5 | Add the Cmd+K palette |
@@ -110,12 +111,13 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 | D1 (X page, coming soon) | Add the X icon |
 | E2 | Replace the placeholder in the legal text |
 
-Done since the last update: B6, B8 decided and applied; D2, D3, D4, D6 confirmed by you; C1 built and wired in.
+Done since the last update: B6, B8, B9, B10 decided; C1 built and wired in; the Become a Catalyst link fixed; the public Legion listing automated.
 
 Nothing else is queued on my side.
 
 ## Log of what is done (newest first)
 
+- 22 Sep 2026: Decided B9 (automate the public Legion listing) and B10 (leave Friday showing offline for now). Built: ticking "Show me on the public Legion page" now writes the entry straight to the same database as the join flow (a separate, plainly readable key space), and `/legion` reads it fresh on every visit, so a new Catalyst appears immediately without Core doing anything. Added an X (Twitter) profile field to the Catalyst form, shown as an icon next to GitHub and Portfolio on the Legion page. Rewrote the welcome DM to introduce the hubs and channels, not just the form deadline, since Friday cannot itself reply to anyone (Message Content Intent is off by design). Explained why your two friends got no DM: `ONBOARDING_START` is not set, so the sweep runs every 10 minutes and does nothing, exactly as designed; noted in A7 how to actually run that test now that they are already in the server. 42 unit checks pass (3 new), build and lint clean, `/legion` checked live with no database configured locally (falls back cleanly).
 - 22 Sep 2026: Fixed a bug you caught testing A7: every "Become a Catalyst" button (header, mobile menu, home, docs, legion) linked straight to the Discord invite, skipping `/join` entirely. They all now open `/join` first, which explains the two sign-ins and, if you are not a member yet, sends you on to Discord from there. The plain "Discord" footer and social links were left pointing straight at the invite on purpose. Build, lint and a live check of every CTA on `/`, `/docs`, `/legion` confirm it.
 - 22 Sep 2026: C1 (share image) built by a Claude Code terminal (Prompt 3), resized and wired into `app/`, `app/docs/`, `app/legion/` and `twitter-image.jpg`; build, lint and a live check of all four routes (200, `image/jpeg`, 1200x630) pass. Confirmed with you that the reused Discord application ("E.D.I.T.H.", renamed to Friday) was an unused leftover, nothing else broke. Flagged A2b: you kept Friday as Administrator above staff in the role order, so `DISCORD_ROLES_EXEMPT` is now the only thing protecting Founder, Core Team, Mods and Maintainer from the sweep; asked you to confirm it lists all four.
 - 22 Sep 2026: A1 to A6 done, run through the two Claude Code terminal prompts (GitHub OAuth app, Upstash database, Vercel env vars, GitHub repo secrets). Dry run against the real services came back clean, `/join` loads. Two follow ups: rotate `DISCORD_BOT_TOKEN` (it was exposed in that terminal session's own transcript, added as A0), and fixed the `Get-Random -Count 48` line in `docs/onboarding-setup.md` and `docs/claude-code-setup-prompts.md`, which had been silently generating 36 character secrets instead of 48 (still a huge keyspace, not a security problem, just not what it said).

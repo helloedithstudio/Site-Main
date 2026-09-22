@@ -1,9 +1,10 @@
 // The Legion page (/legion): every person on the site in one directory. Maintainers and Catalysts are listed together,
 // Maintainers first, and the page also explains how to earn a Maintainer seat. Everyone who joins edith is a Catalyst.
 //
-// To add someone, add one line below with their GitHub username. Their name, picture and portfolio link come from
-// their GitHub profile at build time (lib/github.ts). Everything else is optional, and anything written here wins over
-// what GitHub says. Listing is opt-in: only add a person who has asked to be shown.
+// Catalysts appear here automatically: ticking "Show me on the public Legion page" on the Catalyst form adds them to
+// the directory (lib/legion/directory.ts), read fresh on every visit. Maintainers, and anyone added before that
+// existed, are written by hand below. Their name, picture and portfolio link come from their GitHub profile at request
+// time (lib/github.ts) unless overridden here. Listing is opt-in either way: only add a person who has asked to be shown.
 //
 //   Maintainer: { github: "octocat", role: "Maintainer", discord: "octo_cat", note: "Runs the design hub." },
 //   Catalyst:   { github: "octocat", interests: ["Web2", "Design"], note: "Building a CLI for tidy notes.", joined: "2026-09-20" },
@@ -24,7 +25,9 @@ export const maintainerEntries: PersonEntry[] = [
   },
 ];
 
-/** Catalysts who asked to be listed. The role defaults to "Catalyst". */
+/** A hand-written fallback list, kept for anyone added before the directory was automatic or added by hand for any
+ *  reason. In the ordinary run of things this stays empty: ticking "Show me on the public Legion page" on the
+ *  Catalyst form adds someone here automatically (lib/legion/directory.ts), read fresh on every visit to /legion. */
 export const catalystEntries: PersonEntry[] = [];
 
 /** The build areas people can filter by (the Build hub: web2, web3, ai, hardware and design). */

@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import type { Person } from "@/lib/people";
-import { DISCORD } from "./glyphs";
+import { DISCORD, X } from "./glyphs";
 
 export function PersonAvatar({ person, className }: { person: Person; className?: string }) {
   const [failed, setFailed] = useState(false);
@@ -65,6 +65,20 @@ export function PersonLinks({ person }: { person: Person }) {
           <path d={GITHUB_MARK} />
         </svg>
       </a>
+      {person.x ? (
+        <a
+          href={`https://x.com/${person.x}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="edith-plink"
+          aria-label={`${person.name} on X`}
+          title="X"
+        >
+          <svg viewBox={X.viewBox} width="18" height="18" fill="currentColor" aria-hidden="true">
+            <path d={X.d} />
+          </svg>
+        </a>
+      ) : null}
       {person.portfolio ? (
         <a
           href={person.portfolio}

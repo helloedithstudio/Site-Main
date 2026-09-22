@@ -1,7 +1,7 @@
 // The Catalyst form: what is asked, and the server-side checks. The browser is never trusted: everything is cleaned and
 // validated again here. Collect only what the directory and the community need (data minimisation).
 
-import { normaliseLogin, safeUrl } from "@/lib/github";
+import { normaliseLogin, safeUrl, safeX } from "@/lib/github";
 import { legionInterests, maintainerEntries } from "@/lib/legion";
 
 export type FormValue = {
@@ -9,6 +9,7 @@ export type FormValue = {
   github: string;
   interests: string[];
   portfolio?: string;
+  x?: string;
   about?: string;
   /** A separate, clearly worded tick: being shown on the public Legion page. */
   listPublicly: boolean;
@@ -57,12 +58,19 @@ export function validateForm(raw: unknown, opts: { githubLogin?: string } = {}):
     if (!portfolio) errors.portfolio = "Enter a web address, for example https://example.com.";
   }
 
+  let x: string | undefined;
+  const xr = clean(r.x, 120);
+  if (xr) {
+    x = safeX(xr);
+    if (!x) errors.x = "Enter your X handle, for example octocat.";
+  }
+
   const about = clean(r.about, 160) || undefined;
 
   if (r.rulesAck !== true) errors.rulesAck = "Please confirm that you have read the community rules.";
 
   if (Object.keys(errors).length) return { ok: false, errors };
-  return { ok: true, value: { name, github: github!, interests, portfolio, about, listPublicly: r.listPublicly === true } };
+  return { ok: true, value: { name, github: github!, interests, portfolio, x, about, listPublicly: r.listPublicly === true } };
 }
 
 /** Discord markdown and mentions are neutralised so nothing a person types can format or ping anyone. */

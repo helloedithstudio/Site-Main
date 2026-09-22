@@ -39,6 +39,14 @@ function safeDiscord(raw?: string): string | undefined {
   return v && /^[a-z0-9._]{2,32}$/i.test(v) ? v : undefined;
 }
 
+/** X (Twitter) handles are 1 to 15 letters, digits or underscores. Accepts "@handle", "handle" or a profile URL. */
+export function safeX(raw?: string): string | undefined {
+  let v = raw?.trim().replace(/^@/, "") ?? "";
+  const m = v.match(/(?:x|twitter)\.com\/([^/?#\s]+)/i);
+  if (m) v = m[1];
+  return v && /^\w{1,15}$/.test(v) ? v : undefined;
+}
+
 async function profile(login: string): Promise<Profile | null> {
   try {
     const headers: Record<string, string> = { Accept: "application/vnd.github+json", "User-Agent": "edith-site" };
@@ -96,6 +104,7 @@ export async function resolvePeople(entries: PersonEntry[]): Promise<Person[]> {
         github: p?.html_url ?? `https://github.com/${login}`,
         portfolio: safeUrl(e.portfolio) ?? safeUrl(p?.blog),
         discord: safeDiscord(e.discord),
+        x: safeX(e.x),
         role: e.role,
         note: e.note,
         interests: e.interests,
