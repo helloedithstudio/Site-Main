@@ -27,6 +27,8 @@ const eslintConfig = defineConfig([
     "public/**",
     // one-off Node tooling (logo generator), not part of the app
     "scripts/**",
+    // reference material only (setup guides, archived source snippets for other projects), never the app
+    "docs/**",
   ]),
 ]);
 

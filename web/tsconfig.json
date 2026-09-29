@@ -30,5 +30,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  // docs/ holds reference material only (setup guides, archived source snippets for other projects such as
+  // docs/portfolio-studio-page/); it is never part of the app and must not be type-checked as if it were.
+  "exclude": ["node_modules", "docs/**"]
 }
