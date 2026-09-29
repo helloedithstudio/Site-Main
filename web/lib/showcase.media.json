@@ -1,0 +1,43 @@
+{
+  "placeholder": true,
+  "films": {
+    "ignition": {
+      "hold": 0.8944444444444445,
+      "variants": {
+        "desktop": {
+          "w": 1920,
+          "h": 1080,
+          "count": 180,
+          "path": "/showcase/_placeholder/ignition/desktop/f_{n}.webp",
+          "poster": "/showcase/_placeholder/ignition/desktop/f_0161.webp"
+        },
+        "portrait": {
+          "w": 1080,
+          "h": 1920,
+          "count": 150,
+          "path": "/showcase/_placeholder/ignition/portrait/f_{n}.webp",
+          "poster": "/showcase/_placeholder/ignition/portrait/f_0134.webp"
+        }
+      }
+    },
+    "exploded": {
+      "hold": 0.8833333333333333,
+      "variants": {
+        "desktop": {
+          "w": 1920,
+          "h": 1080,
+          "count": 120,
+          "path": "/showcase/_placeholder/exploded/desktop/f_{n}.webp",
+          "poster": "/showcase/_placeholder/exploded/desktop/f_0106.webp"
+        },
+        "portrait": {
+          "w": 1080,
+          "h": 1920,
+          "count": 100,
+          "path": "/showcase/_placeholder/exploded/portrait/f_{n}.webp",
+          "poster": "/showcase/_placeholder/exploded/portrait/f_0088.webp"
+        }
+      }
+    }
+  }
+}

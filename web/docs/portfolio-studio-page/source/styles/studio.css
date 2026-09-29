@@ -1,0 +1,307 @@
+/* Studio page styles, extracted from the portfolio src/app/globals.css as of commit ca8561b (the last commit with /studio live).
+   Tailwind v4 is required: the @import, @theme and @utility blocks are Tailwind v4 syntax, and page.tsx uses Tailwind utility
+   classes throughout. Import this file once, globally (the portfolio imported globals.css in the root layout). */
+
+@import "tailwindcss";
+
+/* ============================================================
+   QUIET LEDGER — design tokens
+   Warm monochrome (stone). One typeface weight. One column.
+   Dark is the default; [data-theme="light"] on <html> swaps every
+   token below. The Studio page separately runs its own local
+   .scene-light/.scene-dark contrast grammar, independent of theme —
+   see further down this file.
+   ============================================================ */
+
+:root {
+  --bg: #0c0a09;
+  --bg-elevated: #1c1917;
+  --text-1: #f5f5f4;
+  --text-2: #a8a29e;
+  --text-3: #8a857f; /* smallest stone shift that clears WCAG AA on bg AND bg-elevated */
+  --hairline: #292524;
+  --hairline-strong: #44403c;
+  --pill-bg: #f5f5f4;
+  --pill-text: #1c1917;
+  --field-dot: 245, 245, 244;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #fafaf9;
+  --bg-elevated: #f5f5f4;
+  --text-1: #1c1917;
+  --text-2: #57534e;
+  --text-3: #726d68;
+  --hairline: #e7e5e4;
+  --hairline-strong: #d6d3d1;
+  --pill-bg: #1c1917;
+  --pill-text: #fafaf9;
+  --field-dot: 28, 25, 23;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-text-1: var(--text-1);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  --color-pill: var(--pill-bg);
+  --color-pill-text: var(--pill-text);
+  --font-sans: var(--font-sans-loaded), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-mono-loaded), "JetBrains Mono", ui-monospace,
+    SFMono-Regular, Menlo, monospace;
+}
+
+/* ---------- type scale (fluid) ---------- */
+
+@utility text-display {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+}
+
+@utility text-heading {
+  font-size: clamp(1.85rem, 4.2vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  font-weight: 500;
+}
+
+@utility text-title {
+  font-size: clamp(1.4rem, 2.7vw, 1.85rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+@utility text-lede {
+  font-size: clamp(1.15rem, 2.1vw, 1.4rem);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+@utility text-bodylg {
+  font-size: 1.25rem;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+@utility text-body {
+  font-size: 1rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+@utility text-meta {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+@utility text-monosm {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* ---------- base ---------- */
+
+html {
+  background: var(--bg);
+  scrollbar-width: thin;
+  scrollbar-color: var(--hairline-strong) transparent;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-2);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+h1, h2, h3, h4 {
+  color: var(--text-1);
+  text-wrap: balance;
+}
+
+p { text-wrap: pretty; }
+
+strong, b {
+  color: var(--text-1);
+  font-weight: 500; /* the bold channel is a COLOR shift, not a weight shift */
+}
+
+::selection {
+  background: var(--text-1);
+  color: var(--bg);
+}
+
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--text-2);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- shared primitives ---------- */
+
+@utility container-column {
+  width: 100%;
+  max-width: 800px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+@utility container-breakout {
+  width: 100%;
+  max-width: 1080px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+@utility pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 100px;
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.3s ease;
+}
+
+@utility pill-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 100px;
+  border: 1px solid var(--hairline-strong);
+  color: var(--text-1);
+  background: transparent;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1;
+  transition: border-color 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pill:hover { transform: translateY(-1px); }
+.pill:active { transform: translateY(0) scale(0.98); }
+.pill-ghost:hover { border-color: var(--text-3); transform: translateY(-1px); }
+
+/* ---------- motion ---------- */
+
+.page-enter {
+  animation: page-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+.line-mask > span {
+  display: block;
+  transform: translateY(110%);
+  animation: line-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--line-delay, 0ms);
+}
+@keyframes line-up {
+  to { transform: translateY(0); }
+}
+
+/* ---------- studio: scenes, film, gradient ---------- */
+
+/* the film fades up from black as the page opens */
+@keyframes hero-film-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Scenes — Apple contrast grammar: sections own their surface, hard cuts,
+   independent of the site theme. Tokens are scoped, so every existing
+   utility (text-text-1, border-hairline, …) just works inside. */
+.scene-light {
+  --bg: #fafaf9;
+  --bg-elevated: #f5f5f4;
+  --text-1: #1c1917;
+  --text-2: #57534e;
+  --text-3: #726d68;
+  --hairline: #e7e5e4;
+  --hairline-strong: #d6d3d1;
+  --pill-bg: #1c1917;
+  --pill-text: #fafaf9;
+  --field-dot: 28, 25, 23;
+  background: var(--bg);
+  color: var(--text-2);
+}
+.scene-dark {
+  --bg: #0c0a09;
+  --bg-elevated: #1c1917;
+  --text-1: #f5f5f4;
+  --text-2: #a8a29e;
+  --text-3: #8a857f;
+  --pill-bg: #f5f5f4;
+  --pill-text: #1c1917;
+  --hairline: #292524;
+  --hairline-strong: #44403c;
+  --field-dot: 245, 245, 244;
+  background: var(--bg);
+  color: var(--text-2);
+}
+
+/* the one drop of color in the ledger — Apple Intelligence's spectrum,
+   spent only where intelligence is the subject */
+.text-intel {
+  background: linear-gradient(
+    96deg,
+    #0090f7 0%,
+    #7b5bf2 32%,
+    #f2416b 64%,
+    #f98e2b 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.bar-intel {
+  background: linear-gradient(90deg, #0090f7, #7b5bf2, #f2416b, #f98e2b);
+}
+
+.mockup-img {
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .line-mask > span { transform: none; animation: none; }
+}

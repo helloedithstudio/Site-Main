@@ -8,7 +8,7 @@ that suits you, and tell me when something is done or when you have decided. Eve
 This file lives in a public repository, so it must never contain a password, token or secret. Put secrets only in Vercel and
 GitHub settings.
 
-**Last updated:** 22 September 2026 (midday)
+**Last updated:** 28 September 2026 (afternoon)
 
 Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, not for me.
 
@@ -18,6 +18,9 @@ Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, n
 1. **Confirm `DISCORD_ROLES_EXEMPT` covers all four staff roles (2 min), see A2b below.** You told the setup session to keep the bot (Friday) as Administrator, above staff in the role order. That is your call, but it means the exempt list is now the *only* thing stopping the sweep from ever kicking staff.
 2. ~~Decide B1 and B2~~ **Done (21 Sep):** GitHub required, and minimum account ages on (Discord 7 days, GitHub 30 days).
 3. **A7: test the join flow** (about 20 minutes). A1 to A6 are done (see below); this is what is left before going live. Two spare Discord accounts and two spare GitHub accounts, steps in `docs/onboarding-setup.md` step 8.
+
+4. **Studio: start the Blender session (5 min, then it runs on its own).** In a new PowerShell window, follow "How to start it" in `docs/showcase/asset-session-prompt.md`, then tell that session: `Read D:\page_content\web\docs\showcase\asset-session-prompt.md and do everything in "The prompt".` Keep the laptop plugged in and awake while it renders. The page is already built and works with stand-in films; the renders replace them.
+5. **Studio: approve the three lookdev stills** when the Blender session stops and asks (2 min), or say "ask the web session" and I review them.
 
 ---
 
@@ -54,6 +57,8 @@ Tell me your choice in one line each. My recommendation is first.
 - [x] **B8. Data retention.** **Decided 22 Sep: yes, keep it as written.** Form answers and the one-way codes are kept while someone is a member and deleted when they ask.
 - [x] **B9. Public listing.** **Decided 22 Sep: automate it.** Ticking "Show me on the public Legion page" now adds someone to the Legion page itself, the moment they submit. Built and wired in (see the log).
 - [x] **B10. Should Friday show online in Discord?** **Left as the recommendation: no, for now.** The green dot needs a second, always-on service outside Vercel; everything Friday actually does (DMs, roles, removal) already works without it. Say the word if you still want that built.
+- [x] **B11. What makes a work "top" on the Studio page?** **Decided 25 Sep:** Core picks the exhibits by hand (they are listed in `lib/showcase.ts`), and day one shows edith's own two builds plus three reserved slots.
+- [ ] **B12. How does a member ask to be listed on the Studio?** My draft line says "post it in `ship-it` and say you would like it listed", and a Maintainer adds it by pull request. Tell me if the real process is different.
 
 ## C. Files only you can make (Affinity, about 90 minutes)
 
@@ -78,6 +83,7 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 - [ ] **E1. Lawyer review.** The rules, terms of use, privacy policy, Working with edith and Operating under edith are drafts, and the site says so. They now also cover the join flow, the one entry rule and the one-way codes. A lawyer familiar with India's Digital Personal Data Protection Act should read them before the join flow goes live.
 - [ ] **E2. Legal entity details** (name, registration, address) so I can replace the placeholder sentence in the terms and privacy policy.
 - [ ] **E3. Maintainer licence and client terms.** Confirm you are happy with what Maintainers may do under the edith name and how liability is split.
+- [ ] **E4. Where the marble and the button effect came from.** edith's own code comments say its shader was "extracted verbatim from the production bundle" of "the original" WebGL layer, and that its hero button is the "Button 'Base' of the original". That reads as another site's. Nobody has checked where the shader, the marble textures or the hover effect came from. Worth settling for edith itself, and before either is copied onto your portfolio (`hero-marble\IMPLEMENTATION.md` and `hero-button\IMPLEMENTATION.md`, section 6 of each).
 
 ## F. Community operations (Discord)
 
@@ -87,6 +93,15 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 - [ ] **F3. The `apply-here` process.** Confirm the steps (30 days around, two endorsements, Core approval) are what you will actually run.
 - [ ] **F4. Demo Day.** Pick the first date, or tell me it is still open.
 - [ ] **F5. First projects and RFCs.** When something ships or an RFC opens, tell me and I will list it.
+
+## S. Studio page (`/studio`)
+
+- [ ] **S1. Pitch link secret (5 min, before you send your first link).** Make one long random value: `node -e "console.log(require('crypto').randomBytes(36).toString('base64url'))"` (48 characters). Put it in Vercel as `PITCH_LINK_SECRET` (Production), and replace the development value in `web/.env.local` with the same one, so links you make locally work on the live site. Then make a link: `npx tsx scripts/pitch-link.ts --from Andrew-Kevin-007 --for "Client Name" --days 60`. Changing the secret later ends every link made before.
+- [ ] **S2. Draft copy (10 min).** Read the words on `/studio` (all in `lib/showcase.ts`, section `showcasePage`) and change anything that does not sound like you. The headline is "Don't take our word for it."
+- [ ] **S3. Friday's welcome DM (2 min, optional).** A screenshot of the real welcome DM, if you want it shown in Exhibit 02's closer look.
+- [ ] **S4. Phone check (10 min, after the renders are in).** Scroll the whole page on your phone, and open one pitch link from WhatsApp.
+- [ ] **S5. Other Maintainers' booking links**, when there are other Maintainers: add `booking` to their entry in `lib/legion.ts`.
+- [ ] **S6. Free space on C:** it had about 7 GB free last I checked. Aim for 20 GB or more; Windows and the render tools misbehave when C: is nearly full.
 
 ## G. Reminders for later
 
@@ -117,6 +132,10 @@ Nothing else is queued on my side.
 
 ## Log of what is done (newest first)
 
+- 28 Sep 2026: Started the edith dev server on port 3000 (all five main pages answer). Wrote `D:\Portfolio-Main\Portfolio\hero-button\IMPLEMENTATION.md`: a tested port of edith's "Become a Catalyst" hover effect for a button in your portfolio's home hero. Its animation state matched edith's original value for value at 13 points across four runs, and 12 behaviour checks pass (mouse, keyboard, reduced motion, touch, unmount); it works on dark and light. Not run inside the portfolio yet, and Chromium only. Default label and target are a guess (Contact, `/contact`); yours to change. Nothing in the edith site changed.
+- 28 Sep 2026: Wrote an implementation kit for putting edith's hero marble behind the home hero of your portfolio (`D:\Portfolio-Main\Portfolio\hero-marble\IMPLEMENTATION.md`, plus the ready textures and a still image). I first read your request the wrong way round and specced your portfolio's film hero for edith; that spec was removed. The kit was built and tested in a scratch project against the live edith hero (image match 0.84 mean correlation, 0.97 best, against 0.07 to 0.34 for wrong orientations and shifts; seamless on the portfolio's page colour; 14 behaviour checks including reduced motion, no WebGL and slow devices). Not run inside the portfolio yet, and real GPU speed is untested. Nothing in the edith site changed.
+- 25 Sep 2026: Built the Showcase page (`/showcase`) to the approved plan (`docs/showcase/plan.md`): a film that turns live. Opening film (stand-in frames until the Blender renders land), then the live 3D hall of monoliths in the home page's own marble, one per exhibit, each window playing a real recording of the work (Exhibit 01 this website, Exhibit 02 the join flow, three reserved slots); Take a closer look with the real code excerpts and measured facts; Under the hood with a live X-ray (wireframe, normals, light) and readouts measured in the visitor's browser; the people; and the ask. Signed pitch links (`?p=`, greeting "Kevin Andrew prepared this for Acme", button books you), opt-in sound made in code, three device tiers (still page for weak devices and reduced motion). Header gets "Showcase"; on the Showcase its button reads "Book a call". Checks: 28 unit checks, production build, no dashes in any page, pitch links (real and forged) in the browser, the home page and header re-tested (19/19). Installed ffmpeg on D:\tools\ffmpeg. The Blender prompt is in `docs/showcase/asset-session-prompt.md`.
+- 24 Sep 2026: Header rework, built and checked in a real browser (19 checks, plus a simulated spring at 30, 60 and 120 fps). The desktop burger (the socials drop-down) is gone; socials stay in the footer, and the phone menu is unchanged. The header now has the logo on the left and The Legion, Docs and the "Become a Catalyst" button at the right end. On the home page the button is hidden while the hero (which has its own) is on screen; once you scroll past it, it slides in from the right edge and pushes the links left as one rigid unit (the gap never changes), driven by Lenis and a damped spring (settles in about half a second, no visible bounce, reversible mid-way without a jolt). The header now stays up through the hero and the push before tucking away. On other pages the button is simply there. Files: `components/HeaderNav.tsx` (new), `components/Header.tsx`, `components/sections/Hero.tsx`; `SocialsMenu.tsx` deleted. Not committed yet. Wrote the Showcase page spec (see item 4 at the top), no code for it until you approve.
 - 22 Sep 2026: Decided B9 (automate the public Legion listing) and B10 (leave Friday showing offline for now). Built: ticking "Show me on the public Legion page" now writes the entry straight to the same database as the join flow (a separate, plainly readable key space), and `/legion` reads it fresh on every visit, so a new Catalyst appears immediately without Core doing anything. Added an X (Twitter) profile field to the Catalyst form, shown as an icon next to GitHub and Portfolio on the Legion page. Rewrote the welcome DM to introduce the hubs and channels, not just the form deadline, since Friday cannot itself reply to anyone (Message Content Intent is off by design). Explained why your two friends got no DM: `ONBOARDING_START` is not set, so the sweep runs every 10 minutes and does nothing, exactly as designed; noted in A7 how to actually run that test now that they are already in the server. 42 unit checks pass (3 new), build and lint clean, `/legion` checked live with no database configured locally (falls back cleanly).
 - 22 Sep 2026: Fixed a bug you caught testing A7: every "Become a Catalyst" button (header, mobile menu, home, docs, legion) linked straight to the Discord invite, skipping `/join` entirely. They all now open `/join` first, which explains the two sign-ins and, if you are not a member yet, sends you on to Discord from there. The plain "Discord" footer and social links were left pointing straight at the invite on purpose. Build, lint and a live check of every CTA on `/`, `/docs`, `/legion` confirm it.
 - 22 Sep 2026: C1 (share image) built by a Claude Code terminal (Prompt 3), resized and wired into `app/`, `app/docs/`, `app/legion/` and `twitter-image.jpg`; build, lint and a live check of all four routes (200, `image/jpeg`, 1200x630) pass. Confirmed with you that the reused Discord application ("E.D.I.T.H.", renamed to Friday) was an unused leftover, nothing else broke. Flagged A2b: you kept Friday as Administrator above staff in the role order, so `DISCORD_ROLES_EXEMPT` is now the only thing protecting Founder, Core Team, Mods and Maintainer from the sweep; asked you to confirm it lists all four.

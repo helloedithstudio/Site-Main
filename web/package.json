@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/build-facts.cjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:showcase": "npx tsx scripts/showcase-test.ts"
   },
   "dependencies": {
     "@use-gesture/vanilla": "10.3.1",

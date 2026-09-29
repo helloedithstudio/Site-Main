@@ -22,6 +22,8 @@ export type PersonEntry = {
   interests?: string[];
   /** ISO date they joined, e.g. "2026-09-20". Only used to sort. */
   joined?: string;
+  /** Maintainers only: their own booking page (for example Calendly). Showcase pitch links from them book this. */
+  booking?: string;
 };
 
 /** What the pages render. */

@@ -18,3 +18,6 @@ blender/export/
 
 # Affinity reference pack (large local images; the brief in web/docs/affinity-brief.md lists them)
 web/assets-in/reference/
+
+# Stand-in Showcase film frames (scripts/make-showcase-placeholders.cjs); never shipped
+web/public/showcase/_placeholder/

@@ -287,7 +287,8 @@ export class Renderer {
     d.time.update();
     (d.camera as unknown as Camera).update();
     events.emit(EVENTS.WEBGL_BEFORE_RENDER, d);
-    d.gl.render(d.scene, d.camera);
+    if (d.render) d.render();
+    else d.gl.render(d.scene, d.camera);
     events.emit(EVENTS.WEBGL_AFTER_RENDER, d);
     if (d.showHelpers) d.bufferViewer?.update();
   };

@@ -24,7 +24,7 @@ export default function Hero() {
   return (
     <span>
       <div className="absolute h-svh s:h-lvh w-full" data-js="gl-hero-bg" />
-      <div ref={el} className="relative z-2 max-s:min-h-full-screen s:h-full-screen flex flex-col">
+      <div ref={el} data-hero="" className="relative z-2 max-s:min-h-full-screen s:h-full-screen flex flex-col">
         <div className="absolute inset-0 pointer-events-none" data-js="gl-hero-full" />
         <div className="relative flex-1 flex flex-col" data-js="gl-hero">
           <div className="flex-1 relative flex items-center justify-center">

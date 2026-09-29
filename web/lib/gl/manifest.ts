@@ -54,3 +54,13 @@ export const manifest: ResourceEntry[] = [
   { key: "membership-model", type: "gltf", path: "/gl/models/membership-pr.glb" },
   { key: "decisions-model", type: "gltf", path: "/gl/models/decisions-rfc.glb" },
 ];
+
+/** The Showcase page's live scene: the home hero's own marble (the monolith's stone and veins) and its colour field. */
+export const showcaseManifest: ResourceEntry[] = [
+  // the hero's compressed marble is squashed to 3:1 for its own shader, so the monolith uses a true-proportion copy
+  { key: "sc-marble", type: "texture", path: "/showcase/gl/marble-2048.webp", colorSpace: "SRGBColorSpace" },
+  { key: "sc-color", type: "texture", path: "/gl/images/hero/colorA.jpg", colorSpace: "SRGBColorSpace" },
+];
+
+/** Each page loads only its own assets. */
+export const manifestFor = (page: string): ResourceEntry[] => (page === "showcase" ? showcaseManifest : manifest);

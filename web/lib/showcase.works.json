@@ -1,0 +1,12 @@
+{
+  "exhibit-01": {
+    "poster": "/showcase/works/exhibit-01/poster.webp",
+    "webm": "/showcase/works/exhibit-01/loop.webm",
+    "mp4": "/showcase/works/exhibit-01/loop.mp4"
+  },
+  "exhibit-02": {
+    "poster": "/showcase/works/exhibit-02/poster.webp",
+    "webm": "/showcase/works/exhibit-02/loop.webm",
+    "mp4": "/showcase/works/exhibit-02/loop.mp4"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "generated": "2026-09-29",
+  "git": {
+    "commits": 28,
+    "firstCommit": "2026-09-19",
+    "lastCommit": "2026-09-25"
+  },
+  "versions": {
+    "next": "16.3.5",
+    "react": "19.2.8",
+    "three": "0.180.0",
+    "gsap": "3.13.0",
+    "lenis": "1.3.17"
+  },
+  "webgl": {
+    "bytes": 4531080,
+    "blenderModels": 2
+  },
+  "join": {
+    "checks": 42,
+    "maxRemovalsPerRun": 10
+  },
+  "excerpts": {
+    "header-spring": {
+      "file": "web/components/HeaderNav.tsx",
+      "startLine": 135,
+      "endLine": 150,
+      "code": "const onTick = ({ ratio }: TickEvent) => {\n  if (idle) return;\n  const dt = Math.min(ratio / 60, MAX_DT);\n  const steps = Math.max(1, Math.ceil(dt / SUBSTEP));\n  const h = dt / steps;\n  for (let i = 0; i < steps; i++) {\n    v += (STIFFNESS * (target - x) - DRAG * v) * h;\n    x += v * h;\n  }\n  if (Math.abs(target - x) < 0.0005 && Math.abs(v) < 0.005) {\n    x = target;\n    v = 0;\n    setIdle(true);\n  }\n  apply();\n};"
+    },
+    "join-claim": {
+      "file": "web/lib/join/store.ts",
+      "startLine": 57,
+      "endLine": 68,
+      "code": "async claim(d, g) {\n  const k = keys(d, g);\n  const first = await run(\"SET\", k.gh, k.dv, \"NX\");\n  const madeGh = first === \"OK\";\n  if (!madeGh && (await run(\"GET\", k.gh)) !== k.dv) return \"github-taken\";\n  const second = await run(\"SET\", k.dc, k.gv, \"NX\");\n  if (second !== \"OK\" && (await run(\"GET\", k.dc)) !== k.gv) {\n    if (madeGh) await run(\"DEL\", k.gh); // undo the half we just wrote\n    return \"discord-linked\";\n  }\n  return \"ok\";\n},"
+    }
+  }
+}

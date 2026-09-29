@@ -7,13 +7,14 @@ import { glState as d, GL_STATES } from "./state";
 import { resources } from "./resources";
 import { Renderer } from "./core";
 import { HomeScene, MarbleScene } from "./scenes";
+import { ShowcaseScene } from "./showcase/ShowcaseScene";
 
 const LOAD_TIMEOUT = 3e4;
 
 export class Engine {
   #options: { wrapper: HTMLElement; canvas: HTMLCanvasElement; page: string };
   #renderer!: Renderer;
-  #scene?: HomeScene | MarbleScene;
+  #scene?: HomeScene | MarbleScene | ShowcaseScene;
   #destroyed = false;
 
   constructor(options: { wrapper: HTMLElement; canvas: HTMLCanvasElement; page: string }) {
@@ -34,7 +35,7 @@ export class Engine {
         resolve();
       }, LOAD_TIMEOUT);
     });
-    await Promise.race([Promise.all([resources.load()]), timeout]);
+    await Promise.race([Promise.all([resources.load({ page: this.#options.page })]), timeout]);
     clearTimeout(timer);
     d.setGlState(GL_STATES.LOADED);
     d.setGlState(GL_STATES.READY);
@@ -69,7 +70,8 @@ export class Engine {
   }
 
   #buildScene() {
-    this.#scene = this.#options.page === "index" ? new HomeScene() : new MarbleScene();
+    const page = this.#options.page;
+    this.#scene = page === "index" ? new HomeScene() : page === "showcase" ? new ShowcaseScene() : new MarbleScene();
     d.scene.add(this.#scene);
   }
 

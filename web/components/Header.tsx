@@ -1,36 +1,59 @@
 "use client";
 
-// Fixed site header — hides on scroll-down past 25% of the viewport, shows on scroll-up.
+// Fixed site header: logo on the left, the page links and the "Become a Catalyst" button on the right (HeaderNav).
+// It hides on scroll-down past 25% of the viewport and shows on scroll-up. On the home page it stays up through the
+// hero and while the button pushes the links (plus a short dwell), so that hand-over is actually seen.
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getRuntime, events, EVENTS } from "@/lib/runtime";
 import type { ScrollEvent } from "@/lib/runtime/events";
 import { store } from "@/lib/runtime/store";
 import { throttle } from "@/lib/runtime/timing";
 import Logo from "./Logo";
-import Button from "./ui/Button";
+import HeaderNav from "./HeaderNav";
 import { brand } from "@/lib/brand";
-import { nav } from "@/lib/content";
-import RouterLink from "./ui/RouterLink";
-import SocialsMenu from "./SocialsMenu";
+import { usePitch } from "@/lib/pitchClient";
 import MenuToggle from "./MenuToggle";
 
 const scope = { "data-v-1f0a709d": "" };
 
-const linkClass =
-  "type-caption uppercase [&.router-link-exact-active]:text-gold transition-colors duration-300 ease-out has-hover:hover:text-gold";
+/** How long the header stays up after the push comes to rest, in ms, so the result can be read before it tucks away. */
+const PUSH_DWELL = 450;
+
+/** Pages that open with their own call to action, so the header's button waits until that has passed. */
+const HERO_PAGES = new Set(["/", "/studio"]);
 
 export default function Header() {
   const [hidden, setHidden] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const heroPage = HERO_PAGES.has(pathname);
+  const pitch = usePitch();
+  // The Studio is where clients land, so its button books a call (with the Maintainer who sent the link, if one did).
+  const cta =
+    pathname === "/studio"
+      ? { label: pitch ? `Book a call with ${pitch.from.first}` : "Book a call", to: pitch?.from.booking ?? brand.booking }
+      : { label: brand.cta, to: "/join" };
+  // Where the hero's own button is gone; HeaderNav measures it, this reads it.
+  const heroEnd = useRef(0);
+  const onHeroEnd = useCallback((y: number) => {
+    heroEnd.current = y;
+  }, []);
+  // The push is in flight, or finished less than PUSH_DWELL ago (a timestamp, 0 when never).
+  const push = useRef({ moving: false, settledAt: 0 });
+  const onMoving = useCallback((moving: boolean) => {
+    push.current.moving = moving;
+    if (!moving) push.current.settledAt = performance.now();
+  }, []);
 
   useEffect(() => {
     const { resize } = getRuntime();
     const onScroll = throttle(({ y, direction }: ScrollEvent) => {
-      const threshold = resize.wh * 0.25;
-      if (y < threshold) setHidden(false);
+      const held =
+        heroEnd.current > 0 &&
+        (y < heroEnd.current || push.current.moving || performance.now() - push.current.settledAt < PUSH_DWELL);
+      if (y < resize.wh * 0.25 || held) setHidden(false);
       else setHidden(direction === 1);
     }, 50);
     events.on(EVENTS.APP_SCROLL, onScroll);
@@ -53,19 +76,7 @@ export default function Header() {
             <button type="button" onClick={onLogo} className="relative" aria-label={brand.name} {...scope}>
               <Logo {...scope} />
             </button>
-            <ul className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 hidden s:flex items-center gap-x-40" {...scope}>
-              {nav.map((item) => (
-                <li key={item.href} {...scope}>
-                  <RouterLink href={item.href} className={linkClass} {...scope}>
-                    {item.label}
-                  </RouterLink>
-                </li>
-              ))}
-            </ul>
-            <div className="relative hidden s:flex items-center gap-x-15" {...scope}>
-              <Button to="/join" item={{ label: brand.cta }} {...scope} />
-              <SocialsMenu scopeAttrs={scope} />
-            </div>
+            <HeaderNav heroPage={heroPage} button={cta} onHeroEnd={onHeroEnd} onMoving={onMoving} scopeAttrs={scope} />
             <MenuToggle
               className="s:hidden"
               scopeAttrs={scope}

@@ -5,7 +5,8 @@ import { SRGBColorSpace, TextureLoader, type Texture, type WebGLRenderer } from 
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { KTX2Loader } from "three/examples/jsm/loaders/KTX2Loader.js";
-import { manifest, type ResourceEntry } from "./manifest";
+import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
+import { manifestFor, type ResourceEntry } from "./manifest";
 
 const requestIdle: (cb: () => void, opts?: { timeout: number }) => unknown =
   (typeof globalThis !== "undefined" && (globalThis as { requestIdleCallback?: typeof requestIdleCallback }).requestIdleCallback) ||
@@ -27,6 +28,7 @@ class Resources {
     const draco = new DRACOLoader();
     draco.setDecoderPath("/gl/decoders/draco/gltf/");
     this.#loaders.gltf.setDRACOLoader(draco);
+    this.#loaders.gltf.setMeshoptDecoder(MeshoptDecoder);
     this.#loaders.ktx.setTranscoderPath("/gl/decoders/basis/");
   }
 
@@ -79,8 +81,14 @@ class Resources {
     return this.load({ data: this.#deferred, isDeferCall: true }).then(() => clear());
   }
 
-  load({ data = [], isDeferCall = false, preventSave = false }: { data?: ResourceEntry[]; isDeferCall?: boolean; preventSave?: boolean } = {}) {
-    const entries = preventSave ? [...data] : [...data, ...(manifest || [])];
+  load({
+    data = [],
+    isDeferCall = false,
+    preventSave = false,
+    page = "index",
+  }: { data?: ResourceEntry[]; isDeferCall?: boolean; preventSave?: boolean; page?: string } = {}) {
+    // copies, because loading rewrites `path` to the compressed file it picked
+    const entries = preventSave ? [...data] : [...data, ...manifestFor(page).map((e) => ({ ...e }))];
     const done = (entry: ResourceEntry, resolve: (v: Loaded) => void, value: Loaded = false, cached = false, skipSave = false) => {
       if (value && !skipSave) this.#cache.set(entry.key, value);
       void isDeferCall;

@@ -5,7 +5,6 @@ import { useSyncExternalStore } from "react";
 
 export type Flags = {
   loaded: boolean;
-  menu: boolean;
   menuMobile: boolean;
   menuInstant: boolean;
   dark: boolean;
@@ -19,7 +18,6 @@ const listeners = new Set<Listener>();
 
 const initialFlags: Flags = {
   loaded: false,
-  menu: false,
   menuMobile: false,
   menuInstant: false,
   dark: false,

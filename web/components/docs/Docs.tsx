@@ -88,6 +88,9 @@ function Projects() {
         <span className="hb-chip">Demo Day</span>
         <Rich className="type-body-sm text-white" text={p.demoDay} />
       </div>
+      <div className="hb-cta">
+        <Button to="/studio">See the studio</Button>
+      </div>
     </section>
   );
 }

@@ -27,6 +27,8 @@ export const glState = {
   scene: undefined as unknown as Scene,
   camera: undefined as unknown as Camera & { fov: number },
   composer: undefined as unknown,
+  /** Set by a scene that draws the frame itself (post effects, skipping frames nobody can see). */
+  render: undefined as undefined | (() => void),
   raycaster: undefined as unknown,
   dom: undefined as unknown as { wrapper: HTMLElement; canvas: HTMLCanvasElement },
   mouse: undefined as unknown as {

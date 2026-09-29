@@ -22,6 +22,7 @@ export const maintainerEntries: PersonEntry[] = [
     discord: "beyond.aphelion_",
     role: "Origin",
     note: "Approves every venture that runs under the edith name.",
+    booking: brand.booking,
   },
 ];
 

@@ -133,7 +133,11 @@ export const footer: {
       {
         id: "clients",
         title: "For clients",
-        links: [page("docs#clients", "Working with edith"), external("footer-booking", "Book a call", brand.booking)],
+        links: [
+          page("studio", "Studio"),
+          page("docs#clients", "Working with edith"),
+          external("footer-booking", "Book a call", brand.booking),
+        ],
       },
       {
         id: "operators",
@@ -191,6 +195,7 @@ export const whatIs = {
 // The navbar lists the site's separate pages only; the home page sections are reached by scrolling and the quick menu.
 export const nav: { label: string; href: string }[] = [
   { label: "The Legion", href: "/legion" },
+  { label: "Studio", href: "/studio" },
   { label: "Docs", href: "/docs" },
 ];
 
