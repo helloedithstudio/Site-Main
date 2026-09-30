@@ -8,7 +8,7 @@ that suits you, and tell me when something is done or when you have decided. Eve
 This file lives in a public repository, so it must never contain a password, token or secret. Put secrets only in Vercel and
 GitHub settings.
 
-**Last updated:** 29 September 2026 (afternoon)
+**Last updated:** 30 September 2026
 
 Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, not for me.
 
@@ -19,8 +19,9 @@ Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, n
 2. ~~Decide B1 and B2~~ **Done (21 Sep):** GitHub required, and minimum account ages on (Discord 7 days, GitHub 30 days).
 3. **A7: test the join flow** (about 20 minutes). A1 to A6 are done (see below); this is what is left before going live. Two spare Discord accounts and two spare GitHub accounts, steps in `docs/onboarding-setup.md` step 8.
 
-4. **Studio: start the Blender session (5 min, then it runs on its own).** In a new PowerShell window, follow "How to start it" in `docs/showcase/asset-session-prompt.md`, then tell that session: `Read D:\page_content\web\docs\showcase\asset-session-prompt.md and do everything in "The prompt".` Keep the laptop plugged in and awake while it renders. The page is already built and works with stand-in films; the renders replace them.
-5. **Studio: approve the three lookdev stills** when the Blender session stops and asks (2 min), or say "ask the web session" and I review them.
+4. ~~Studio: start the Blender session~~ **Parked (30 Sep).** `/studio` now serves your portfolio's Studio page (its own look, its own film), so the Showcase and its Blender renders are on hold. Nothing is lost: the Showcase code is still in `components/showcase/`, and `components/showcase/ShowcasePage.tsx` says how to put it back, on `/studio` or on its own address. Say the word when you want it back. The Blender prompt is still in `docs/showcase/asset-session-prompt.md`.
+5. ~~Studio: approve the three lookdev stills~~ **Parked with item 4.**
+6. **Studio page: read the "before it goes public" list in section S below (S7 to S10).** The page is wired in and builds, but four things about it are only yours to settle: the client case study, the Claude and OpenAI logos, the film, and the claims in the copy.
 
 ---
 
@@ -96,12 +97,24 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 
 ## S. Studio page (`/studio`)
 
-- [ ] **S1. Pitch link secret (5 min, before you send your first link).** Make one long random value: `node -e "console.log(require('crypto').randomBytes(36).toString('base64url'))"` (48 characters). Put it in Vercel as `PITCH_LINK_SECRET` (Production), and replace the development value in `web/.env.local` with the same one, so links you make locally work on the live site. Then make a link: `npx tsx scripts/pitch-link.ts --from Andrew-Kevin-007 --for "Client Name" --days 60`. Changing the secret later ends every link made before.
-- [ ] **S2. Draft copy (10 min).** Read the words on `/studio` (all in `lib/showcase.ts`, section `showcasePage`) and change anything that does not sound like you. The headline is "Don't take our word for it."
-- [ ] **S3. Friday's welcome DM (2 min, optional).** A screenshot of the real welcome DM, if you want it shown in Exhibit 02's closer look.
-- [ ] **S4. Phone check (10 min, after the renders are in).** Scroll the whole page on your phone, and open one pitch link from WhatsApp.
+Since 30 Sep `/studio` is your portfolio's Studio page, moved in from `docs/portfolio-studio-page/` and kept in its own Apple-style look on purpose (it is what clients see, so it does not follow the dev site's theme). The words are in `app/studio/page.tsx` (the same list, in reading order, is `docs/portfolio-studio-page/copy.md`), the look is `styles/studio.css`, the pieces are `components/studio/`. The earlier Showcase page is parked (see item 4 at the top), so B11, B12, S3 and the Blender items are on hold with it.
+
+**Before it goes public (only you can settle these):**
+
+- [ ] **S7. The case study.** Scene 4 names a client (Mamacita's Miami Eats) and shows their site on a laptop. Confirm you still have their permission for it to be on edith's public site, not only on your portfolio.
+- [ ] **S8. The Claude and OpenAI logos.** The marks belong to Anthropic and OpenAI. Check their brand guidelines allow this use on a public page (scene 2). If not, say so and I swap them for plain words.
+- [ ] **S9. The film.** `public/studio-page/studio1.mp4` came from your own Studio page. Confirm it contains no third-party footage and you may reuse it here.
+- [ ] **S10. The claims and the voice (10 min).** Read the page once as edith's page and decide what stays. The copy is your portfolio's, only the dashes changed. Things to check: it still says "Edith Studio" (edith's own copy says plain "edith"); "What I build" and "we" are mixed; "one flat price in writing", "a first demo in days" and "shipped worldwide" are promises the studio now makes; and the button "Visit Edith Studio" now goes to the edith home page, because the old Studio site is this site. Tell me what to change and I will.
+
+- [ ] **S11. The Docs page button "See the studio" (2 min).** It sits under "Top projects" on `/docs` and goes to `/studio`, which used to show projects and now shows the services page, so the button no longer leads to what the section is about. Tell me: point it somewhere else (The Legion, or Discord), reword it, or leave it.
+
+**Still yours from before:**
+
+- [ ] **S1. Pitch link secret (5 min, before you send your first link).** Pitch links still work on the new page: the header button says "Book a call with <name>" and opens that Maintainer's booking link. Make one long random value: `node -e "console.log(require('crypto').randomBytes(36).toString('base64url'))"` (48 characters). Put it in Vercel as `PITCH_LINK_SECRET` (Production), and replace the development value in `web/.env.local` with the same one, so links you make locally work on the live site. Then make a link: `npx tsx scripts/pitch-link.ts --from Andrew-Kevin-007 --for "Client Name" --days 60`. Changing the secret later ends every link made before.
+- [ ] **S4. Phone check (10 min).** Scroll the whole page on your phone, and open one pitch link from WhatsApp. I checked it at phone width in a test browser, not on a real phone.
 - [ ] **S5. Other Maintainers' booking links**, when there are other Maintainers: add `booking` to their entry in `lib/legion.ts`.
 - [ ] **S6. Free space on C:** it had about 7 GB free last I checked. Aim for 20 GB or more; Windows and the render tools misbehave when C: is nearly full.
+- [ ] **S3. (Parked with the Showcase.)** Friday's welcome DM screenshot, for Exhibit 02's closer look.
 
 ## G. Reminders for later
 
@@ -125,6 +138,8 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 | C2, C3 | Wire each file in and re-render where needed |
 | D1 (X page, coming soon) | Add the X icon |
 | E2 | Replace the placeholder in the legal text |
+| S7 to S10 (case study permission, logos, film, the claims and voice) | Change or remove whatever you say, in the page copy |
+| Whether to bring the parked Showcase back (item 4) | Put it back on `/studio` or on its own address, and restart the Blender session |
 
 Done since the last update: B6, B8, B9, B10 decided; C1 built and wired in; the Become a Catalyst link fixed; the public Legion listing automated.
 
@@ -132,6 +147,7 @@ Nothing else is queued on my side.
 
 ## Log of what is done (newest first)
 
+- 30 Sep 2026: `/studio` now serves your portfolio's Studio page (the package you added in `docs/portfolio-studio-page/`), kept in its own Apple-style look on purpose because clients see it. Moved in: the route (`app/studio/page.tsx`), six components (`components/studio/`), the styles (`styles/studio.css`, plain CSS with every class prefixed `sp-` because edith has no Tailwind, sizes in px because edith's rem is about 9 px), the film, logos and laptop (`public/studio-page/`), and the two Google Sans fonts (`public/fonts/`, their own metadata names the SIL Open Font License, licence text added). Changes to the copy are only the em dashes (rewritten as colons and commas), the email (now edith's `hello.edithstudio@gmail.com`) and the button "Visit Edith Studio" (now the edith home page, since the old Studio site is this site). Pitch links still work (`PitchStart`), and the header's "Book a call" button is unchanged. The earlier Showcase page is parked, not deleted (`components/showcase/ShowcasePage.tsx` says how to bring it back). Four things are yours before it goes public: S7 to S10.
 - 29 Sep 2026: Renamed the Showcase page to Studio (`/showcase` now permanently redirects to `/studio`, pitch link tokens survive the redirect; nav, header, sitemap, footer and Docs links updated; internal file and folder names left as they are). While pushing, found that D6 (connecting this folder to GitHub) was not actually in effect: no remote was configured, and two real commits from 24 to 25 Sep (the header rework, the Showcase page itself) had never reached GitHub. Pushed everything together the manual way (mirror into a fresh clone, commit, push, fetch back); reopened D6. Also found `web/docs/portfolio-studio-page/`, an archive of the portfolio's own former `/studio` page, written to disk but never committed; read it, it is benign reference material, included it in the push. Wrote `D:\Portfolio-Main\Portfolio\edith-context.md`, a from-the-source description of edith for your portfolio agent to read.
 - 28 Sep 2026: Started the edith dev server on port 3000 (all five main pages answer). Wrote `D:\Portfolio-Main\Portfolio\hero-button\IMPLEMENTATION.md`: a tested port of edith's "Become a Catalyst" hover effect for a button in your portfolio's home hero. Its animation state matched edith's original value for value at 13 points across four runs, and 12 behaviour checks pass (mouse, keyboard, reduced motion, touch, unmount); it works on dark and light. Not run inside the portfolio yet, and Chromium only. Default label and target are a guess (Contact, `/contact`); yours to change. Nothing in the edith site changed.
 - 28 Sep 2026: Wrote an implementation kit for putting edith's hero marble behind the home hero of your portfolio (`D:\Portfolio-Main\Portfolio\hero-marble\IMPLEMENTATION.md`, plus the ready textures and a still image). I first read your request the wrong way round and specced your portfolio's film hero for edith; that spec was removed. The kit was built and tested in a scratch project against the live edith hero (image match 0.84 mean correlation, 0.97 best, against 0.07 to 0.34 for wrong orientations and shifts; seamless on the portfolio's page colour; 14 behaviour checks including reduced motion, no WebGL and slow devices). Not run inside the portfolio yet, and real GPU speed is untested. Nothing in the edith site changed.
