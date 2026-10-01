@@ -1,5 +1,20 @@
 # Portfolio Studio page: archived package
 
+> **Status, 30 September 2026: this page is now wired into edith and is what `/studio` serves.** It was moved in, not rewritten.
+> The paragraph "Nothing here is wired into edith" and the "Not to be confused with" note below describe the package as it was
+> before that. Where each part went:
+>
+> | From this package | Now at |
+> | --- | --- |
+> | `source/app/[locale]/studio/page.tsx` | `app/studio/page.tsx` (no next-intl, no locale; the copy is the same with the em dashes rewritten) |
+> | `source/components/studio/*`, `source/components/motion/Reveal.tsx` | `components/studio/` (logic unchanged; Tailwind classes became plain `sp-` classes) |
+> | `source/styles/studio.css` | `styles/studio.css` (plain CSS in px, every class prefixed `sp-`; edith has no Tailwind) |
+> | `public/studio1.mp4`, `logos/`, `mockups/` | moved to `public/studio-page/` (no longer in this folder) |
+> | Google Sans Flex and Code (not in this package) | `public/fonts/`, with `OFL-google-sans.txt` |
+>
+> `source/` and `copy.md` stay here untouched as the verbatim record of the portfolio's page (commit `ca8561b`). edith's earlier
+> `/studio` page, the Showcase, is parked in `components/showcase/` (see `ShowcasePage.tsx` for how to bring it back).
+
 Written for: Kevin, and a Claude Code agent working in this repository (`D:\page_content\web`, edith) or in the portfolio
 (`D:\Portfolio-Main\Portfolio`, kevinandrew.tech).
 
@@ -48,7 +63,7 @@ portfolio-studio-page/
     content/site.ts                  EMAIL and STUDIO_URL, the two values the page imports (ca8561b values)
     messages/en.json, de.json        the two translation keys the page reads: nav.studio, pageMeta.studio
     styles/studio.css                every style the page relies on, extracted from the portfolio's globals.css
-  public/
+  public/                            moved to web/public/studio-page/ on 30 September 2026 (see the status note above)
     studio1.mp4                      the hero film
     logos/claude.png, openai.png     the scene 2 logos
     mockups/space-black.png          the scene 4 laptop
