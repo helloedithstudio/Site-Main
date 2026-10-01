@@ -179,6 +179,73 @@ To stop the QStash timer, delete the schedule in the console (or `curl.exe -X DE
 
 Any time you want to see what it would do without doing it, run the dry run command again.
 
+## 9. Promotion: Catalyst to Maintainer
+
+Friday keeps an eye on every Catalyst who has signed in on the site (so their Discord id is linked to a verified GitHub username).
+Once a day it posts a **nomination** in a private channel for anyone who qualifies, with two buttons, **Promote** and **Not yet**.
+Only the Discord ids in `PROMOTER_IDS` (you) can press them, or use the slash commands. Nobody is ever promoted without one of those.
+
+**Who qualifies.** A Catalyst for at least `PROMOTE_MIN_DAYS` (30) **and** at least `PROMOTE_MIN_POINTS` (8) points. Points: 2 for each
+pull request merged into an edith GitHub organisation in the last 60 days (at most 5 count), plus 2 for each credit note you have
+logged in the last 90 days (at most 5 count). So by default that is four merged pull requests, or two and two credit notes. Time
+alone never nominates anyone. "Not yet" quiets that person for 30 days. At most five nominations are posted in one run.
+
+**What promotion does.** Adds the Maintainer role in Discord (they keep Catalyst), messages them, logs it in the private channel,
+and, if they signed in and ticked "Show me on the public Legion page", moves them to the Maintainers section there. A Maintainer
+role never publishes anyone who did not opt in.
+
+**Slash commands** (only for the ids in `PROMOTER_IDS`; Discord also hides them from everyone but administrators):
+`/promote user`, `/demote user` (also snoozes nominations for 90 days), `/credit user reason` (a note of good work, which counts
+towards a nomination: use it for help and community work that GitHub cannot see), `/list github` and `/unlist github` (add or remove
+someone on the Legion page by hand; unverified until they sign in).
+
+**Setting it up (about 15 minutes, and none of it can be done by the code):**
+
+1. In Discord create the **Maintainer** role if it does not exist, and a private **#promotions** channel that only you (and Core, if
+   you like) and Friday can see. Copy both ids (Developer Mode, right click, Copy ID), and your own user id.
+2. Make sure Friday's role sits **above** the Maintainer role (Discord only lets a bot give roles below its own), and can post in #promotions.
+3. Developer portal, your application, General Information: copy the **Public Key** (64 characters).
+4. On Vercel add `DISCORD_PUBLIC_KEY`, `DISCORD_ROLE_MAINTAINER`, `DISCORD_CHANNEL_PROMOTIONS` and `PROMOTER_IDS` (your user id), see
+   `.env.example`. Add the Maintainer role id to `DISCORD_ROLES_EXEMPT` as well. Redeploy.
+5. Developer portal, General Information, **Interactions Endpoint URL**: `https://edith-plum.vercel.app/api/discord/interactions`.
+   Discord tests it when you save: it sends a ping and a deliberately wrongly signed request, and the site answers the first and refuses
+   the second. If saving fails, the settings in step 4 are missing or the deployment is not live yet.
+6. Register the slash commands once (and again whenever `lib/promote/commands.ts` changes):
+   `curl.exe -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" "https://edith-plum.vercel.app/api/discord/register"`
+   The reply lists the five commands. They show up in the server within a minute.
+7. A daily timer for the nominations: a second QStash schedule, created the same way as in section 6 (same QStash token):
+   `curl.exe -X POST "https://qstash.upstash.io/v2/schedules/https://edith-plum.vercel.app/api/promote/scan" -H "Authorization: Bearer YOUR_QSTASH_TOKEN" -H "Content-Type: text/plain" -H "Upstash-Cron: 0 9 * * *" -H "Upstash-Forward-Authorization: Bearer YOUR_CRON_SECRET" --data "scan"`
+   (09:00 UTC, which is 14:30 in India.) To see who would be nominated right now without posting anything:
+   `curl.exe -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" "https://edith-plum.vercel.app/api/promote/scan?dry=1"`
+8. **Test it with a spare account** before relying on it: give it the Catalyst role, have it sign in at Become a Catalyst (so a member
+   record exists), temporarily set `PROMOTE_MIN_DAYS=0` and `PROMOTE_MIN_POINTS=2` on Vercel and redeploy, run `/credit` on it once, run
+   the scan, press **Promote**, check the role, the Maintainer channels and the Legion page, then `/demote` it and put the two settings back.
+
+**What is kept** for this (all plain data, deleted when someone asks or when you release them): the member record from the join flow,
+a short list of your credit notes per person (`credit:<discord id>`), and where each person stands (`promo:<discord id>`: nominated,
+snoozed until a date, or promoted). The privacy text says so.
+
+## 10. Channels by role
+
+Discord decides who can see which channel, so this part is yours to set; the site can check it for you. The rule you asked for:
+**Catalysts see only what a Catalyst may see, and the Maintainer channels open only on promotion.** (Maintainers keep the Catalyst role, so
+they see everything Catalysts do plus their own.)
+
+Suggested layout, using a private **Maintainers** category (channels inside it should be set to "sync with category"):
+
+- **Maintainers** category: for `@everyone`, **deny** View Channel. For the **Maintainer** role, **allow** View Channel (and the rest you
+  want them to have). Give nothing to Catalyst or Pending. Staff roles you already have can be allowed here too.
+- Your community and welcome channels stay as they are. If you want Pending members to see only a welcome channel, deny View Channel
+  for `@everyone` on the Community category and allow it for the Catalyst role; that is your call, the check below reports the result either way.
+
+**Check it.** This reads the server and changes nothing:
+`curl.exe -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" "https://edith-plum.vercel.app/api/discord/audit?format=text"`
+It prints every channel against four kinds of person (no role, Pending, Catalyst, Maintainer) and then lists problems: a channel
+named like a Maintainer channel that a Catalyst can see, a channel Catalysts can see but Maintainers cannot, or no Maintainers-only
+channel at all (a promotion would unlock nothing). Friday has Administrator, which ignores these rules, so the check is about what
+members see, not the bot. It needs the Maintainer role id (`DISCORD_ROLE_MAINTAINER`) to be set. Run it after any permission change, and
+once after the first promotion.
+
 ## Looking after it
 
 - **Free someone to start again** (they lost an account, or asked to be deleted): find their numeric Discord id (Developer Mode, right

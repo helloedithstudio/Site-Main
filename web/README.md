@@ -85,7 +85,17 @@ roles untouched) to set up or change their profile.
   joined before it, bots, the owner, exempt roles and Catalysts are never touched; at most 10 removals per run; only people
   invited with at least half the window left are ever removed.
 - **What the public pages say** about the 24 hour form appears only when `NEXT_PUBLIC_JOIN_LIVE=true` (`lib/join/constants.ts`).
-- **Tests:** `npx tsx scripts/join-test.ts` runs 39 checks against fakes of Discord, GitHub and the database. It has not been run against the real services.
+- **Promotion, Catalyst to Maintainer:** Friday posts a nomination with Promote and Not yet buttons (daily, from `POST /api/promote/scan`)
+  for Catalysts who have been one for 30 days and earned enough points (merged pull requests on edith repositories, Kevin's credit
+  notes). Only the Discord ids in `PROMOTER_IDS` can press the buttons or use `/promote`, `/demote`, `/credit`, `/list`, `/unlist`.
+  Code in `lib/promote/*` (pure scoring in `score.ts`, the actions in `actions.ts`, the Discord handler in `interactions.ts`, the
+  Ed25519 request check in `signature.ts`); routes `app/api/discord/{interactions,register,audit}` and `app/api/promote/scan`.
+  `lib/join/audit.ts` works out who can see which channel, so you can check that Catalysts cannot see Maintainer channels.
+  Settings and the one-time Discord steps: `docs/onboarding-setup.md` sections 9 and 10.
+- **Tests:** `npx tsx scripts/join-test.ts` runs 57 checks and `npx tsx scripts/promote-test.ts` runs 40, against fakes of Discord,
+  GitHub and the database (`scripts/fakes/`, which can also be served for a browser run: `npx tsx scripts/fakes/serve.ts`). The
+  real built site has also been driven in a browser against those fakes (profile mode and promotion). None of it has been run against
+  the real Discord, GitHub or database yet.
 - **Setup steps and settings:** `docs/onboarding-setup.md` and `.env.example`.
 
 ## The backdrop

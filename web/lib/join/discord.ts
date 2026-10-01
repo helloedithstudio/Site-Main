@@ -17,7 +17,12 @@ type Raw = { user: { id: string; username: string; bot?: boolean; global_name?: 
 
 const toMember = (m: Raw): Member => ({ id: m.user.id, roles: m.roles ?? [], joinedAt: m.joined_at, bot: !!m.user.bot, username: m.user.username });
 
-export type Message = { content?: string; embeds?: unknown[]; allowed_mentions?: unknown };
+export type Message = { content?: string; embeds?: unknown[]; allowed_mentions?: unknown; components?: unknown[]; flags?: number };
+
+/** Raw channel and role shapes, only the fields the channel audit reads. */
+export type Overwrite = { id: string; type: 0 | 1; allow: string; deny: string };
+export type GuildChannel = { id: string; name: string; type: number; parent_id: string | null; permission_overwrites: Overwrite[] };
+export type GuildRole = { id: string; name: string; permissions: string };
 
 export function discord(cfg: JoinConfig) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Discord replies are read field by field and checked at the point of use
@@ -101,6 +106,20 @@ export function discord(cfg: JoinConfig) {
     },
     async post(channelId: string, msg: Message) {
       must(await call("POST", `/channels/${channelId}/messages`, { json: msg }), "posting a message");
+    },
+    /** Edits the reply to a slash command or button press (the interaction token is valid for 15 minutes). */
+    async editInteraction(interactionToken: string, msg: Message) {
+      must(await call("PATCH", `/webhooks/${cfg.clientId}/${encodeURIComponent(interactionToken)}/messages/@original`, { json: msg }), "editing the reply");
+    },
+    /** Registers (replaces) this server's slash commands. */
+    async registerCommands(commands: unknown[]): Promise<unknown> {
+      return must(await call("PUT", `/applications/${cfg.clientId}/guilds/${cfg.guildId}/commands`, { json: commands }), "registering commands");
+    },
+    async listChannels(): Promise<GuildChannel[]> {
+      return must(await call("GET", `${g}/channels`), "listing channels") as GuildChannel[];
+    },
+    async listRoles(): Promise<GuildRole[]> {
+      return must(await call("GET", `${g}/roles`), "listing roles") as GuildRole[];
     },
     async exchangeCode(code: string, redirectUri: string): Promise<string> {
       const data = must(

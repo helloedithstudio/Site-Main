@@ -49,10 +49,10 @@ export const legionPage = {
     status: "Currently brewing",
     title: "Earn a Maintainer seat",
     intro:
-      "edith is new, so the Maintainer roster is short on purpose. Maintainers are earned, not appointed in bulk. Right now there is one.",
+      "edith is new, so the Maintainer roster is short on purpose. Maintainers are earned, not appointed in bulk.",
     open: 3,
     openTitle: "Open seat",
-    openText: "Could be you. Help people, ship something, then open a PR in `apply-here`.",
-    path: "Becoming a Maintainer takes 30+ days around, helping people, shipping something and a public profile. Open a PR in `apply-here`, get two endorsements and approval from Core, the community's mediators. You hear back in about a week.",
+    openText: "Could be you. Help people, ship something, and keep showing up.",
+    path: "Becoming a Maintainer takes 30+ days as a Catalyst and steady work: pull requests merged into edith's repositories, helping people, shipping something. You do not apply. Friday keeps track and suggests the people who are ready, and the founder approves each promotion. Sign in through Become a Catalyst so your GitHub is confirmed and your work can be seen.",
   },
 };

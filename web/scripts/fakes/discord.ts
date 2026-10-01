@@ -20,6 +20,14 @@ export function fakeDiscord(opts: { ago?: (hoursAgo: number) => string } = {}) {
   const redis = new Map<string, string>();
   const redisSets = new Map<string, Set<string>>();
   const redisCalls: string[][] = [];
+  // For the promotion code: edits to interaction replies, registered slash commands, GitHub search results, and the server's
+  // channels and roles (the tests fill the last two in as they need).
+  const interactionEdits: { app: string; token: string; body: any }[] = [];
+  const registered: any[][] = [];
+  const prCounts = new Map<string, number>(); // "login|org" -> merged pull requests
+  const ghSearches: string[] = [];
+  const channels: any[] = [];
+  const roles: any[] = [];
   const add = (id: string, hoursAgo: number, roles: string[] = [], extra: Partial<FM["user"]> = {}) =>
     members.set(id, { user: { id, username: "user" + id, ...extra }, roles: [...roles], joined_at: ago(hoursAgo) });
   const server = http.createServer(async (req, res) => {
@@ -38,6 +46,16 @@ export function fakeDiscord(opts: { ago?: (hoursAgo: number) => string } = {}) {
       back.searchParams.set("state", url.searchParams.get("state") ?? "");
       res.writeHead(302, { Location: back.toString() });
       return res.end();
+    }
+    if (path === "/__state" && req.method === "GET") {
+      // For browser and server runs, where the fake lives in another process: what it has seen and kept.
+      return send(200, { members: [...members.values()], messages, kicked, interactionEdits, registered, ghSearches, redis: Object.fromEntries(redis), redisSets: Object.fromEntries([...redisSets].map(([k, v]) => [k, [...v]])) });
+    }
+    if (path === "/ghapi/search/issues" && req.method === "GET") {
+      const q = url.searchParams.get("q") ?? "";
+      ghSearches.push(q);
+      const m = /author:(\S+) org:(\S+)/.exec(q);
+      return send(200, { total_count: m ? (prCounts.get(`${m[1]}|${m[2]}`) ?? 0) : 0 });
     }
     if (path === "/gh/login/oauth/access_token" && req.method === "POST") {
       const code = String(JSON.parse(raw).code ?? "");
@@ -72,10 +90,21 @@ export function fakeDiscord(opts: { ago?: (hoursAgo: number) => string } = {}) {
       return send(200, { id, username: "user" + id, global_name: "Name " + id });
     }
     if (auth !== "Bot test-token") return send(401, { message: "401: Unauthorized" });
+    const hook = path.match(/^\/webhooks\/([^/]+)\/([^/]+)\/messages\/@original$/);
+    if (hook && req.method === "PATCH") {
+      interactionEdits.push({ app: hook[1], token: decodeURIComponent(hook[2]), body: JSON.parse(raw) });
+      return send(200, {});
+    }
+    if (/^\/applications\/[^/]+\/guilds\/G\/commands$/.test(path) && req.method === "PUT") {
+      registered.push(JSON.parse(raw));
+      return send(200, JSON.parse(raw));
+    }
     const m = path.match(/^\/guilds\/G(\/.*)?$/);
     if (m) {
       const rest = m[1] ?? "";
       if (rest === "") return send(200, { owner_id: state.owner });
+      if (rest === "/channels" && req.method === "GET") return send(200, channels);
+      if (rest === "/roles" && req.method === "GET") return send(200, roles);
       if (rest === "/members" && req.method === "GET") {
         const after = url.searchParams.get("after") ?? "0";
         const rows = [...members.values()].filter((x) => x.user.id > after).sort((a, b) => (a.user.id < b.user.id ? -1 : 1)).slice(0, Number(url.searchParams.get("limit") ?? 1000));
@@ -100,5 +129,5 @@ export function fakeDiscord(opts: { ago?: (hoursAgo: number) => string } = {}) {
     }
     send(404, { message: "Not found " + path });
   });
-  return { members, dmClosed, messages, kicked, state, add, server, ghUsers, revoked, redis, redisSets, redisCalls };
+  return { members, dmClosed, messages, kicked, state, add, server, ghUsers, revoked, redis, redisSets, redisCalls, interactionEdits, registered, prCounts, ghSearches, channels, roles };
 }

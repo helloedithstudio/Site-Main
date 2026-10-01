@@ -57,7 +57,7 @@ export const discussions = {
     { channel: "rubber-duck", hub: "Help", text: "Talk it through. Someone has hit the same wall." },
     { channel: "rfcs", hub: "Feedback", text: "Formal proposals, where Maintainers vote in the open." },
     { channel: "ship-it", hub: "Show off", text: "Share what you shipped, with credit for the people who helped." },
-    { channel: "apply-here", hub: "Membership", text: "Open a PR to become a Maintainer." },
+    { channel: "apply-here", hub: "Membership", text: "Tell Core what you have been building." },
     { channel: "touch-grass", hub: "Hangout", text: "For when you need a break from building." },
   ],
   rfcs: "Open RFCs: none yet. Formal proposals go to `rfcs`, where Maintainers vote and Core carries out the result.",
@@ -86,7 +86,7 @@ export const faq = {
     },
     {
       q: "How do I become a Maintainer?",
-      a: "After 30+ days of helping people, shipping something and having a public profile, open a PR in `apply-here`. Maintainers review it in the open, two endorse it and Core approves. You hear back in about a week.",
+      a: "You do not apply. After 30+ days as a Catalyst with steady work (pull requests merged into edith's repositories, helping people, shipping something), Friday suggests you and the founder approves each promotion. Sign in through Become a Catalyst so your GitHub is confirmed and your work can be seen. You are told directly when you are promoted.",
     },
     {
       q: "What can Maintainers do?",
@@ -329,8 +329,8 @@ export const privacy: LegalDoc = {
             title: "The Catalyst form",
             body: [
               `When you join the Discord you are asked to complete a short form on this site within ${JOIN_HOURS} hours. You sign in with Discord, which gives us only your Discord user ID, username and display name, and we check that you are in the server. You then sign in with GitHub, to confirm the GitHub account is yours. We read only its public profile (its ID, username, display name and the date it was created), never your email, your code or anything private, and we cancel the GitHub sign-in straight afterwards. The form then asks for the name to call you, the areas you build in, an optional website, an optional one line about what you are building, and whether you agree to be shown on the public Legion page.`,
-              "We use it to welcome you as a Catalyst, to confirm you are a real person with one entry, to let the mediators (Core) know who is in the community, and, only if you tick the box, to show you on the Legion page. Your answers are posted in a private Discord channel that only the mediators can see. If you tick the box for the Legion page, what you typed for it (your name, GitHub username, areas, website, X handle and one line) is also stored on this website so it can be shown. To make sure each person has one entry, the website keeps a one-way code of your Discord ID and of your GitHub ID in a small database (not the IDs themselves), so one GitHub account cannot be used twice. It also keeps one small record that links your Discord ID to your GitHub username, with the name you gave, the date you became a Catalyst and whether you chose to be listed, so the community's bot (Friday) can look at your public GitHub work and the mediators can consider you for promotion to Maintainer. The form sets no cookies. Someone who is already a Catalyst can use the same form to set up or change their Legion profile.",
-              `Discord, GitHub, our hosting provider and our database provider (Upstash) carry the sign-ins, the messages and the one-way codes. If you do not complete the form within ${JOIN_HOURS} hours, you are removed from the server automatically and can join again. To see, correct or delete your answers, your one-way codes or your member record, or to be taken off the Legion page, write to ${brand.email} or message a Core member. You can also take yourself off the Legion page by signing in again and unticking the box.`,
+              "We use it to welcome you as a Catalyst, to confirm you are a real person with one entry, to let the mediators (Core) know who is in the community, and, only if you tick the box, to show you on the Legion page. Your answers are posted in a private Discord channel that only the mediators can see. If you tick the box for the Legion page, what you typed for it (your name, GitHub username, areas, website, X handle and one line) is also stored on this website so it can be shown. To make sure each person has one entry, the website keeps a one-way code of your Discord ID and of your GitHub ID in a small database (not the IDs themselves), so one GitHub account cannot be used twice. It also keeps one small record that links your Discord ID to your GitHub username, with the name you gave, the date you became a Catalyst and whether you chose to be listed, so the community's bot (Friday) can look at your public GitHub work and the mediators can consider you for promotion to Maintainer. For the same reason the website may keep a short note of good work you did (a credit note, written by a mediator) and a record of where you stand (suggested, not yet, or promoted). The form sets no cookies. Someone who is already a Catalyst can use the same form to set up or change their Legion profile.",
+              `Discord, GitHub, our hosting provider and our database provider (Upstash) carry the sign-ins, the messages and the one-way codes. If you do not complete the form within ${JOIN_HOURS} hours, you are removed from the server automatically and can join again. To see, correct or delete your answers, your one-way codes, your member record, your credit notes or your promotion record, or to be taken off the Legion page, write to ${brand.email} or message a Core member. You can also take yourself off the Legion page by signing in again and unticking the box.`,
             ],
           },
         ]
@@ -370,7 +370,7 @@ export const privacy: LegalDoc = {
       title: "How long we keep it",
       body: [
         "Messages stay until you, a moderator or Discord deletes them. Details you send us are kept only as long as needed for the reason you sent them, or as the law requires.",
-        ...(JOIN_LIVE ? ["Your Catalyst form answers, your one-way codes and your member record (your Discord ID linked to your GitHub username) are kept while you are a member, and deleted when you ask."] : []),
+        ...(JOIN_LIVE ? ["Your Catalyst form answers, your one-way codes and your member record (your Discord ID linked to your GitHub username), any credit notes about your work and your promotion record are kept while you are a member, and deleted when you ask."] : []),
       ],
     },
     {
