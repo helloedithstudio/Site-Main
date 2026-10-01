@@ -24,6 +24,9 @@ export type SweepResult = {
    *  marked as invited, so they are tried again next time and are never removed for a message they never received. */
   unreachable: string[];
   skipped: number;
+  /** Dry runs only: each skipped person and the rule that skipped them. Left out of live runs so the usernames never land in a
+   *  scheduler's or GitHub's logs. */
+  skippedWhy?: { id: string; username: string; why: string }[];
   errors: string[];
 };
 
@@ -64,6 +67,7 @@ async function sweepOnce(cfg: JoinConfig, res: SweepResult, now: Date, dryRun: b
   const plan = planSweep(members, now, { ...cfg, ownerId: await d.ownerId() });
   res.ran = true;
   res.skipped = plan.skipped;
+  if (dryRun) res.skippedWhy = plan.skippedWhy;
   res.missed = plan.missed.map((m) => m.id);
 
   // `act` returns false when it chose not to count the person (they could not be reached).

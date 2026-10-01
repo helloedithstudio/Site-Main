@@ -194,6 +194,23 @@ const R = { catalyst: "r-cat", pending: "r-pend", reminded: "r-rem", exempt: "r-
     assert.equal(forced.dryRun, true);
     assert.equal(fake.kicked.length, 0);
   });
+  await t("sweep: a dry run says who it skipped and why; a live run leaves the names out", async () => {
+    seed();
+    const r = await runSweep(cfg, { now: NOW, forceDry: true });
+    assert.equal(r.skippedWhy!.length, r.skipped, "every skipped person has a reason");
+    const why = Object.fromEntries(r.skippedWhy!.map((s) => [s.id, s.why]));
+    assert.deepEqual(Object.keys(why).sort(), ["bot-1", "cat-1", "core-1", "f-wait", "old-1", "owner-1"]);
+    assert.match(why["bot-1"], /bot/);
+    assert.match(why["owner-1"], /owner/);
+    assert.match(why["old-1"], /before ONBOARDING_START/);
+    assert.match(why["cat-1"], /Catalyst role/);
+    assert.match(why["core-1"], /exempt role/);
+    assert.match(why["f-wait"], /Pending role .*already sent.*16 h left/);
+    assert.equal(r.skippedWhy!.find((s) => s.id === "cat-1")!.username.length > 0, true, "it names the person");
+    const live = await runSweep(cfg, { now: NOW });
+    assert.equal(live.skippedWhy, undefined, "the live answer, which schedulers and GitHub keep, has no usernames");
+    assert.equal("skippedWhy" in JSON.parse(JSON.stringify(live)), false);
+  });
   await t("sweep: live run invites, pings when DMs are closed, reminds once, removes the overdue, and skips everyone else", async () => {
     seed();
     const r = await runSweep(cfg, { now: NOW });

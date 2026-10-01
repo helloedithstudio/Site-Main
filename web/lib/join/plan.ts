@@ -27,7 +27,20 @@ export type Plan = {
   /** Joined after the start but were not invited in time: left alone, listed for a person to look at. */
   missed: Member[];
   skipped: number;
+  /** Who was skipped and the rule that skipped them, so "why did nobody message X?" has an answer. */
+  skippedWhy: { id: string; username: string; why: string }[];
 };
+
+/** The rule that leaves this person alone, or null if none does. */
+function whySkipped(m: Member, joined: number, cfg: PlanConfig): string | null {
+  if (m.bot) return "is a bot";
+  if (m.id === cfg.ownerId) return "is the server owner";
+  if (Number.isNaN(joined)) return "has no usable join date";
+  if (cfg.startAt && joined < cfg.startAt.getTime()) return `joined ${new Date(joined).toISOString()}, before ONBOARDING_START (${cfg.startAt.toISOString()})`;
+  if (m.roles.includes(cfg.roleCatalyst)) return "already has the Catalyst role";
+  if (m.roles.some((r) => cfg.rolesExempt.includes(r))) return "has an exempt role (DISCORD_ROLES_EXEMPT)";
+  return null;
+}
 
 const HOUR = 3_600_000;
 
@@ -35,27 +48,25 @@ const HOUR = 3_600_000;
 export const REMIND_WHEN_LEFT = 0.25;
 
 export function planSweep(members: Member[], now: Date, cfg: PlanConfig): Plan {
-  const plan: Plan = { invite: [], remind: [], kick: [], missed: [], skipped: 0 };
+  const plan: Plan = { invite: [], remind: [], kick: [], missed: [], skipped: 0, skippedWhy: [] };
   if (!cfg.startAt) return plan; // switched off until a start time is set
   const window = cfg.hours * HOUR;
+  const skip = (m: Member, why: string) => {
+    plan.skipped++;
+    plan.skippedWhy.push({ id: m.id, username: m.username, why });
+  };
   for (const m of members) {
     const joined = Date.parse(m.joinedAt);
-    if (
-      m.bot ||
-      m.id === cfg.ownerId ||
-      Number.isNaN(joined) ||
-      joined < cfg.startAt.getTime() ||
-      m.roles.includes(cfg.roleCatalyst) ||
-      m.roles.some((r) => cfg.rolesExempt.includes(r))
-    ) {
-      plan.skipped++;
+    const why = whySkipped(m, joined, cfg);
+    if (why) {
+      skip(m, why);
       continue;
     }
     const age = now.getTime() - joined;
     if (m.roles.includes(cfg.rolePending)) {
       if (age >= window) plan.kick.push(m);
       else if (cfg.roleReminded && !m.roles.includes(cfg.roleReminded) && window - age <= window * REMIND_WHEN_LEFT) plan.remind.push(m);
-      else plan.skipped++;
+      else skip(m, `has the Pending role (the form message was already sent), ${Math.max(0, Math.ceil((window - age) / HOUR))} h left`);
     } else if (age <= window / 2) {
       plan.invite.push(m);
     } else {
