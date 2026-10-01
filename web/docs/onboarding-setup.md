@@ -257,6 +257,12 @@ once after the first promotion.
   click their name, Copy User ID) and run
   `curl -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" -H "Content-Type: application/json" -d "{\"discordId\":\"123456789012345678\"}" "https://edith-plum.vercel.app/api/join/release"`
   It clears only the one-entry record; delete their message in the private channel and remove their role yourself if needed.
+- **Find out why someone did not get the welcome message.** Run a dry sweep, which changes and sends nothing:
+  `curl.exe -s -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" "https://edith-plum.vercel.app/api/join/sweep?dry=1"`
+  `invited` lists people it would message now. `skippedWhy` lists everyone it leaves alone, by Discord id and username, with the rule:
+  a bot, the server owner, already a Catalyst, an exempt role, joined before `ONBOARDING_START`, or already has the Pending role (the
+  message was already sent). `missed` lists people who joined but were not messaged within half the window. A live run does not print
+  usernames, so the logs on GitHub and QStash only ever show ids.
 - **Invite people who were already in the server to set up their Legion profile (one time).** The sweep never messages anyone who
   joined before it started, so they would not know the Legion page exists. Friday can send each of them one direct message.
   **Nothing is sent unless you say so, and then only to the number of people you expected.**
