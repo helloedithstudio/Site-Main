@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { joinConfig } from "@/lib/join/config";
+import { removeInvite } from "@/lib/join/invite";
 import { removeMember } from "@/lib/join/members";
 import { removePromotionData } from "@/lib/promote/store";
 import { storeFor } from "@/lib/join/store";
@@ -26,6 +27,7 @@ export async function POST(req: Request) {
     const released = await storeFor(c.cfg).release(id);
     await removeMember(c.cfg, id);
     await removePromotionData(c.cfg, id);
+    await removeInvite(c.cfg, id);
     return NextResponse.json({ ok: true, released }, { headers: { "Cache-Control": "no-store" } });
   } catch (e) {
     return NextResponse.json({ ok: false, message: e instanceof Error ? e.message : "failed" }, { status: 502 });
