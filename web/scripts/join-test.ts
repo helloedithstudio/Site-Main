@@ -9,6 +9,7 @@ import { planSweep, type Member } from "../lib/join/plan";
 import { signToken, verifyToken } from "../lib/join/token";
 import { clean, esc, validateForm } from "../lib/join/form";
 import { runSweep, MAX_KICKS_PER_RUN } from "../lib/join/sweep";
+import { withLock } from "../lib/join/lock";
 import { handleCallback, handleGithubCallback, handleSubmit, startUrl } from "../lib/join/flow";
 import { entryStore, memoryRun, upstash, type EntryStore } from "../lib/join/store";
 import { readDirectory, removeDirectoryEntry, writeDirectoryEntry } from "../lib/legion/directory";
@@ -321,6 +322,83 @@ function fakeDiscord() {
     const r = await runSweep(cfgOf({ ONBOARDING_START: undefined }), { now: NOW });
     assert.equal(r.ran, false);
     assert.equal(fake.kicked.length + fake.messages.length, 0);
+  });
+
+  // ------------------------------------------------------------ sweep: reaching people, and the lock
+  const noWelcome = cfgOf({ DISCORD_CHANNEL_WELCOME: "" });
+  await t("sweep: someone who cannot be reached at all is reported, not marked invited, and is tried again", async () => {
+    reset();
+    fake.add("u-closed", 1);
+    fake.dmClosed.add("u-closed");
+    const first = await runSweep(noWelcome, { now: NOW });
+    assert.deepEqual([first.invited, first.unreachable, first.errors], [[], ["u-closed"], []]);
+    assert.ok(!fake.members.get("u-closed")!.roles.includes(R.pending), "no Pending role, so they can never be removed for a message they did not get");
+    const again = await runSweep(noWelcome, { now: NOW });
+    assert.deepEqual(again.unreachable, ["u-closed"], "still tried on the next run");
+    fake.dmClosed.delete("u-closed");
+    const later = await runSweep(noWelcome, { now: NOW });
+    assert.deepEqual([later.invited, later.unreachable], [["u-closed"], []]);
+    assert.ok(fake.members.get("u-closed")!.roles.includes(R.pending));
+    assert.ok(fake.messages.some((m) => m.channel === "dm-u-closed" && /Catalyst form/.test(m.body.content)));
+  });
+  await t("sweep: closed direct messages plus a welcome channel that also fails is unreachable, not an error", async () => {
+    reset();
+    fake.add("u-both", 1);
+    fake.dmClosed.add("u-both");
+    fake.dmClosed.add("broken"); // a channel called dm-broken refuses posts in the fake
+    const r = await runSweep(cfgOf({ DISCORD_CHANNEL_WELCOME: "dm-broken" }), { now: NOW });
+    assert.deepEqual([r.invited, r.unreachable, r.errors], [[], ["u-both"], []]);
+    fake.dmClosed.delete("broken");
+  });
+  await t("sweep: a reminder that cannot be delivered is retried, not marked as sent", async () => {
+    reset();
+    fake.add("u-rem", 19, [R.pending]);
+    fake.dmClosed.add("u-rem");
+    const r = await runSweep(noWelcome, { now: NOW });
+    assert.deepEqual([r.reminded, r.unreachable], [[], ["u-rem"]]);
+    assert.ok(!fake.members.get("u-rem")!.roles.includes(R.reminded));
+    fake.dmClosed.delete("u-rem");
+  });
+  await t("sweep: a live run takes the lock and lets it go; a dry run never touches it", async () => {
+    seed();
+    fake.redisCalls.length = 0;
+    await runSweep(cfgOf({ ONBOARDING_DRY_RUN: undefined }), { now: NOW });
+    assert.ok(!fake.redisCalls.some((c) => c[1] === "lock:sweep" || c[0] === "SET"), "a dry run makes no database calls at all");
+    await runSweep(cfg, { now: NOW });
+    const lockCalls = fake.redisCalls.filter((c) => c.includes("lock:sweep")).map((c) => c[0]);
+    assert.deepEqual(lockCalls, ["SET", "GET", "DEL"]);
+    assert.equal(fake.redis.has("lock:sweep"), false, "released when done");
+    const set = fake.redisCalls.find((c) => c[0] === "SET" && c[1] === "lock:sweep")!;
+    assert.deepEqual(set.slice(3), ["NX", "EX", "120"], "it expires by itself");
+  });
+  await t("sweep: while another run holds the lock this one does nothing and says so", async () => {
+    seed();
+    fake.redis.set("lock:sweep", "another-runner");
+    const r = await runSweep(cfg, { now: NOW });
+    assert.equal(r.ran, false);
+    assert.match(r.note!, /already running/);
+    assert.equal(fake.messages.length + fake.kicked.length, 0);
+    assert.equal(fake.redis.get("lock:sweep"), "another-runner", "someone else's lock is left alone");
+    fake.redis.delete("lock:sweep");
+  });
+  await t("sweep: if the database cannot be reached the sweep still runs, and says it ran without the lock", async () => {
+    seed();
+    const r = await runSweep(cfgOf({ UPSTASH_REDIS_REST_TOKEN: "wrong-token" }), { now: NOW });
+    assert.equal(r.ran, true);
+    assert.deepEqual(r.invited.sort(), ["a-new", "b-dmoff"]);
+    assert.match(r.note!, /without it/);
+  });
+  await t("lock: an error inside the job passes straight through, and only your own lock is released", async () => {
+    const run = memoryRun();
+    await assert.rejects(withLock(run, "x", 60, async () => { throw new Error("boom"); }), /boom/);
+    assert.equal(await run("GET", "lock:x"), null, "released even after an error");
+    await assert.rejects(withLock(run, "x", 60, async () => { throw new Error("boom"); }, { failOpen: true }), /boom/, "failOpen only covers the database, never the job");
+    const kept = await withLock(run, "y", 60, async () => { await run("SET", "lock:y", "taken-over"); return 1; });
+    assert.deepEqual(kept, { ran: true, value: 1 });
+    assert.equal(await run("GET", "lock:y"), "taken-over", "an expired lock someone else took is not deleted");
+    const broken = async () => { throw new Error("down"); };
+    await assert.rejects(withLock(broken, "z", 60, async () => 1), /down/);
+    assert.deepEqual(await withLock(broken, "z", 60, async () => 2, { failOpen: true }), { ran: true, value: 2, unlocked: true });
   });
 
   // ------------------------------------------------------------ settings, names, ages, store

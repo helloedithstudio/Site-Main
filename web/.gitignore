@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (can opt-in for committing if needed). .env.example holds no values and is the list the docs point to.
 .env*
+!.env.example
 
 # vercel
 .vercel

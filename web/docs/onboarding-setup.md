@@ -3,8 +3,10 @@
 What it does, once switched on:
 
 1. Someone joins the Discord from the link on the site.
-2. Within about ten minutes they get a direct message: "complete your Catalyst form within 24 hours". If their direct messages are
-   closed, they are pinged in a welcome channel instead.
+2. Within about five minutes (with the QStash timer from step 6; up to a few hours if only GitHub's backup timer is running) they get
+   a direct message: "complete your Catalyst form within 24 hours". If their direct messages are closed, they are pinged in a welcome
+   channel instead. Someone who cannot be reached either way is not marked as invited (so they are never removed for a message they
+   did not get), and is listed under `unreachable` in the sweep result.
 3. The link goes to `/join`. They **sign in with Discord** (their username only) and then **sign in with GitHub** (public profile
    only, no email, no scope). That proves both accounts are really theirs. They fill in a short form and are given the Catalyst
    role. Their answers are posted privately for the mediators (Core).
@@ -102,13 +104,33 @@ Project Settings, Environment Variables. The full list, with comments, is in `we
 
 Redeploy after saving. Without the required settings the page shows "not switched on yet" and nothing else happens.
 
-## 6. The scheduler (GitHub)
+## 6. The timers (QStash first, GitHub as backup)
 
-The workflow `.github/workflows/join-sweep.yml` is already in the repository. In the repository settings, Secrets and variables,
-Actions, add two secrets: `SWEEP_URL` = `https://edith-plum.vercel.app/api/join/sweep` and `CRON_SECRET` = the same value as on
-Vercel. It then runs every ten minutes (GitHub can delay scheduled runs by a few minutes, and pauses them after 60 days without
-repository activity; you can also run it by hand from the Actions tab). Vercel's free plan cannot do this itself: its scheduled
-jobs run once a day at most.
+Two timers call the same address, `/api/join/sweep`, with the same password (`CRON_SECRET`). A lock inside the sweep makes sure
+they never run at once, so having both is safe. Vercel's free plan cannot do this itself: its scheduled jobs run once a day at most.
+
+**GitHub Actions (the backup).** The workflow `.github/workflows/join-sweep.yml` is already in the repository. In the repository
+settings, Secrets and variables, Actions, add two secrets: `SWEEP_URL` = `https://edith-plum.vercel.app/api/join/sweep` and
+`CRON_SECRET` = the same value as on Vercel. It is written to run every ten minutes, but GitHub treats scheduled runs as best
+effort. Checked on 30 Sep 2026, the real gaps between runs over the previous three days were three to six hours, so the welcome
+message could be hours late. GitHub also pauses scheduled runs after 60 days without repository activity. You can run it by hand
+from the Actions tab.
+
+**QStash (the reliable one).** QStash is Upstash's scheduler, from the same company as your Redis database. On the free plan
+(checked 30 Sep 2026, confirm on https://upstash.com/pricing/qstash) you get 1,000 messages a day and 10 schedules; a schedule
+every five minutes is 288 messages a day, and a retry counts as another message, so there is plenty of room.
+
+1. In the Upstash console open QStash and copy your **QStash token** (keep it private, like any password).
+2. Create the schedule. In PowerShell, replacing the two capitals (use `curl.exe`, not `curl`, which PowerShell treats differently):
+   `curl.exe -X POST "https://qstash.upstash.io/v2/schedules/https://edith-plum.vercel.app/api/join/sweep" -H "Authorization: Bearer YOUR_QSTASH_TOKEN" -H "Content-Type: text/plain" -H "Upstash-Cron: */5 * * * *" -H "Upstash-Forward-Authorization: Bearer YOUR_CRON_SECRET" --data "sweep"`
+   The reply contains a `scheduleId`. The `Upstash-Forward-` prefix tells QStash to pass the header on to the site (without the
+   prefix), which is how the site receives `Authorization: Bearer YOUR_CRON_SECRET`. The console's Schedules page takes the same
+   three things (address, cron, forwarded header) if you prefer clicking.
+3. Check it: within five minutes the QStash console should show a delivery for the schedule with status 200. A 401 means the
+   forwarded password differs from `CRON_SECRET` on Vercel. To see exactly what the site answers, run the dry run from step 8 by hand.
+4. Leave GitHub's timer on. If QStash is ever paused, the backup still runs, only slowly.
+
+To stop the QStash timer, delete the schedule in the console (or `curl.exe -X DELETE "https://qstash.upstash.io/v2/schedules/SCHEDULE_ID" -H "Authorization: Bearer YOUR_QSTASH_TOKEN"`).
 
 ## 7. What is kept, and where
 
@@ -157,6 +179,11 @@ Any time you want to see what it would do without doing it, run the dry run comm
 
 ## What can go wrong
 
+- **`unreachable` is not empty in the sweep result.** Those people have direct messages closed and the welcome channel is not set
+  (or the bot cannot post in it). Set `DISCORD_CHANNEL_WELCOME` and give the bot Send Messages there; they are tried again on the
+  next run, for the first half of the window, after which they show under `missed`.
+- **The sweep answers "Another sweep is already running".** Normal when the two timers fire close together. Nothing was skipped
+  that matters: the next run does the work.
 - **Someone missed the deadline because their messages are closed and they did not see the welcome channel.** They are removed and
   can rejoin. That is the rule; the welcome text above and the site say so before they join.
 - **The scheduled job was off for a long time.** Anyone who joined during that time and was not invited within 12 hours is left
