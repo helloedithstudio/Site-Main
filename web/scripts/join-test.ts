@@ -2,16 +2,18 @@
 // The fake keeps members, roles, messages and removals in memory and answers the same endpoints the real client calls.
 
 import assert from "node:assert/strict";
-import http from "node:http";
 import type { AddressInfo } from "node:net";
+import { fakeDiscord } from "./fakes/discord";
 import { joinConfig, type JoinConfig } from "../lib/join/config";
 import { planSweep, type Member } from "../lib/join/plan";
 import { signToken, verifyToken } from "../lib/join/token";
 import { clean, esc, validateForm } from "../lib/join/form";
 import { runSweep, MAX_KICKS_PER_RUN } from "../lib/join/sweep";
+import { withLock } from "../lib/join/lock";
 import { handleCallback, handleGithubCallback, handleSubmit, startUrl } from "../lib/join/flow";
 import { entryStore, memoryRun, upstash, type EntryStore } from "../lib/join/store";
-import { readDirectory, removeDirectoryEntry, writeDirectoryEntry } from "../lib/legion/directory";
+import { readDirectory, readDirectoryEntry, removeDirectoryEntry, writeDirectoryEntry } from "../lib/legion/directory";
+import { readAllMembers, readMember, removeMember, writeMember } from "../lib/join/members";
 import { discordCreatedMs } from "../lib/join/ghoauth";
 import { isReservedName } from "../lib/join/form";
 
@@ -33,97 +35,8 @@ const ago = (h: number) => new Date(NOW.getTime() - h * HOUR).toISOString();
 const START = new Date("2026-09-20T00:00:00Z");
 const R = { catalyst: "r-cat", pending: "r-pend", reminded: "r-rem", exempt: "r-core" };
 
-// ---------------------------------------------------------------- fake Discord
-type FM = { user: { id: string; username: string; bot?: boolean; global_name?: string | null }; roles: string[]; joined_at: string };
-function fakeDiscord() {
-  const members = new Map<string, FM>();
-  const dmClosed = new Set<string>();
-  const messages: { channel: string; body: any }[] = [];
-  const kicked: { id: string; reason: string }[] = [];
-  const state = { owner: "owner-1" };
-  const ghUsers = new Map<string, { login: string; name: string; created_at: string; type: string }>();
-  const revoked: string[] = [];
-  const redis = new Map<string, string>();
-  const redisSets = new Map<string, Set<string>>();
-  const redisCalls: string[][] = [];
-  const add = (id: string, hoursAgo: number, roles: string[] = [], extra: Partial<FM["user"]> = {}) =>
-    members.set(id, { user: { id, username: "user" + id, ...extra }, roles: [...roles], joined_at: ago(hoursAgo) });
-  const server = http.createServer(async (req, res) => {
-    const url = new URL(req.url!, "http://x");
-    const send = (status: number, body?: unknown) => {
-      res.writeHead(status, { "Content-Type": "application/json" });
-      res.end(body === undefined ? "" : JSON.stringify(body));
-    };
-    let raw = "";
-    for await (const c of req) raw += c;
-    const auth = req.headers.authorization ?? "";
-    const path = url.pathname.replace(/^\/api\/v10/, "");
-    if (path === "/gh/login/oauth/access_token" && req.method === "POST") {
-      const code = String(JSON.parse(raw).code ?? "");
-      return /^gh-\d+$/.test(code) && ghUsers.has(code.slice(3)) ? send(200, { access_token: "ghtok-" + code.slice(3) }) : send(200, { error: "bad_verification_code" });
-    }
-    if (path === "/ghapi/user" && auth.startsWith("Bearer ghtok-")) {
-      const id = auth.replace("Bearer ghtok-", "");
-      const u = ghUsers.get(id);
-      return u ? send(200, { id: Number(id), ...u }) : send(401, { message: "Bad credentials" });
-    }
-    if (path.startsWith("/ghapi/applications/") && req.method === "DELETE") { revoked.push(JSON.parse(raw).access_token); return send(204); }
-    if (path === "/redis" && req.method === "POST") {
-      if (auth !== "Bearer store-token") return send(401, { error: "unauthorized" });
-      const cmd: string[] = JSON.parse(raw).map(String);
-      redisCalls.push(cmd);
-      const [op, ...a] = cmd;
-      if (op === "SET") { if (a.includes("NX") && redis.has(a[0])) return send(200, { result: null }); redis.set(a[0], a[1]); return send(200, { result: "OK" }); }
-      if (op === "GET") return send(200, { result: redis.get(a[0]) ?? null });
-      if (op === "MGET") return send(200, { result: a.map((k) => redis.get(k) ?? null) });
-      if (op === "DEL") return send(200, { result: a.reduce((n, k) => n + (redis.delete(k) ? 1 : 0), 0) });
-      if (op === "SADD") { const s = redisSets.get(a[0]) ?? new Set<string>(); const before = s.size; a.slice(1).forEach((v) => s.add(v)); redisSets.set(a[0], s); return send(200, { result: s.size - before }); }
-      if (op === "SMEMBERS") return send(200, { result: [...(redisSets.get(a[0]) ?? [])] });
-      if (op === "SREM") { const s = redisSets.get(a[0]); const before = s?.size ?? 0; a.slice(1).forEach((v) => s?.delete(v)); return send(200, { result: before - (s?.size ?? 0) }); }
-      return send(200, { error: "ERR unknown command" });
-    }
-    if (path === "/oauth2/token" && req.method === "POST") {
-      const code = new URLSearchParams(raw).get("code") ?? "";
-      return code.startsWith("code-") ? send(200, { access_token: "tok-" + code }) : send(400, { error: "invalid_grant" });
-    }
-    if (path === "/users/@me" && auth.startsWith("Bearer tok-code-")) {
-      const id = auth.replace("Bearer tok-code-", "");
-      return send(200, { id, username: "user" + id, global_name: "Name " + id });
-    }
-    if (auth !== "Bot test-token") return send(401, { message: "401: Unauthorized" });
-    const m = path.match(/^\/guilds\/G(\/.*)?$/);
-    if (m) {
-      const rest = m[1] ?? "";
-      if (rest === "") return send(200, { owner_id: state.owner });
-      if (rest === "/members" && req.method === "GET") {
-        const after = url.searchParams.get("after") ?? "0";
-        const rows = [...members.values()].filter((x) => x.user.id > after).sort((a, b) => (a.user.id < b.user.id ? -1 : 1)).slice(0, Number(url.searchParams.get("limit") ?? 1000));
-        return send(200, rows);
-      }
-      const one = rest.match(/^\/members\/([^/]+)(?:\/roles\/([^/]+))?$/);
-      if (one) {
-        const mem = members.get(one[1]);
-        if (req.method === "GET") return mem ? send(200, mem) : send(404, { message: "Unknown Member" });
-        if (!mem) return send(404, { message: "Unknown Member" });
-        if (one[2] && req.method === "PUT") { if (!mem.roles.includes(one[2])) mem.roles.push(one[2]); return send(204); }
-        if (one[2] && req.method === "DELETE") { mem.roles = mem.roles.filter((r) => r !== one[2]); return send(204); }
-        if (req.method === "DELETE") { members.delete(one[1]); kicked.push({ id: one[1], reason: decodeURIComponent(String(req.headers["x-audit-log-reason"] ?? "")) }); return send(204); }
-      }
-    }
-    if (path === "/users/@me/channels" && req.method === "POST") return send(200, { id: "dm-" + JSON.parse(raw).recipient_id });
-    const msg = path.match(/^\/channels\/([^/]+)\/messages$/);
-    if (msg && req.method === "POST") {
-      if (msg[1].startsWith("dm-") && dmClosed.has(msg[1].slice(3))) return send(403, { code: 50007, message: "Cannot send messages to this user" });
-      messages.push({ channel: msg[1], body: JSON.parse(raw) });
-      return send(200, { id: "m" + messages.length });
-    }
-    send(404, { message: "Not found " + path });
-  });
-  return { members, dmClosed, messages, kicked, state, add, server, ghUsers, revoked, redis, redisSets, redisCalls };
-}
-
 (async () => {
-  const fake = fakeDiscord();
+  const fake = fakeDiscord({ ago });
   await new Promise<void>((r) => fake.server.listen(0, r));
   const port = (fake.server.address() as AddressInfo).port;
   const env = {
@@ -323,6 +236,83 @@ function fakeDiscord() {
     assert.equal(fake.kicked.length + fake.messages.length, 0);
   });
 
+  // ------------------------------------------------------------ sweep: reaching people, and the lock
+  const noWelcome = cfgOf({ DISCORD_CHANNEL_WELCOME: "" });
+  await t("sweep: someone who cannot be reached at all is reported, not marked invited, and is tried again", async () => {
+    reset();
+    fake.add("u-closed", 1);
+    fake.dmClosed.add("u-closed");
+    const first = await runSweep(noWelcome, { now: NOW });
+    assert.deepEqual([first.invited, first.unreachable, first.errors], [[], ["u-closed"], []]);
+    assert.ok(!fake.members.get("u-closed")!.roles.includes(R.pending), "no Pending role, so they can never be removed for a message they did not get");
+    const again = await runSweep(noWelcome, { now: NOW });
+    assert.deepEqual(again.unreachable, ["u-closed"], "still tried on the next run");
+    fake.dmClosed.delete("u-closed");
+    const later = await runSweep(noWelcome, { now: NOW });
+    assert.deepEqual([later.invited, later.unreachable], [["u-closed"], []]);
+    assert.ok(fake.members.get("u-closed")!.roles.includes(R.pending));
+    assert.ok(fake.messages.some((m) => m.channel === "dm-u-closed" && /Catalyst form/.test(m.body.content)));
+  });
+  await t("sweep: closed direct messages plus a welcome channel that also fails is unreachable, not an error", async () => {
+    reset();
+    fake.add("u-both", 1);
+    fake.dmClosed.add("u-both");
+    fake.dmClosed.add("broken"); // a channel called dm-broken refuses posts in the fake
+    const r = await runSweep(cfgOf({ DISCORD_CHANNEL_WELCOME: "dm-broken" }), { now: NOW });
+    assert.deepEqual([r.invited, r.unreachable, r.errors], [[], ["u-both"], []]);
+    fake.dmClosed.delete("broken");
+  });
+  await t("sweep: a reminder that cannot be delivered is retried, not marked as sent", async () => {
+    reset();
+    fake.add("u-rem", 19, [R.pending]);
+    fake.dmClosed.add("u-rem");
+    const r = await runSweep(noWelcome, { now: NOW });
+    assert.deepEqual([r.reminded, r.unreachable], [[], ["u-rem"]]);
+    assert.ok(!fake.members.get("u-rem")!.roles.includes(R.reminded));
+    fake.dmClosed.delete("u-rem");
+  });
+  await t("sweep: a live run takes the lock and lets it go; a dry run never touches it", async () => {
+    seed();
+    fake.redisCalls.length = 0;
+    await runSweep(cfgOf({ ONBOARDING_DRY_RUN: undefined }), { now: NOW });
+    assert.ok(!fake.redisCalls.some((c) => c[1] === "lock:sweep" || c[0] === "SET"), "a dry run makes no database calls at all");
+    await runSweep(cfg, { now: NOW });
+    const lockCalls = fake.redisCalls.filter((c) => c.includes("lock:sweep")).map((c) => c[0]);
+    assert.deepEqual(lockCalls, ["SET", "GET", "DEL"]);
+    assert.equal(fake.redis.has("lock:sweep"), false, "released when done");
+    const set = fake.redisCalls.find((c) => c[0] === "SET" && c[1] === "lock:sweep")!;
+    assert.deepEqual(set.slice(3), ["NX", "EX", "120"], "it expires by itself");
+  });
+  await t("sweep: while another run holds the lock this one does nothing and says so", async () => {
+    seed();
+    fake.redis.set("lock:sweep", "another-runner");
+    const r = await runSweep(cfg, { now: NOW });
+    assert.equal(r.ran, false);
+    assert.match(r.note!, /already running/);
+    assert.equal(fake.messages.length + fake.kicked.length, 0);
+    assert.equal(fake.redis.get("lock:sweep"), "another-runner", "someone else's lock is left alone");
+    fake.redis.delete("lock:sweep");
+  });
+  await t("sweep: if the database cannot be reached the sweep still runs, and says it ran without the lock", async () => {
+    seed();
+    const r = await runSweep(cfgOf({ UPSTASH_REDIS_REST_TOKEN: "wrong-token" }), { now: NOW });
+    assert.equal(r.ran, true);
+    assert.deepEqual(r.invited.sort(), ["a-new", "b-dmoff"]);
+    assert.match(r.note!, /without it/);
+  });
+  await t("lock: an error inside the job passes straight through, and only your own lock is released", async () => {
+    const run = memoryRun();
+    await assert.rejects(withLock(run, "x", 60, async () => { throw new Error("boom"); }), /boom/);
+    assert.equal(await run("GET", "lock:x"), null, "released even after an error");
+    await assert.rejects(withLock(run, "x", 60, async () => { throw new Error("boom"); }, { failOpen: true }), /boom/, "failOpen only covers the database, never the job");
+    const kept = await withLock(run, "y", 60, async () => { await run("SET", "lock:y", "taken-over"); return 1; });
+    assert.deepEqual(kept, { ran: true, value: 1 });
+    assert.equal(await run("GET", "lock:y"), "taken-over", "an expired lock someone else took is not deleted");
+    const broken = async () => { throw new Error("down"); };
+    await assert.rejects(withLock(broken, "z", 60, async () => 1), /down/);
+    assert.deepEqual(await withLock(broken, "z", 60, async () => 2, { failOpen: true }), { ran: true, value: 2, unlocked: true });
+  });
+
   // ------------------------------------------------------------ settings, names, ages, store
   await t("config: the entry store, ID secret and GitHub sign-in are required; GitHub can be switched off; Vercel KV names work", () => {
     const c = joinConfig({ ...env, UPSTASH_REDIS_REST_URL: "", JOIN_ID_SECRET: "x", GITHUB_CLIENT_ID: "" });
@@ -421,10 +411,9 @@ function fakeDiscord() {
     const p = verifyToken(off.signingSecret, fragToken(r.redirect), "form", NOW.getTime())!;
     assert.deepEqual([p.u, p.gh], ["a-new", undefined]);
   });
-  await t("sign in: not in the server, already a Catalyst, bad state, cancelled and Discord failures each land on the right page", async () => {
+  await t("sign in: not in the server, bad state, cancelled and Discord failures each land on the right page", async () => {
     seed();
     assert.match((await handleCallback(cfg, { code: "code-ghost", state }, { now: NOW.getTime() })).redirect, /status=not-member/);
-    assert.match((await handleCallback(cfg, { code: "code-cat-1", state }, { now: NOW.getTime() })).redirect, /status=done/);
     assert.match((await handleCallback(cfg, { code: "code-a-new", state: "nope" }, { now: NOW.getTime() })).redirect, /status=expired/);
     assert.match((await handleCallback(cfg, { code: "code-a-new", state }, { now: NOW.getTime() + 20 * 60_000 })).redirect, /status=expired/);
     assert.match((await handleCallback(cfg, { error: "access_denied", state }, { now: NOW.getTime() })).redirect, /status=cancelled/);
@@ -451,7 +440,7 @@ function fakeDiscord() {
     assert.deepEqual([p.u, p.gh?.i, p.gh?.l, p.n, p.j], ["a-new", "501", "ada-l", "usera-new", fake.members.get("a-new")!.joined_at]);
     assert.ok(fake.revoked.includes("ghtok-501"), "the access token was revoked");
   });
-  await t("github: bad state, cancelled, left the server, already a Catalyst, an organisation and a rejected code each land on the right page", async () => {
+  await t("github: bad state, cancelled, left the server, an organisation and a rejected code each land on the right page", async () => {
     seed();
     gh("501", "ada-l");
     gh("777", "some-org", { type: "Organization" });
@@ -463,8 +452,6 @@ function fakeDiscord() {
     assert.match(await go({ code: "gh-999" }), /status=error/);
     assert.match(await go({ code: "gh-777" }), /status=github-type/);
     assert.match(await handleGithubCallback(cfg, { code: "gh-501", state: link }, { now: NOW.getTime() + 20 * 60_000, store: newStore() }).then((r) => r.redirect), /status=expired/);
-    fake.members.get("a-new")!.roles.push(R.catalyst);
-    assert.match(await go({ code: "gh-501" }), /status=done/);
     fake.members.delete("a-new");
     assert.match(await go({ code: "gh-501" }), /status=not-member/);
   });
@@ -517,11 +504,14 @@ function fakeDiscord() {
     assert.equal(entry.x, "ada_lovelace");
     assert.equal(entry.note, "Building a CLI.");
   });
-  await t("submit: doing it twice does not post twice", async () => {
+  await t("submit: doing it again is a profile update: no second Catalyst form, no role change, and the earlier entry is kept", async () => {
     const before = formsPosts().length;
     const r = await handleSubmit(cfg, { token: formToken("c-soon"), fields: good }, { now: NOW.getTime(), store: newStore() });
     assert.equal(r.body.state, "done");
-    assert.equal(formsPosts().length, before);
+    assert.equal(r.body.profile, true);
+    assert.equal(formsPosts().length, before + 1);
+    assert.equal(formsPosts().pop()!.body.embeds[0].title, "Legion profile saved");
+    assert.deepEqual(fake.members.get("c-soon")!.roles, [R.catalyst]);
   });
   await t("submit: private by default, and typed markdown or mentions cannot ping anyone", async () => {
     seed();
@@ -532,7 +522,7 @@ function fakeDiscord() {
     assert.match(f.find((x: any) => x.name === "Public listing").value, /Not listed/);
     const about = f.find((x: any) => x.name === "Building").value;
     assert.ok(!about.includes("@e") && !about.includes("**") && !about.includes("]("));
-    assert.ok(!fake.redisCalls.slice(callsBefore).some((c) => c[0] === "SADD"), "not ticking public listing never touches the directory");
+    assert.ok(!fake.redisCalls.slice(callsBefore).some((c) => c[0] === "SADD" && c[1] === "legion:index"), "not ticking public listing never touches the directory");
   });
   await t("submit: a reserved name is refused with a message", async () => {
     seed();
@@ -594,6 +584,120 @@ function fakeDiscord() {
     const again = await handleSubmit(cfg, { token: formToken("a-new"), fields: good }, { now: NOW.getTime(), store });
     assert.equal(again.status, 200);
     assert.ok(fake.members.get("a-new")!.roles.includes(R.catalyst));
+  });
+
+  // ------------------------------------------------------------ profile mode (people who already have the Catalyst role)
+  const wipeStore = () => {
+    fake.redis.clear();
+    fake.redisSets.clear();
+  };
+  const creds = { storeUrl: env.UPSTASH_REDIS_REST_URL, storeToken: "store-token" };
+  await t("profile mode: an existing Catalyst signs in like anyone else and is not held to the account age rules; a new member still is", async () => {
+    const young = (extraMs: number) => String(BigInt(NOW.getTime() - 2 * 86_400_000 - extraMs - 1420070400000) << BigInt(22));
+    const youngCatalyst = young(0);
+    const youngNewcomer = young(1000); // two days old as well
+    seed();
+    fake.add(youngCatalyst, 1, [R.catalyst]);
+    fake.add(youngNewcomer, 1);
+    const strict = cfgOf({ JOIN_MIN_DISCORD_DAYS: "7" });
+    const r = await handleCallback(strict, { code: "code-" + youngCatalyst, state }, { now: NOW.getTime() });
+    assert.ok(r.redirect.startsWith(`${strict.githubOauthBase}/login/oauth/authorize`), "handed on to GitHub, not turned away");
+    assert.match((await handleCallback(strict, { code: "code-" + youngNewcomer, state }, { now: NOW.getTime() })).redirect, /status=account-young/);
+    const off = cfgOf({ JOIN_REQUIRE_GITHUB: "false" });
+    const viaCat = await handleCallback(off, { code: "code-cat-1", state }, { now: NOW.getTime() });
+    assert.equal(verifyToken(off.signingSecret, fragToken(viaCat.redirect), "form", NOW.getTime())!.pm, true);
+    const viaNew = await handleCallback(off, { code: "code-a-new", state }, { now: NOW.getTime() });
+    assert.equal(verifyToken(off.signingSecret, fragToken(viaNew.redirect), "form", NOW.getTime())!.pm, undefined);
+  });
+  await t("profile mode: an existing Catalyst may use a young GitHub account, a new member may not, and one person one entry still applies", async () => {
+    seed();
+    gh("503", "newgh", { created_at: new Date(NOW.getTime() - 3 * 86_400_000).toISOString() });
+    const strict = cfgOf({ JOIN_MIN_GITHUB_DAYS: "30" });
+    const ok = await handleGithubCallback(strict, { code: "gh-503", state: await linkOf("cat-1", strict) }, { now: NOW.getTime(), store: newStore() });
+    const p = verifyToken(strict.signingSecret, fragToken(ok.redirect), "form", NOW.getTime())!;
+    assert.deepEqual([p.u, p.gh?.l, p.pm], ["cat-1", "newgh", true]);
+    const neu = await handleGithubCallback(strict, { code: "gh-503", state: await linkOf("a-new", strict) }, { now: NOW.getTime(), store: newStore() });
+    assert.match(neu.redirect, /status=github-young/);
+    const taken = newStore();
+    await taken.claim("someone-else", "503");
+    assert.match((await handleGithubCallback(cfg, { code: "gh-503", state: await linkOf("cat-1") }, { now: NOW.getTime(), store: taken })).redirect, /status=github-taken/);
+  });
+  await t("profile mode: saving changes no role, leaves a profile note instead of a deadline, records the member and lists them", async () => {
+    seed();
+    wipeStore();
+    fake.members.get("cat-1")!.roles.push("some-other-role");
+    const before = formsPosts().length;
+    const r = await handleSubmit(cfg, { token: formToken("cat-1"), fields: good }, { now: NOW.getTime(), store: newStore() });
+    assert.deepEqual([r.status, r.body.state, r.body.profile, r.body.listed], [200, "done", true, true]);
+    assert.deepEqual(fake.members.get("cat-1")!.roles, [R.catalyst, "some-other-role"], "roles are exactly as they were");
+    assert.equal(formsPosts().length, before + 1);
+    const names = formsPosts().pop()!.body.embeds[0].fields.map((f: any) => f.name);
+    assert.ok(!names.includes("Deadline was") && names.includes("Already a Catalyst"));
+    const joined = fake.members.get("cat-1")!.joined_at;
+    assert.deepEqual(JSON.parse(fake.redis.get("member:cat-1")!), { github: "ada-l", name: "Ada Lovelace", since: joined, listed: true });
+    assert.deepEqual([...(fake.redisSets.get("member:index") ?? [])], ["cat-1"]);
+    assert.equal(JSON.parse(fake.redis.get("legion:profile:ada-l")!).joined, joined.slice(0, 10), "dated from when they joined the server");
+    wipeStore();
+  });
+  await t("profile mode: saving again keeps a Maintainer role, a booking link and the original join date", async () => {
+    seed();
+    wipeStore();
+    await writeDirectoryEntry(creds, { github: "ada-l", role: "Maintainer", booking: "https://cal.test/ada", joined: "2026-08-01", name: "Old Name" });
+    await handleSubmit(cfg, { token: formToken("cat-1"), fields: good }, { now: NOW.getTime(), store: newStore() });
+    const e = JSON.parse(fake.redis.get("legion:profile:ada-l")!);
+    assert.deepEqual([e.role, e.booking, e.joined, e.name], ["Maintainer", "https://cal.test/ada", "2026-08-01", "Ada Lovelace"]);
+    wipeStore();
+  });
+  await t("profile mode: unticking takes an ordinary Catalyst off the page, but a Maintainer keeps their entry", async () => {
+    seed();
+    wipeStore();
+    await writeDirectoryEntry(creds, { github: "ada-l", name: "Ada" });
+    const r = await handleSubmit(cfg, { token: formToken("cat-1"), fields: { ...good, listPublicly: false } }, { now: NOW.getTime(), store: newStore() });
+    assert.equal(r.body.listed, false);
+    assert.equal(await readDirectoryEntry(creds, "ada-l"), null);
+    assert.equal(JSON.parse(fake.redis.get("member:cat-1")!).listed, false);
+    await writeDirectoryEntry(creds, { github: "ada-l", name: "Ada", role: "Maintainer" });
+    await handleSubmit(cfg, { token: formToken("cat-1"), fields: { ...good, listPublicly: false } }, { now: NOW.getTime(), store: newStore() });
+    assert.equal((await readDirectoryEntry(creds, "ada-l"))?.role, "Maintainer");
+    wipeStore();
+  });
+  await t("profile mode: the one entry rule still stops a second Discord account using the same GitHub account", async () => {
+    seed();
+    wipeStore();
+    fake.add("cat-2", 40, [R.catalyst]);
+    const s = newStore();
+    assert.equal((await handleSubmit(cfg, { token: formToken("cat-1"), fields: good }, { now: NOW.getTime(), store: s })).status, 200);
+    const dup = await handleSubmit(cfg, { token: formToken("cat-2"), fields: good }, { now: NOW.getTime(), store: s });
+    assert.deepEqual([dup.status, dup.body.state], [409, "github-taken"]);
+    assert.equal(fake.redis.get("member:cat-2"), undefined, "nothing was recorded for the duplicate");
+    wipeStore();
+  });
+  await t("submit: a new member's completed form also records the member, dated now, and is not profile mode", async () => {
+    seed();
+    wipeStore();
+    const r = await handleSubmit(cfg, { token: formToken("a-new"), fields: good }, { now: NOW.getTime(), store: newStore() });
+    assert.equal(r.body.profile, undefined);
+    const rec = JSON.parse(fake.redis.get("member:a-new")!);
+    assert.deepEqual([rec.github, rec.since, rec.listed], ["ada-l", NOW.toISOString(), true]);
+    assert.ok(fake.members.get("a-new")!.roles.includes(R.catalyst));
+    wipeStore();
+  });
+  await t("members: write, read, list and remove; a bad row is skipped; a database problem gives nothing", async () => {
+    wipeStore();
+    await writeMember(creds, "d1", { github: "a", since: "2026-09-01T00:00:00.000Z", listed: false });
+    await writeMember(creds, "d2", { github: "b", name: "B", since: "2026-09-02T00:00:00.000Z", listed: true });
+    fake.redis.set("member:d3", "{not json");
+    fake.redisSets.get("member:index")!.add("d3");
+    assert.equal((await readMember(creds, "d2"))?.name, "B");
+    assert.equal(await readMember(creds, "nobody"), null);
+    assert.equal(await readMember(creds, "d3"), null);
+    assert.deepEqual((await readAllMembers(creds)).map(([id]) => id).sort(), ["d1", "d2"]);
+    await removeMember(creds, "d1");
+    assert.deepEqual((await readAllMembers(creds)).map(([id]) => id), ["d2"]);
+    const bad = { storeUrl: creds.storeUrl, storeToken: "wrong" };
+    assert.deepEqual(await readAllMembers(bad), []);
+    assert.equal(await readMember(bad, "d2"), null);
+    wipeStore();
   });
 
   fake.server.close();

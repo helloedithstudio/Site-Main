@@ -8,7 +8,7 @@ that suits you, and tell me when something is done or when you have decided. Eve
 This file lives in a public repository, so it must never contain a password, token or secret. Put secrets only in Vercel and
 GitHub settings.
 
-**Last updated:** 30 September 2026
+**Last updated:** 1 October 2026
 
 Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, not for me.
 
@@ -18,10 +18,10 @@ Legend: `[ ]` to do, `[~]` started, `[x]` done. Time is a rough guess for you, n
 1. **Confirm `DISCORD_ROLES_EXEMPT` covers all four staff roles (2 min), see A2b below.** You told the setup session to keep the bot (Friday) as Administrator, above staff in the role order. That is your call, but it means the exempt list is now the *only* thing stopping the sweep from ever kicking staff.
 2. ~~Decide B1 and B2~~ **Done (21 Sep):** GitHub required, and minimum account ages on (Discord 7 days, GitHub 30 days).
 3. **A7: test the join flow** (about 20 minutes). A1 to A6 are done (see below); this is what is left before going live. Two spare Discord accounts and two spare GitHub accounts, steps in `docs/onboarding-setup.md` step 8.
-
-4. ~~Studio: start the Blender session~~ **Parked (30 Sep).** `/studio` now serves your portfolio's Studio page (its own look, its own film), so the Showcase and its Blender renders are on hold. Nothing is lost: the Showcase code is still in `components/showcase/`, and `components/showcase/ShowcasePage.tsx` says how to put it back, on `/studio` or on its own address. Say the word when you want it back. The Blender prompt is still in `docs/showcase/asset-session-prompt.md`.
-5. ~~Studio: approve the three lookdev stills~~ **Parked with item 4.**
-6. **Studio page: read the "before it goes public" list in section S below (S7 to S10).** The page is wired in and builds, but four things about it are only yours to settle: the client case study, the Claude and OpenAI logos, the film, and the claims in the copy.
+4. **Catalyst pipeline (1 Oct): merged into `main` (pull request 1), so H0 is done. Read section H below; start with H1 (the reliable timer) and H2 (your friends sign in).** Everything in it is built and tested against fakes, but none of it has met the real Discord yet.
+5. **Studio page: read the "before it goes public" list in section S below (S7 to S10).** The page is wired in and builds, but four things about it are only yours to settle: the client case study, the Claude and OpenAI logos, the film, and the claims in the copy.
+6. ~~Studio: start the Blender session~~ **Parked (30 Sep).** `/studio` now serves your portfolio's Studio page (its own look, its own film), so the Showcase and its Blender renders are on hold. Nothing is lost: the Showcase code is still in `components/showcase/`, and `components/showcase/ShowcasePage.tsx` says how to put it back, on `/studio` or on its own address. Say the word when you want it back. The Blender prompt is still in `docs/showcase/asset-session-prompt.md`.
+7. ~~Studio: approve the three lookdev stills~~ **Parked with item 6.**
 
 ---
 
@@ -76,8 +76,8 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 - [x] **D2. Check Instagram and LinkedIn.** **Confirmed 22 Sep:** the links in the site (`edith_.studio`, `edith-studio`) are yours and current.
 - [x] **D3. Check the Calendly page.** **Tested and confirmed 22 Sep.**
 - [x] **D4. Check `hello.edithstudio@gmail.com` is monitored.** **Confirmed 22 Sep.**
-- [ ] **D6. Connect `D:\page_content` to GitHub.** You confirmed this working on 22 Sep, but checking today (29 Sep) found no remote configured at all (`git remote -v` prints nothing), and two real commits (the header rework, the Showcase page) had been sitting local-only since 24 to 25 Sep, never on GitHub, until I pushed them today the manual way. If VS Code's Source Control panel still shows Sync or Push as available, something is inconsistent; if you want this actually fixed, run in the VS Code terminal: `git remote add origin https://github.com/helloedithstudio/Site-Main.git` then `git branch --set-upstream-to=origin/main main`. My safety layer still blocks me from running the first command myself.
-- [ ] **D5. Custom domain, if you ever add one.** Then change three things together: `NEXT_PUBLIC_SITE_URL`, the Discord redirect and the GitHub callback. Tell me and I will check the rest.
+- [x] **D6. Connect `D:\page_content` to GitHub.** **Fixed, checked 1 Oct 2026:** `origin` is `https://github.com/helloedithstudio/Site-Main.git`. That repository belongs to the edith GitHub account, and your personal account is a collaborator on it. Pushing works (you pushed the branches yourself on 1 Oct; the permission check on my side refuses `git push`, so pushes stay yours).
+- [ ] **D5. Custom domain.** **No domain yet (1 Oct), parked; you will get one soon.** When you do, change these together, and tell me so I can check them: `NEXT_PUBLIC_SITE_URL` on Vercel, the Discord OAuth redirect, the GitHub OAuth callback, the **Interactions Endpoint URL** in the Discord developer portal (promotion), the repository secret `SWEEP_URL` on GitHub, and both **QStash schedules** (the sweep and the daily nomination scan, which contain the address). The `edith-plum.vercel.app` address keeps working on Vercel alongside a custom domain, so nothing has to break while you switch. The repo's homepage field on GitHub still says `edithstudio.vercel.app` (a 404): set it to the real address then.
 
 ## E. Legal and business
 
@@ -91,13 +91,13 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 - [ ] **F1. Name the Core members** (the mediators) and tell me who should be listed publicly, if anyone.
 - [ ] **F6. Exceptions.** Agree who handles them, and what counts: a genuine person with a very new account (age rule) or with no GitHub account. The fix is always the same: a Core member gives them the Catalyst role by hand.
 - [ ] **F2. Moderators.** Who they are, who can kick, and who answers appeals (the rules say a Core member does).
-- [ ] **F3. The `apply-here` process.** Confirm the steps (30 days around, two endorsements, Core approval) are what you will actually run.
+- [x] **F3. The `apply-here` process.** **Superseded 1 Oct by H8:** Maintainers are no longer chosen by a PR and two endorsements; Friday suggests and you approve. The public pages were reworded to match; H8 asks you to confirm.
 - [ ] **F4. Demo Day.** Pick the first date, or tell me it is still open.
 - [ ] **F5. First projects and RFCs.** When something ships or an RFC opens, tell me and I will list it.
 
 ## S. Studio page (`/studio`)
 
-Since 30 Sep `/studio` is your portfolio's Studio page, moved in from `docs/portfolio-studio-page/` and kept in its own Apple-style look on purpose (it is what clients see, so it does not follow the dev site's theme). The words are in `app/studio/page.tsx` (the same list, in reading order, is `docs/portfolio-studio-page/copy.md`), the look is `styles/studio.css`, the pieces are `components/studio/`. The earlier Showcase page is parked (see item 4 at the top), so B11, B12, S3 and the Blender items are on hold with it.
+Since 30 Sep `/studio` is your portfolio's Studio page, moved in from `docs/portfolio-studio-page/` and kept in its own Apple-style look on purpose (it is what clients see, so it does not follow the dev site's theme). The words are in `app/studio/page.tsx` (the same list, in reading order, is `docs/portfolio-studio-page/copy.md`), the look is `styles/studio.css`, the pieces are `components/studio/`. The earlier Showcase page is parked (see item 6 at the top), so B11, B12, S3 and the Blender items are on hold with it.
 
 **Before it goes public (only you can settle these):**
 
@@ -115,6 +115,26 @@ Since 30 Sep `/studio` is your portfolio's Studio page, moved in from `docs/port
 - [ ] **S5. Other Maintainers' booking links**, when there are other Maintainers: add `booking` to their entry in `lib/legion.ts`.
 - [ ] **S6. Free space on C:** it had about 7 GB free last I checked. Aim for 20 GB or more; Windows and the render tools misbehave when C: is nearly full.
 - [ ] **S3. (Parked with the Showcase.)** Friday's welcome DM screenshot, for Exhibit 02's closer look.
+
+## H. Catalyst pipeline: timing, Legion listing, promotion (built 1 Oct, branch `catalyst-pipeline`)
+
+What changed: (1) the sweep runs on a reliable timer and never marks someone "invited" who could not be reached; (2) people who
+already have the Catalyst role (your friends) can now sign in and be listed on the Legion page; (3) Friday nominates Catalysts for
+Maintainer and only you can promote; (4) a check shows which channels each role can see. Steps and commands are in
+`docs/onboarding-setup.md` (sections 6, 9, 10). All of it ran against fakes of Discord, GitHub and the database and in a real browser
+against those fakes; **none of it has touched the real Discord yet**, so H6 is the real test.
+
+- [x] **H0. Get it live.** **Done 1 Oct 2026:** `catalyst-pipeline` was pushed and merged into `main` as pull request 1, and Vercel deployed it. The Studio branch is pushed as `studio-page` and was merged into `main` after it.
+- [ ] **H1. Create the reliable timer (10 min).** GitHub's timer, checked on 30 Sep, ran the sweep every 3 to 6 hours instead of every 10 minutes, so welcome messages were hours late. Create the QStash schedule in `docs/onboarding-setup.md` section 6 (Upstash account, same company as your database; free plan is enough). Leave GitHub's timer on as backup. Also check that `DISCORD_CHANNEL_WELCOME` is set on Vercel and Friday can post there: without it, a person whose messages are closed cannot be reached at all (the sweep now lists them under `unreachable`).
+- [ ] **H2. Tell your friends (2 min each).** Open "Become a Catalyst" on the site, sign in with Discord and GitHub, tick "Show me on the public Legion page", save. It works for people who already have the Catalyst role, there is no deadline, and nothing about their roles changes. They appear on `/legion` straight away. You can also add someone by hand with `/list` once H4 is done.
+- [ ] **H3. Check the welcome message works for a brand new joiner (10 min).** After H1, join with a spare account and see the Friday message arrive within about five minutes. This is also A7.
+- [ ] **H4. Set up promotion (15 min).** `docs/onboarding-setup.md` section 9, steps 1 to 6: the Maintainer role, a private #promotions channel, Friday's role above Maintainer, the public key and four settings on Vercel (add the Maintainer role id to `DISCORD_ROLES_EXEMPT` too), the Interactions Endpoint URL in the Discord developer portal, and one `curl.exe` to register the slash commands.
+- [ ] **H5. Create the daily nomination timer (3 min).** Step 7 of section 9, a second QStash schedule.
+- [ ] **H6. Test promotion with a spare account before relying on it (20 min).** Section 9, step 8. Temporarily lower `PROMOTE_MIN_DAYS` and `PROMOTE_MIN_POINTS`, give the spare account a credit note, run the scan, press Promote, check the role, the Maintainer channels and the Legion page, then `/demote` and put the settings back.
+- [ ] **H7. Hide the Maintainer channels from Catalysts (10 min).** Section 10: a private Maintainers category where `@everyone` is denied View Channel and the Maintainer role is allowed. Then run the audit command; it tells you if a Catalyst can still see a Maintainer channel, or if no channel is Maintainers-only (a promotion would unlock nothing). I cannot change Discord permissions for you.
+- [ ] **H8. Confirm the wording and the numbers (5 min).** The Legion page, the FAQ and the home page now say: you do not apply; after 30+ days as a Catalyst with steady work, Friday suggests you and the founder approves. Defaults: 30 days, 8 points (two per merged pull request in the last 60 days, two per credit note in the last 90, five of each at most), counting the GitHub organisations `helloedithstudio` and `Edith-Studio`. Tell me what to change. The `apply-here` channel text now says "Tell Core what you have been building"; say if that channel should be renamed or retired.
+- [ ] **H9. Privacy and legal (E1).** The privacy text now says the website keeps a member record (Discord id linked to GitHub username), your credit notes and each person's promotion state, and that Legion profile answers are stored when someone ticks the box. It was worded to be accurate, but it is a draft: include it in the lawyer review (E1), and say whether you are happy with "kept while you are a member, deleted when you ask" for these too (B8).
+- [ ] **H10. Later, if you want it: Discord activity as a signal.** Counting helpful messages needs a privacy decision first (it stores counts per person), so it is not built. Say the word when you want it.
 
 ## G. Reminders for later
 
@@ -138,8 +158,12 @@ Since 30 Sep `/studio` is your portfolio's Studio page, moved in from `docs/port
 | C2, C3 | Wire each file in and re-render where needed |
 | D1 (X page, coming soon) | Add the X icon |
 | E2 | Replace the placeholder in the legal text |
+| H1 to H3 (QStash timer, friends sign in, a new joiner test) | Read the first sweep results with you and fix anything the real Discord shows that the fakes did not |
+| H4 to H6 (promotion setup and test) | Fix what the real Discord does differently, then tune the points and days with you |
+| H7 (Maintainer channels hidden) | Read the audit result with you |
+| H8 (wording and numbers) | Change the copy and the defaults |
 | S7 to S10 (case study permission, logos, film, the claims and voice) | Change or remove whatever you say, in the page copy |
-| Whether to bring the parked Showcase back (item 4) | Put it back on `/studio` or on its own address, and restart the Blender session |
+| Whether to bring the parked Showcase back (item 6) | Put it back on `/studio` or on its own address, and restart the Blender session |
 
 Done since the last update: B6, B8, B9, B10 decided; C1 built and wired in; the Become a Catalyst link fixed; the public Legion listing automated.
 
@@ -147,6 +171,7 @@ Nothing else is queued on my side.
 
 ## Log of what is done (newest first)
 
+- 1 Oct 2026: Catalyst pipeline (built on branch `catalyst-pipeline`, merged into `main` as pull request 1 the same day, so H0 is done). Investigated why friends were missing from the Legion page, welcome messages were late or missing, and promotion did not exist. Found: (a) anyone who already had the Catalyst role was sent straight to "done" on `/join`, so there was no route to be listed; (b) GitHub's 10 minute timer ran every 3 to 6 hours; (c) the sweep gave someone the Pending role before messaging them, so a person with closed direct messages and no working welcome channel looked "invited" and would have been removed after 24 hours without ever being told; (d) `.env.example` was never committed (web/.gitignore ignored it). Built: a Redis lock so two timers never double message; message first, mark invited second, with an `unreachable` list; a second timer (QStash) in the docs; profile mode on `/join` for existing Catalysts (no deadline, no age checks, roles untouched) plus a member record; promotion (Friday nominates from merged pull requests and your credit notes after 30 days, only you promote, via buttons and `/promote /demote /credit /list /unlist`); a channel visibility audit. Corrected the privacy text, the Legion page text and the FAQ to match. Tests: join 57 checks, promotion and audit 40, plus a real browser run of the built site against fakes (21 for `/join`, 29 for promotion). Not run against the real Discord: that is H6.
 - 30 Sep 2026: `/studio` now serves your portfolio's Studio page (the package you added in `docs/portfolio-studio-page/`), kept in its own Apple-style look on purpose because clients see it. Moved in: the route (`app/studio/page.tsx`), six components (`components/studio/`), the styles (`styles/studio.css`, plain CSS with every class prefixed `sp-` because edith has no Tailwind, sizes in px because edith's rem is about 9 px), the film, logos and laptop (`public/studio-page/`), and the two Google Sans fonts (`public/fonts/`, their own metadata names the SIL Open Font License, licence text added). Changes to the copy are only the em dashes (rewritten as colons and commas), the email (now edith's `hello.edithstudio@gmail.com`) and the button "Visit Edith Studio" (now the edith home page, since the old Studio site is this site). Pitch links still work (`PitchStart`), and the header's "Book a call" button is unchanged. The earlier Showcase page is parked, not deleted (`components/showcase/ShowcasePage.tsx` says how to bring it back). Four things are yours before it goes public: S7 to S10.
 - 29 Sep 2026: Renamed the Showcase page to Studio (`/showcase` now permanently redirects to `/studio`, pitch link tokens survive the redirect; nav, header, sitemap, footer and Docs links updated; internal file and folder names left as they are). While pushing, found that D6 (connecting this folder to GitHub) was not actually in effect: no remote was configured, and two real commits from 24 to 25 Sep (the header rework, the Showcase page itself) had never reached GitHub. Pushed everything together the manual way (mirror into a fresh clone, commit, push, fetch back); reopened D6. Also found `web/docs/portfolio-studio-page/`, an archive of the portfolio's own former `/studio` page, written to disk but never committed; read it, it is benign reference material, included it in the push. Wrote `D:\Portfolio-Main\Portfolio\edith-context.md`, a from-the-source description of edith for your portfolio agent to read.
 - 28 Sep 2026: Started the edith dev server on port 3000 (all five main pages answer). Wrote `D:\Portfolio-Main\Portfolio\hero-button\IMPLEMENTATION.md`: a tested port of edith's "Become a Catalyst" hover effect for a button in your portfolio's home hero. Its animation state matched edith's original value for value at 13 points across four runs, and 12 behaviour checks pass (mouse, keyboard, reduced motion, touch, unmount); it works on dark and light. Not run inside the portfolio yet, and Chromium only. Default label and target are a guess (Contact, `/contact`); yours to change. Nothing in the edith site changed.

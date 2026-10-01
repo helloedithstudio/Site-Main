@@ -9,7 +9,9 @@ export const maxDuration = 60;
 
 const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
-// The scheduled job (GitHub Actions, every ten minutes; see docs/onboarding-setup.md). Protected by CRON_SECRET.
+// The scheduled job. Two timers call it with the same secret (see docs/onboarding-setup.md): a QStash schedule every five
+// minutes, which is the reliable one, and GitHub Actions, which is meant to run every ten minutes but in practice runs every
+// few hours, so it is the backup. A lock inside the sweep stops the two overlapping. Protected by CRON_SECRET.
 // Add ?dry=1 to see what would happen without doing any of it.
 async function handle(req: Request) {
   const given = (req.headers.get("authorization") ?? "").replace(/^Bearer /i, "");
