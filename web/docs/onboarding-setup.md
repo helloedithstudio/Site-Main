@@ -134,6 +134,11 @@ every five minutes is 288 messages a day, and a retry counts as another message,
    three things (address, cron, forwarded header) if you prefer clicking.
 3. Check it: within five minutes the QStash console should show a delivery for the schedule with status 200. A 401 means the
    forwarded password differs from `CRON_SECRET` on Vercel. To see exactly what the site answers, run the dry run from step 8 by hand.
+   **Careful when listing schedules:** QStash's own list command (`GET /v2/schedules`) prints the forwarded headers in plain text, which
+   includes your `CRON_SECRET`. Never paste its raw output anywhere. To check a schedule safely, hide the headers:
+   `curl.exe -s "$base/v2/schedules" -H "Authorization: Bearer $token" | ConvertFrom-Json | Select-Object scheduleId, cron, isPaused, lastScheduleTime, nextScheduleTime, lastScheduleStates | Format-List`
+   `lastScheduleStates` should say `SUCCESS` and `nextScheduleTime` should be within five minutes (both times are in milliseconds since 1970).
+   The console's Logs page can stay empty even while runs succeed, so trust this check or the Schedules tab instead.
 4. Leave GitHub's timer on. If QStash is ever paused, the backup still runs, only slowly.
 
 To stop the QStash timer, delete the schedule in the console (or `curl.exe -X DELETE "https://qstash.upstash.io/v2/schedules/SCHEDULE_ID" -H "Authorization: Bearer YOUR_QSTASH_TOKEN"`).
