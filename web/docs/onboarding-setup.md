@@ -15,8 +15,14 @@ What it does, once switched on:
    Maintainer are refused.
 5. If they have not finished 24 hours after joining, they are removed from the server automatically and can join again.
 
-There is no server to run. A GitHub job asks the site every ten minutes; the site talks to Discord and GitHub. The state is the
-Discord roles, plus one small database that only remembers one-way codes of who has joined (so nobody can join twice).
+There is no server to run. A timer (QStash every five minutes, with GitHub Actions as backup, see step 6) asks the site; the site talks
+to Discord and GitHub. The state is the Discord roles, plus one small database. It holds one-way codes of who has joined (so nobody can
+join twice), one small record per Catalyst linking their Discord id to their verified GitHub username (so Friday can look at their GitHub
+work when considering a promotion), and the public Legion profiles of people who ticked the box.
+
+**People who are already in the server** (given the Catalyst role by hand, or who joined before the system started) use the same
+Become a Catalyst link. They sign in with Discord and GitHub and fill the same form in **profile mode**: no deadline, no age checks,
+their roles are never touched, and it only sets up their Legion profile and their member record.
 
 **It is safe until you switch it on.** It defaults to a dry run that only reports, and it never touches anyone who joined before the
 start time you set, bots, the server owner, anyone with an exempt role, or anyone who already has the Catalyst role. It refuses to
@@ -135,7 +141,10 @@ To stop the QStash timer, delete the schedule in the console (or `curl.exe -X DE
 ## 7. What is kept, and where
 
 - **On the website:** no cookies. The sign-in tokens are signed and expire (15 minutes and 2 hours) and travel in the address, then
-  the address bar is cleaned. Only the one-way codes above are stored.
+  the address bar is cleaned. Stored in the database (Upstash Redis): the one-way codes above; one `member:<discord id>` record per
+  Catalyst with their verified GitHub username, the name they gave, when they became a Catalyst and whether they chose to be listed
+  (written when the form or the profile is saved, removed by the release command below); and the `legion:*` profiles of people who
+  ticked the Legion box. Nothing else.
 - **In Discord:** the Catalyst role, and one message per completed form in your private channel (name, verified GitHub username,
   areas, optional website and one line, whether they ticked public listing, the two account creation dates and the deadline).
   Delete a message to delete that record.
@@ -155,6 +164,10 @@ To stop the QStash timer, delete the schedule in the console (or `curl.exe -X DE
    `ONBOARDING_DRY_RUN` to `false`, and redeploy. Join the server with a spare Discord account. Within ten minutes it should
    get the Pending role and a message. Open the link, sign in with Discord and GitHub, fill in the form: it should get the Catalyst
    role and an entry should appear in the private channel.
+2b. **Existing Catalyst test.** With a friend who already has the Catalyst role (or a spare account you gave it by hand), open the
+   Become a Catalyst link. After the two sign-ins the page should say "Your profile", with no countdown. Fill it in, tick "Show me on
+   the public Legion page" and save: their roles must be unchanged, they should appear on `/legion` straight away, and a "Legion
+   profile saved" note should appear in the private channel.
 3. **One entry test.** With a second spare Discord account, try the same GitHub account: it should be stopped with "That GitHub
    account is already used". Use the release command below to free the first account, and try again.
 4. **Removal test.** Set `ONBOARDING_HOURS` and `NEXT_PUBLIC_ONBOARDING_HOURS` to `2` (the smallest allowed), join with a spare
@@ -173,9 +186,12 @@ Any time you want to see what it would do without doing it, run the dry run comm
   `curl -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" -H "Content-Type: application/json" -d "{\"discordId\":\"123456789012345678\"}" "https://edith-plum.vercel.app/api/join/release"`
   It clears only the one-entry record; delete their message in the private channel and remove their role yourself if needed.
 - **Let someone in without the form** (for example a designer with no GitHub account, or someone you already know): give them the
-  Catalyst role by hand in Discord. The job never touches anyone who has it, so they are never invited or removed.
+  Catalyst role by hand in Discord. The job never touches anyone who has it, so they are never invited or removed. They can still
+  use Become a Catalyst afterwards (profile mode) to confirm their GitHub and be listed on the Legion page.
 - **Check for people the job missed** (it was off for a while): run the dry run and read `missed`.
-- **Add a Catalyst to the Legion page:** copy their GitHub username and areas from the private channel into `web/lib/legion.ts`.
+- **Add a Catalyst to the Legion page:** ask them to use Become a Catalyst and tick "Show me on the public Legion page" (works for
+  people who already have the role). They can untick it and save to be taken off. Editing `web/lib/legion.ts` by hand is only the
+  fallback for someone who cannot sign in.
 
 ## What can go wrong
 

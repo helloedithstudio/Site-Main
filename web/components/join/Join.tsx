@@ -10,7 +10,7 @@ import { legionInterests } from "@/lib/legion";
 import { JOIN_HOURS } from "@/lib/join/constants";
 import Footer from "../Footer";
 
-type Claims = { u: string; n: string; d: string; j: string; e: number; gh?: { i: string; l: string; n: string; c: string } };
+type Claims = { u: string; n: string; d: string; j: string; e: number; gh?: { i: string; l: string; n: string; c: string }; pm?: boolean };
 type Status = "unavailable" | "not-member" | "done" | "expired" | "cancelled" | "error" | "account-young" | "github-young" | "github-type" | "github-taken" | "discord-linked";
 
 const HOUR = 3_600_000;
@@ -60,7 +60,8 @@ const MESSAGES: Record<Status, { title: string; text: string | ((n: Note) => str
 };
 
 export default function Join() {
-  const [phase, setPhase] = useState<"loading" | "start" | "form" | "success" | Status>("loading");
+  const [phase, setPhase] = useState<"loading" | "start" | "form" | "success" | "saved" | Status>("loading");
+  const [savedListed, setSavedListed] = useState(false);
   const [token, setToken] = useState("");
   const [claims, setClaims] = useState<Claims | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -111,9 +112,14 @@ export default function Join() {
     setBanner("");
     try {
       const res = await fetch("/api/join/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, fields: form }) });
-      const j = (await res.json().catch(() => ({}))) as { ok?: boolean; errors?: Record<string, string>; message?: string; state?: string };
+      const j = (await res.json().catch(() => ({}))) as { ok?: boolean; errors?: Record<string, string>; message?: string; state?: string; profile?: boolean; listed?: boolean };
       if (res.ok && j.ok) {
-        setPhase(j.state === "done" && j.message ? "done" : "success");
+        if (j.profile) {
+          setSavedListed(!!j.listed);
+          setPhase("saved");
+        } else {
+          setPhase(j.state === "done" && j.message ? "done" : "success");
+        }
       } else if (res.status === 422 && j.errors) {
         setErrors(j.errors);
         setBanner("Please fix the highlighted fields.");
@@ -137,19 +143,33 @@ export default function Join() {
       </p>
     ) : null;
   const info = phase in MESSAGES ? MESSAGES[phase as Status] : null;
+  // Someone who already has the Catalyst role is only setting up their Legion profile (no deadline, nothing to finish).
+  const profile = !!claims?.pm && (phase === "form" || phase === "saved");
 
   return (
     <main id="main" className="hb-main">
       <div className="hb-bg" aria-hidden="true" />
       <header className="hb-hero site-max px-20 s:px-0">
-        <p className="type-caption uppercase text-gold">Catalyst form</p>
+        <p className="type-caption uppercase text-gold">{profile ? "Legion profile" : "Catalyst form"}</p>
         <h1 className="type-display-xl edith-hero-title">
-          Finish
-          <br />
-          joining
+          {profile ? (
+            <>
+              Your
+              <br />
+              profile
+            </>
+          ) : (
+            <>
+              Finish
+              <br />
+              joining
+            </>
+          )}
         </h1>
         <p className="type-body-lg text-white hb-lead">
-          A two minute form. Complete it within {JOIN_HOURS} hours of joining the Discord to stay in the community.
+          {profile
+            ? "You are already in, so there is no deadline. This sets up your profile on the Legion page: confirm your GitHub, say what you build, and choose whether to be shown."
+            : `A two minute form. Complete it within ${JOIN_HOURS} hours of joining the Discord to stay in the community.`}
         </p>
       </header>
 
@@ -166,6 +186,9 @@ export default function Join() {
             <a className="join-btn" href="/api/join/start">
               Continue with Discord
             </a>
+            <p className="type-caption edith-muted">
+              Already a Catalyst? Sign in the same way to set up your profile on the Legion page. There is no deadline for you.
+            </p>
             <p className="type-caption edith-muted">
               Not in the server yet?{" "}
               <a className="join-link" href={brand.discord} target="_blank" rel="noopener noreferrer">
@@ -198,7 +221,7 @@ export default function Join() {
             <h2 className="type-h3">You are a Catalyst</h2>
             <p className="type-body-md text-white">
               Thank you{form.name ? `, ${form.name}` : ""}. Your form is complete and you now have full access to the community.
-              {form.listPublicly ? " The mediators will add you to the Legion page soon." : ""}
+              {form.listPublicly ? " You will show on the Legion page straight away." : ""}
             </p>
             <a className="join-btn" href={brand.discord} target="_blank" rel="noopener noreferrer">
               Back to Discord
@@ -206,11 +229,30 @@ export default function Join() {
           </div>
         ) : null}
 
+        {phase === "saved" ? (
+          <div className="join-card">
+            <h2 className="type-h3">Your profile is saved</h2>
+            <p className="type-body-md text-white">
+              Thank you{form.name ? `, ${form.name}` : ""}.{" "}
+              {savedListed ? "You are on the Legion page now." : "You are not shown on the Legion page. You can come back and tick the box any time."}
+            </p>
+            {savedListed ? (
+              <a className="join-btn" href="/legion">
+                See the Legion
+              </a>
+            ) : (
+              <a className="join-btn" href={brand.discord} target="_blank" rel="noopener noreferrer">
+                Back to Discord
+              </a>
+            )}
+          </div>
+        ) : null}
+
         {phase === "form" && claims ? (
           <form className="join-card" onSubmit={submit} noValidate>
             <div className="join-meta">
               <span className="type-caption edith-muted">Signed in as {claims.n}</span>
-              <span className={`join-clock${deadline - now <= 0 ? " is-late" : ""}`}>{left(deadline - now)}</span>
+              {claims.pm ? null : <span className={`join-clock${deadline - now <= 0 ? " is-late" : ""}`}>{left(deadline - now)}</span>}
             </div>
             {banner ? (
               <p className="join-banner" role="alert">
@@ -301,16 +343,20 @@ export default function Join() {
                 <input type="checkbox" id="join-listPublicly" checked={form.listPublicly} onChange={(e) => set("listPublicly", e.target.checked)} />
                 <span>
                   Show me on the public Legion page.{" "}
-                  <span className="edith-muted">Optional. Shows your name, GitHub, areas and website. Leave it unticked to stay private, and ask any time to be taken off.</span>
+                  <span className="edith-muted">
+                    {claims.pm
+                      ? "Optional. Shows your name, GitHub, areas and website. Untick it and save to be taken off."
+                      : "Optional. Shows your name, GitHub, areas and website. Leave it unticked to stay private, and ask any time to be taken off."}
+                  </span>
                 </span>
               </label>
             </div>
 
             <button type="submit" className="join-btn" disabled={busy}>
-              {busy ? "Saving" : "Complete my form"}
+              {busy ? "Saving" : claims.pm ? "Save my profile" : "Complete my form"}
             </button>
             <p className="type-caption edith-muted">
-              Your answers go privately to the edith mediators (Core) in Discord. This website keeps only a one-way code of your Discord and GitHub accounts, so nobody can join twice. See the{" "}
+              Your answers go privately to the edith mediators (Core) in Discord. This website keeps a one-way code of your Discord and GitHub accounts, so nobody can join twice, and a small record linking your Discord id to your GitHub username, which is used to consider you for promotion to Maintainer. See the{" "}
               <a className="join-link" href="/docs#privacy" target="_blank" rel="noopener noreferrer">
                 privacy policy
               </a>

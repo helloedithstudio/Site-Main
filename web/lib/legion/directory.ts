@@ -25,6 +25,19 @@ export async function writeDirectoryEntry(cfg: Pick<JoinConfig, "storeUrl" | "st
   await run("SADD", INDEX, entry.github.toLowerCase());
 }
 
+/** One person's current entry, or null. Used so that saving a profile again keeps what the form does not set (a Maintainer
+ *  role after a promotion, a booking link) instead of wiping it. Never throws. */
+export async function readDirectoryEntry(cfg: Pick<JoinConfig, "storeUrl" | "storeToken">, login: string): Promise<PersonEntry | null> {
+  try {
+    const row = (await upstash(cfg)("GET", key(login))) as string | null;
+    if (!row) return null;
+    const e = JSON.parse(row) as PersonEntry;
+    return e && typeof e.github === "string" ? e : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Removes a person (they asked to be taken off, or a Core member cleans up an entry). */
 export async function removeDirectoryEntry(cfg: Pick<JoinConfig, "storeUrl" | "storeToken">, login: string): Promise<void> {
   const run = upstash(cfg);

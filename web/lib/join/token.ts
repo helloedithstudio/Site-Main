@@ -20,6 +20,9 @@ export type TokenPayload = {
   r: string;
   /** The GitHub account the person proved they own (id, username, name, created), once they have signed in with GitHub. */
   gh?: { i: string; l: string; n: string; c: string };
+  /** Profile mode: the person already has the Catalyst role, so the form only sets up their Legion profile. This only
+   *  changes what the page shows; what the server does is decided from their Discord roles at submit time. */
+  pm?: boolean;
 };
 
 const b64 = (b: Buffer | string) => Buffer.from(b).toString("base64url");

@@ -57,8 +57,10 @@ The original stylesheet only contains the utility classes the original site used
 - Section links (`#membership` and so on) scroll through Lenis. For the pinned loop section they resolve to
   the top of its GSAP pin wrapper (`lib/runtime/scroll.ts`), so they always land on the first card. On other
   pages they become `/#section`.
-- The pages are static. The only server code is the Catalyst join flow (`app/api/join/*`, `lib/join/*`), which stores
-  nothing. The site uses no cookies, storage or analytics, and the privacy policy says so: update it before adding any.
+- The pages are mostly static. The only server code is the Catalyst join flow (`app/api/join/*`, `lib/join/*`), which keeps a
+  few small records in one Upstash Redis database (one-way entry codes, a member record per Catalyst, Legion profiles) and
+  nothing else about a person; see "The Catalyst join flow" below. The site uses no cookies, browser storage or analytics, and
+  the privacy policy says so: update it before adding any, or before storing anything new about people.
 - Socials (Discord, Instagram, LinkedIn) live in `lib/brand.ts`. To add X, add its entry there and an icon in
   `components/ui/Social.tsx`.
 
@@ -69,10 +71,12 @@ then with GitHub (public profile only, no scope; this proves the GitHub account 
 Catalyst role. One GitHub account is linked to one Discord account and the other way round (one person, one entry), names that
 pass someone off as edith or a Maintainer are refused, and optional minimum account ages can turn away brand new accounts. If
 they have not finished 24 hours after joining they are removed and can rejoin. There is no server to run: a GitHub Actions job
-(`.github/workflows/join-sweep.yml`, every ten minutes) calls `/api/join/sweep`. Discord roles hold the state (Pending, and an
-optional Reminded), and one small Upstash Redis database keeps only one-way codes of Discord and GitHub ids to enforce the single
-entry. Answers are posted to a private Discord channel for Core (the mediators); being listed on the Legion page is a separate,
-optional tick and is added to `lib/legion.ts` by hand.
+(`.github/workflows/join-sweep.yml`, the backup timer) and a QStash schedule (every five minutes, the reliable one) call `/api/join/sweep`, which holds a lock so they never overlap. Discord roles hold the state (Pending, and an
+optional Reminded), and one small Upstash Redis database keeps one-way codes of Discord and GitHub ids to enforce the single
+entry, plus one small `member:` record per Catalyst (Discord id to verified GitHub username, used for promotion). Answers are posted to
+a private Discord channel for Core (the mediators); being listed on the Legion page is a separate, optional tick and is added to the
+directory automatically. People who already have the Catalyst role use the same flow in **profile mode** (no deadline, no age checks,
+roles untouched) to set up or change their profile.
 
 - **Code:** `lib/join/plan.ts` (who is invited, reminded or removed: pure), `sweep.ts`, `flow.ts` (sign in and submit),
   `discord.ts` (REST client), `ghoauth.ts` (GitHub sign-in), `store.ts` (the one-entry database), `form.ts` (validation and reserved
