@@ -5,7 +5,7 @@ Written for: Kevin, and a Claude Code agent working in this repository (`D:\page
 
 **What this is.** The `/studio` page of Kevin's portfolio, the "Edith Studio" client-work page, packaged whole: its source, its
 styles, its copy, its translations and its assets. It was live on kevinandrew.tech until 28 September 2026 (last live commit
-`ca8561b` in the portfolio repository). That day Studio was renamed Edith, its links were pointed at https://edith-plum.vercel.app,
+`ca8561b` in the portfolio repository). That day Studio was renamed edith, its links were pointed at <https://edith-plum.vercel.app>,
 and the page was taken off the portfolio (moved to `src/archive/studio/`, no longer routed). Nothing here is wired into edith. It
 is reference material: to revive the page, or to reuse parts of it here.
 
@@ -31,7 +31,7 @@ Every visible word is listed in `copy.md`.
 
 ## 2. Contents
 
-```
+```text
 portfolio-studio-page/
   README.md                          this file
   copy.md                            every visible string on the page, in order
@@ -125,9 +125,11 @@ This repository's rules differ from the portfolio's, so the source cannot be dro
 - **Units.** `rem` is 9 px on a 1440 px screen here, not 16. The portfolio's sizes are in `rem` against 16, so convert them.
 - **Copy and comments.** No en or em dashes, British spelling. The verbatim source and `copy.md` contain many em dashes and some
   American spelling ("color" in comments); rewrite them on the way in.
-- **Name and links.** The page says "Edith Studio" throughout, and its main button points at the old Studio site. The name is now
-  Edith, and edith already has a `/studio` page of its own, so decide whether this becomes a section of it, a separate page, or
-  just a source of copy.
+- **Name, links and positioning.** The page says "Edith Studio" throughout, and its main button points at the old Studio site.
+  The name is now edith (lowercase in its own copy), and edith is a community rather than an agency: client work is something a
+  Maintainer can take on under its name. edith already has a `/studio` page, used when a Maintainer pitches client work, so
+  decide whether this becomes a section of it, a separate page, or just a source of copy. Its "we" voice, flat price and demo
+  promise are claims about a practice; check each still holds before reusing it.
 - **Palette.** The intelligence gradient (blue, violet, pink, orange) is the portfolio's accent, not edith's Saffron palette.
 
 ## 8. Things Kevin must decide or check
