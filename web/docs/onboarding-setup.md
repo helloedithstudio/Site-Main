@@ -252,6 +252,19 @@ once after the first promotion.
   click their name, Copy User ID) and run
   `curl -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" -H "Content-Type: application/json" -d "{\"discordId\":\"123456789012345678\"}" "https://edith-plum.vercel.app/api/join/release"`
   It clears only the one-entry record; delete their message in the private channel and remove their role yourself if needed.
+- **Invite people who were already in the server to set up their Legion profile (one time).** The sweep never messages anyone who
+  joined before it started, so they would not know the Legion page exists. Friday can send each of them one direct message.
+  **Nothing is sent unless you say so, and then only to the number of people you expected.**
+  1. See who it would message (this changes nothing):
+     `curl.exe -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" "https://edith-plum.vercel.app/api/join/invite-profiles"`
+     The answer lists each person (`would`, with their Discord id and username), how many already have a profile, and the exact next command.
+  2. If the list is right, send, using the number it showed:
+     `curl.exe -X POST -H "Authorization: Bearer YOUR_CRON_SECRET" "https://edith-plum.vercel.app/api/join/invite-profiles?send=1&expect=N"`
+     (replace N). If the list has changed since, the number no longer matches and nothing is sent.
+  It picks members who have the Catalyst role, have no profile yet, are not a bot or the server owner, and have not been invited before.
+  Each person is messaged once ever, at most 20 per run with a pause between messages (run it again for the rest). Someone whose direct
+  messages are closed is listed under `unreachable`, is not retried and is not pinged in public: tell them in a channel instead. The
+  release command forgets an invitation, so a released person could be invited again.
 - **Let someone in without the form** (for example a designer with no GitHub account, or someone you already know): give them the
   Catalyst role by hand in Discord. The job never touches anyone who has it, so they are never invited or removed. They can still
   use Become a Catalyst afterwards (profile mode) to confirm their GitHub and be listed on the Legion page.

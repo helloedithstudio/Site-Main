@@ -92,6 +92,9 @@ roles untouched) to set up or change their profile.
   joined before it, bots, the owner, exempt roles and Catalysts are never touched; at most 10 removals per run; only people
   invited with at least half the window left are ever removed.
 - **What the public pages say** about the 24 hour form appears only when `NEXT_PUBLIC_JOIN_LIVE=true` (`lib/join/constants.ts`).
+- **One-time invitation for people already in the server:** `POST /api/join/invite-profiles` (CRON_SECRET) lists Catalysts with no profile
+  (a dry run, sending nothing) and, with `send=1&expect=<that number>`, sends each of them one direct message inviting them to
+  set up their Legion profile. Once per person, 20 per run. Code in `lib/join/invite.ts`.
 - **Promotion, Catalyst to Maintainer:** Friday posts a nomination with Promote and Not yet buttons (daily, from `POST /api/promote/scan`)
   for Catalysts who have been one for 30 days and earned enough points (merged pull requests on edith repositories, Kevin's credit
   notes). Only the Discord ids in `PROMOTER_IDS` can press the buttons or use `/promote`, `/demote`, `/credit`, `/list`, `/unlist`.
