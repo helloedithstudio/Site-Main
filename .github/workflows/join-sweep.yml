@@ -1,8 +1,12 @@
 name: Catalyst join sweep
 
-# Every ten minutes this asks the website to check new Discord members: message anyone who has not yet been sent their
-# Catalyst form, remind people whose 24 hours are nearly up, and remove those who did not finish in time.
+# This asks the website to check new Discord members: message anyone who has not yet been sent their Catalyst form, remind
+# people whose 24 hours are nearly up, and remove those who did not finish in time.
 # The website decides everything (it defaults to a dry run that changes nothing). See web/docs/onboarding-setup.md.
+#
+# This is the BACKUP timer. GitHub runs scheduled jobs on a best effort basis; checked on 30 Sep 2026 the real gaps were three
+# to six hours, not the ten minutes asked for. The reliable timer is a QStash schedule that calls the same address every five
+# minutes (setup step 6). The site holds a lock, so the two never run at once.
 #
 # Needs two repository secrets: SWEEP_URL (for example https://edith-plum.vercel.app/api/join/sweep) and CRON_SECRET
 # (the same value as the CRON_SECRET setting on Vercel). Without them this job does nothing.

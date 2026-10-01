@@ -57,8 +57,10 @@ The original stylesheet only contains the utility classes the original site used
 - Section links (`#membership` and so on) scroll through Lenis. For the pinned loop section they resolve to
   the top of its GSAP pin wrapper (`lib/runtime/scroll.ts`), so they always land on the first card. On other
   pages they become `/#section`.
-- The pages are static. The only server code is the Catalyst join flow (`app/api/join/*`, `lib/join/*`), which stores
-  nothing. The site uses no cookies, storage or analytics, and the privacy policy says so: update it before adding any.
+- The pages are mostly static. The only server code is the Catalyst join flow (`app/api/join/*`, `lib/join/*`), which keeps a
+  few small records in one Upstash Redis database (one-way entry codes, a member record per Catalyst, Legion profiles) and
+  nothing else about a person; see "The Catalyst join flow" below. The site uses no cookies, browser storage or analytics, and
+  the privacy policy says so: update it before adding any, or before storing anything new about people.
 - Socials (Discord, Instagram, LinkedIn) live in `lib/brand.ts`. To add X, add its entry there and an icon in
   `components/ui/Social.tsx`.
 
@@ -69,10 +71,12 @@ then with GitHub (public profile only, no scope; this proves the GitHub account 
 Catalyst role. One GitHub account is linked to one Discord account and the other way round (one person, one entry), names that
 pass someone off as edith or a Maintainer are refused, and optional minimum account ages can turn away brand new accounts. If
 they have not finished 24 hours after joining they are removed and can rejoin. There is no server to run: a GitHub Actions job
-(`.github/workflows/join-sweep.yml`, every ten minutes) calls `/api/join/sweep`. Discord roles hold the state (Pending, and an
-optional Reminded), and one small Upstash Redis database keeps only one-way codes of Discord and GitHub ids to enforce the single
-entry. Answers are posted to a private Discord channel for Core (the mediators); being listed on the Legion page is a separate,
-optional tick and is added to `lib/legion.ts` by hand.
+(`.github/workflows/join-sweep.yml`, the backup timer) and a QStash schedule (every five minutes, the reliable one) call `/api/join/sweep`, which holds a lock so they never overlap. Discord roles hold the state (Pending, and an
+optional Reminded), and one small Upstash Redis database keeps one-way codes of Discord and GitHub ids to enforce the single
+entry, plus one small `member:` record per Catalyst (Discord id to verified GitHub username, used for promotion). Answers are posted to
+a private Discord channel for Core (the mediators); being listed on the Legion page is a separate, optional tick and is added to the
+directory automatically. People who already have the Catalyst role use the same flow in **profile mode** (no deadline, no age checks,
+roles untouched) to set up or change their profile.
 
 - **Code:** `lib/join/plan.ts` (who is invited, reminded or removed: pure), `sweep.ts`, `flow.ts` (sign in and submit),
   `discord.ts` (REST client), `ghoauth.ts` (GitHub sign-in), `store.ts` (the one-entry database), `form.ts` (validation and reserved
@@ -81,7 +85,17 @@ optional tick and is added to `lib/legion.ts` by hand.
   joined before it, bots, the owner, exempt roles and Catalysts are never touched; at most 10 removals per run; only people
   invited with at least half the window left are ever removed.
 - **What the public pages say** about the 24 hour form appears only when `NEXT_PUBLIC_JOIN_LIVE=true` (`lib/join/constants.ts`).
-- **Tests:** `npx tsx scripts/join-test.ts` runs 39 checks against fakes of Discord, GitHub and the database. It has not been run against the real services.
+- **Promotion, Catalyst to Maintainer:** Friday posts a nomination with Promote and Not yet buttons (daily, from `POST /api/promote/scan`)
+  for Catalysts who have been one for 30 days and earned enough points (merged pull requests on edith repositories, Kevin's credit
+  notes). Only the Discord ids in `PROMOTER_IDS` can press the buttons or use `/promote`, `/demote`, `/credit`, `/list`, `/unlist`.
+  Code in `lib/promote/*` (pure scoring in `score.ts`, the actions in `actions.ts`, the Discord handler in `interactions.ts`, the
+  Ed25519 request check in `signature.ts`); routes `app/api/discord/{interactions,register,audit}` and `app/api/promote/scan`.
+  `lib/join/audit.ts` works out who can see which channel, so you can check that Catalysts cannot see Maintainer channels.
+  Settings and the one-time Discord steps: `docs/onboarding-setup.md` sections 9 and 10.
+- **Tests:** `npx tsx scripts/join-test.ts` runs 57 checks and `npx tsx scripts/promote-test.ts` runs 40, against fakes of Discord,
+  GitHub and the database (`scripts/fakes/`, which can also be served for a browser run: `npx tsx scripts/fakes/serve.ts`). The
+  real built site has also been driven in a browser against those fakes (profile mode and promotion). None of it has been run against
+  the real Discord, GitHub or database yet.
 - **Setup steps and settings:** `docs/onboarding-setup.md` and `.env.example`.
 
 ## The backdrop

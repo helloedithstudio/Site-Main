@@ -11,7 +11,8 @@ import { esc, validateForm } from "./form";
 import { ageDays, discordCreatedMs, githubAuthorizeUrl, githubRevoke, githubToken, githubUser } from "./ghoauth";
 import { storeFor, type Claim, type EntryStore } from "./store";
 import { signToken, verifyToken } from "./token";
-import { writeDirectoryEntry } from "../legion/directory";
+import { readDirectoryEntry, removeDirectoryEntry, writeDirectoryEntry } from "../legion/directory";
+import { writeMember } from "./members";
 
 const HOUR = 3_600_000;
 export const FORM_TOKEN_HOURS = 2;
@@ -42,16 +43,18 @@ export async function handleCallback(cfg: JoinConfig, params: { code?: string | 
     const user = await d.currentUser(access);
     const member = await d.getMember(user.id);
     if (!member) return to(cfg, "not-member");
-    if (member.roles.includes(cfg.roleCatalyst)) return to(cfg, "done");
+    // Someone who already has the Catalyst role (given by hand, or joined before the system started) is not turned away: they
+    // sign in the same way to set up their Legion profile ("profile mode"). The account age rule is for new members only.
+    const catalyst = member.roles.includes(cfg.roleCatalyst);
     const dcMade = discordCreatedMs(user.id);
-    if (cfg.minDiscordDays && ageDays(dcMade, now) < cfg.minDiscordDays) return to(cfg, "account-young", `&days=${cfg.minDiscordDays}&until=${dcMade + cfg.minDiscordDays * 86_400_000}`);
+    if (!catalyst && cfg.minDiscordDays && ageDays(dcMade, now) < cfg.minDiscordDays) return to(cfg, "account-young", `&days=${cfg.minDiscordDays}&until=${dcMade + cfg.minDiscordDays * 86_400_000}`);
 
     if (cfg.requireGithub) {
       // Hand over to GitHub. Only the ids travel in the state (which GitHub sees), not the name.
       const link = signToken(cfg.signingSecret, { p: "link", u: user.id, n: "", d: "", j: member.joinedAt, e: now + STATE_MINUTES * 60_000 });
       return { redirect: githubAuthorizeUrl(cfg, link) };
     }
-    const token = signToken(cfg.signingSecret, { p: "form", u: user.id, n: user.username, d: user.global_name ?? "", j: member.joinedAt, e: now + FORM_TOKEN_HOURS * HOUR });
+    const token = signToken(cfg.signingSecret, { p: "form", u: user.id, n: user.username, d: user.global_name ?? "", j: member.joinedAt, e: now + FORM_TOKEN_HOURS * HOUR, ...(catalyst ? { pm: true } : {}) });
     return { redirect: `${cfg.siteUrl}/join#t=${token}` };
   } catch {
     return to(cfg, "error");
@@ -71,14 +74,14 @@ export async function handleGithubCallback(cfg: JoinConfig, params: { code?: str
   try {
     const member = await d.getMember(link.u);
     if (!member) return to(cfg, "not-member");
-    if (member.roles.includes(cfg.roleCatalyst)) return to(cfg, "done");
+    const catalyst = member.roles.includes(cfg.roleCatalyst); // profile mode, see handleCallback
 
     const access = await githubToken(cfg, params.code);
     const gh = await githubUser(cfg, access);
     await githubRevoke(cfg, access);
     if (gh.type !== "User") return to(cfg, "github-type");
     const ghMade = Date.parse(gh.createdAt);
-    if (cfg.minGithubDays && ageDays(ghMade, now) < cfg.minGithubDays) return to(cfg, "github-young", `&days=${cfg.minGithubDays}&until=${ghMade + cfg.minGithubDays * 86_400_000}`);
+    if (!catalyst && cfg.minGithubDays && ageDays(ghMade, now) < cfg.minGithubDays) return to(cfg, "github-young", `&days=${cfg.minGithubDays}&until=${ghMade + cfg.minGithubDays * 86_400_000}`);
 
     const verdict = await store.check(link.u, gh.id);
     if (verdict !== "ok") return to(cfg, conflictStatus[verdict]);
@@ -91,6 +94,7 @@ export async function handleGithubCallback(cfg: JoinConfig, params: { code?: str
       j: member.joinedAt,
       e: now + FORM_TOKEN_HOURS * HOUR,
       gh: { i: gh.id, l: gh.login, n: gh.name, c: gh.createdAt },
+      ...(catalyst ? { pm: true } : {}),
     });
     return { redirect: `${cfg.siteUrl}/join#t=${token}` };
   } catch {
@@ -98,7 +102,7 @@ export async function handleGithubCallback(cfg: JoinConfig, params: { code?: str
   }
 }
 
-export type SubmitResult = { status: number; body: { ok: boolean; message?: string; errors?: Record<string, string>; state?: string } };
+export type SubmitResult = { status: number; body: { ok: boolean; message?: string; errors?: Record<string, string>; state?: string; profile?: boolean; listed?: boolean } };
 
 const conflictMessage: Record<Exclude<Claim, "ok">, string> = {
   "github-taken": "That GitHub account is already linked to another member. Each person has one entry. If that was you, ask a Core member for help.",
@@ -118,7 +122,9 @@ export async function handleSubmit(cfg: JoinConfig, body: unknown, deps: Deps = 
   try {
     const member = await d.getMember(tok.u);
     if (!member) return { status: 410, body: { ok: false, state: "removed", message: "You are no longer in the server. Join again with the link on the site, then complete the form." } };
-    if (member.roles.includes(cfg.roleCatalyst)) return { status: 200, body: { ok: true, state: "done", message: "You are already a Catalyst." } };
+    // Profile mode is decided here from their live Discord roles, never from the token: someone who already has the Catalyst
+    // role only sets up their Legion profile. Their role is not touched, there is no deadline, and the age rules were skipped.
+    const profile = member.roles.includes(cfg.roleCatalyst);
 
     // One person, one entry. Doing this before anything is granted; repeating it for the same pair is harmless.
     if (tok.gh) {
@@ -129,13 +135,13 @@ export async function handleSubmit(cfg: JoinConfig, body: unknown, deps: Deps = 
     const v = form.value;
     const due = Math.floor((Date.parse(member.joinedAt) + cfg.hours * HOUR) / 1000);
     const dcMade = Math.floor(discordCreatedMs(tok.u) / 1000);
-    // The private record for the mediators. Nothing else is kept on the website.
+    // The private record for the mediators.
     await d.post(cfg.channelForms, {
       allowed_mentions: { parse: [] },
       embeds: [
         {
-          title: "New Catalyst form",
-          color: 0xffbc09,
+          title: profile ? "Legion profile saved" : "New Catalyst form",
+          color: profile ? 0x8a857f : 0xffbc09,
           description: `<@${tok.u}> (${esc(tok.n)})`,
           fields: [
             { name: "Name", value: esc(v.name), inline: true },
@@ -145,19 +151,31 @@ export async function handleSubmit(cfg: JoinConfig, body: unknown, deps: Deps = 
             ...(v.about ? [{ name: "Building", value: esc(v.about) }] : []),
             { name: "Public listing", value: v.listPublicly ? "Asked to be listed on the Legion page" : "Not listed (private)" },
             { name: "Accounts", value: `Discord made <t:${dcMade}:D>${tok.gh?.c ? `, GitHub made <t:${Math.floor(Date.parse(tok.gh.c) / 1000)}:D>` : ""}` },
-            { name: "Deadline was", value: `<t:${due}:F>` },
+            ...(profile ? [{ name: "Already a Catalyst", value: "Profile only, no role was changed" }] : [{ name: "Deadline was", value: `<t:${due}:F>` }]),
           ],
         },
       ],
     });
-    await d.addRole(tok.u, cfg.roleCatalyst, "Catalyst form completed");
-    await d.removeRole(tok.u, cfg.rolePending, "Catalyst form completed");
-    if (cfg.roleReminded) await d.removeRole(tok.u, cfg.roleReminded, "Catalyst form completed");
-    if (v.listPublicly) {
-      // Best effort: a directory hiccup never fails the form itself, since the role and the private record already went through.
-      await writeDirectoryEntry(cfg, { github: v.github, name: v.name, interests: v.interests, portfolio: v.portfolio, x: v.x, note: v.about, joined: new Date(now).toISOString().slice(0, 10) }).catch(() => {});
+    if (!profile) {
+      await d.addRole(tok.u, cfg.roleCatalyst, "Catalyst form completed");
+      await d.removeRole(tok.u, cfg.rolePending, "Catalyst form completed");
+      if (cfg.roleReminded) await d.removeRole(tok.u, cfg.roleReminded, "Catalyst form completed");
     }
-    return { status: 200, body: { ok: true, state: "done" } };
+    // Best effort from here: a database hiccup never fails the form itself, since the record in Discord (and the role, for a
+    // new member) already went through.
+    // The member record is what lets Friday look at their GitHub work for a promotion nomination later.
+    await writeMember(cfg, tok.u, { github: v.github, name: v.name, since: profile ? member.joinedAt : new Date(now).toISOString(), listed: v.listPublicly }).catch(() => {});
+    const prior = await readDirectoryEntry(cfg, v.github);
+    if (v.listPublicly) {
+      // Keep what the form does not set (a Maintainer role after a promotion, a booking link, the original join date).
+      const keep = { ...(prior?.role ? { role: prior.role } : {}), ...(prior?.booking ? { booking: prior.booking } : {}), ...(prior?.discord ? { discord: prior.discord } : {}) };
+      const joined = prior?.joined ?? (profile ? member.joinedAt : new Date(now).toISOString()).slice(0, 10);
+      await writeDirectoryEntry(cfg, { ...keep, github: v.github, name: v.name, interests: v.interests, portfolio: v.portfolio, x: v.x, note: v.about, joined }).catch(() => {});
+    } else if (profile && prior) {
+      // An existing Catalyst who unticks "show me" is taken off the page now. (Someone with a Maintainer role keeps their entry.)
+      if (!prior.role || prior.role === "Catalyst") await removeDirectoryEntry(cfg, v.github).catch(() => {});
+    }
+    return { status: 200, body: { ok: true, state: "done", ...(profile ? { profile: true, listed: v.listPublicly } : {}) } };
   } catch {
     return { status: 502, body: { ok: false, message: "We could not save your form just now. Please try again in a minute." } };
   }
