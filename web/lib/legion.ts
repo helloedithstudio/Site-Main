@@ -44,6 +44,20 @@ export const legionPage = {
     : "Listing is opt-in. Already in the Discord? Use Become a Catalyst, sign in with Discord and GitHub, and tick \"Show me on the public Legion page\". There is no deadline for you. Untick it and save to be taken off.",
   short: "That is everyone listed so far. edith is new, and this page fills up as people choose to be shown.",
   none: "Nobody matches that search. Try a different word, or clear the filters.",
+  // The page shows Maintainers and Catalysts as two separate sections, each with its own heading and count.
+  groups: {
+    maintainers: {
+      id: "legion-maintainers",
+      title: "Maintainers",
+      text: "They earned a seat. They keep edith running, and can take client work or launch a venture under its name.",
+    },
+    catalysts: {
+      id: "legion-catalysts",
+      title: "Catalysts",
+      text: "Everyone who has joined and chosen to be shown. Filter by what they build.",
+      none: "Nobody has chosen to be shown yet. Be the first: use Become a Catalyst below, sign in and tick the box.",
+    },
+  },
   seats: {
     id: "maintainers",
     status: "Currently brewing",
