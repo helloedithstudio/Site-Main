@@ -38,5 +38,11 @@ jobs:
           SWEEP_URL: ${{ secrets.SWEEP_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
+          # Without pipefail the step's result is tee's, which always succeeds, so a refused request (401, a wrong password)
+          # showed as a green tick. With it, any failure turns the run red and GitHub emails the repository owner.
+          set -o pipefail
           curl --fail-with-body --silent --show-error --max-time 60 -X POST -H "Authorization: Bearer $CRON_SECRET" "$SWEEP_URL" | tee sweep.json
           echo
+          # The site answers 200 with "ok":false when the sweep ran but met errors (for example Discord refusing a role change).
+          # That should be visible as a red run too.
+          grep -q '"ok":true' sweep.json
