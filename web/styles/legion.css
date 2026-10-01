@@ -186,6 +186,39 @@
   text-transform: uppercase;
   color: rgb(236 231 224 / 0.85);
 }
+/* Maintainers and Catalysts are two separate sections, each with a heading, a count and one line about who is in it. */
+.cat__group {
+  margin-top: 6rem;
+}
+.cat__group:first-of-type {
+  margin-top: 2rem;
+}
+.cat__group-head {
+  margin: 0 0 2.2rem;
+}
+.cat__group-title {
+  display: inline-block;
+  margin: 0 1.6rem 0 0;
+  font-family: "Funnel Display", sans-serif;
+  font-weight: 300;
+  font-size: 4.6rem;
+  line-height: 1.05;
+  text-transform: none;
+}
+.cat__group-count {
+  font-family: "Roboto Mono", monospace;
+  font-size: max(1.3rem, 12px);
+  letter-spacing: 0.06em;
+  color: #ffbc09;
+}
+.cat__group-text {
+  display: block;
+  margin: 1.2rem 0 0;
+  max-width: 60rem;
+  font-size: max(1.7rem, 14px);
+  line-height: 1.4;
+  color: rgb(236 231 224 / 0.75);
+}
 .cat__none {
   padding: 4rem 0;
   border-top: 1px solid rgb(255 255 255 / 0.14);

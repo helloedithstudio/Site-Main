@@ -1,8 +1,8 @@
 "use client";
 
-// The Legion page: one directory of everyone (Maintainers first, then Catalysts) with search, filters by what people
-// build, sort and show more, then how to earn a Maintainer seat. A ruled list rather than a wall of cards, so it stays
-// readable when it holds a hundred people.
+// The Legion page: everyone on the site in two separate sections, Maintainers and then Catalysts, with search, filters by
+// what people build, sort and "show more" for the Catalysts, then how to earn a Maintainer seat. A ruled list rather than a
+// wall of cards, so it stays readable when it holds a hundred people.
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { brand } from "@/lib/brand";
@@ -23,6 +23,31 @@ const isMaintainer = (p: Person) => p.role === "Origin" || p.role === "Maintaine
 const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 /** Escapes the text, then turns `channel` into the mono channel style. */
 const rich = (t: string) => esc(t).replace(/`([^`]+)`/g, '<span class="edith-ch">$1</span>');
+
+/** One person: picture, name and role, handle, one line, the areas they build in, and their links. */
+function Row({ p }: { p: Person }) {
+  return (
+    <li className="cat__row" tabIndex={-1}>
+      <PersonAvatar person={p} className="cat__avatar" />
+      <div className="cat__main">
+        <h3 className="cat__name">
+          {p.name}
+          {p.role ? <span className={`cat__role${isMaintainer(p) ? " is-maintainer" : ""}`}>{p.role}</span> : null}
+        </h3>
+        <PersonHandle person={p} className="cat__handle" />
+        {p.note ? <p className="cat__note">{p.note}</p> : null}
+        {p.interests?.length ? (
+          <p className="cat__tags">
+            {p.interests.map((i) => (
+              <span key={i}>{i}</span>
+            ))}
+          </p>
+        ) : null}
+      </div>
+      <PersonLinks person={p} />
+    </li>
+  );
+}
 
 export default function Legion({ people }: { people: Person[] }) {
   const [q, setQ] = useState("");
@@ -56,19 +81,27 @@ export default function Legion({ people }: { people: Person[] }) {
       return [p.name, p.login, p.note, p.role, ...(p.interests ?? [])].some((v) => v?.toLowerCase().includes(term));
     });
     out.sort((a, b) =>
-      sort === "new" && hasDates
-        ? (b.joined ?? "").localeCompare(a.joined ?? "")
-        : Number(isMaintainer(b)) - Number(isMaintainer(a)) || a.name.localeCompare(b.name, "en", { sensitivity: "base" }),
+      sort === "new" && hasDates ? (b.joined ?? "").localeCompare(a.joined ?? "") : a.name.localeCompare(b.name, "en", { sensitivity: "base" }),
     );
     return out;
   }, [people, q, filter, sort, hasDates]);
 
-  const visible = list.slice(0, shown);
+  // The two sections. Whatever filter or search is on applies to both. When sorted by name the Origin (the founder) leads
+  // the Maintainers; the sort is stable, so everyone else stays in order.
+  const maintainerList = useMemo(() => {
+    const m = list.filter(isMaintainer);
+    return sort === "name" || !hasDates ? m.sort((a, b) => Number(b.role === "Origin") - Number(a.role === "Origin")) : m;
+  }, [list, sort, hasDates]);
+  const catalystList = useMemo(() => list.filter((p) => !isMaintainer(p)), [list]);
+  const visibleCatalysts = catalystList.slice(0, shown);
+  const filtering = q.trim() !== "" || filter !== "all";
+
   const chips: { id: Filter; label: string }[] = [
     { id: "all", label: "Everyone" },
     { id: "maintainers", label: "Maintainers" },
     ...legionInterests.map((i) => ({ id: i, label: i })),
   ];
+  const g = legionPage.groups;
 
   return (
     <main id="main" className="hb-main">
@@ -86,7 +119,7 @@ export default function Legion({ people }: { people: Person[] }) {
       <section className="cat site-max px-20 s:px-0" aria-label="Legion directory">
         <div className="cat__bar">
           <label className="cat__search">
-            <span className="cat__sr">Search Catalysts</span>
+            <span className="cat__sr">Search the Legion</span>
             <input
               type="search"
               value={q}
@@ -132,42 +165,61 @@ export default function Legion({ people }: { people: Person[] }) {
           {list.length !== people.length ? ` of ${people.length}` : ""}
         </p>
 
-        {visible.length ? (
-          <ul className="cat__list" ref={listRef}>
-            {visible.map((p) => (
-              <li key={p.login} className="cat__row" tabIndex={-1}>
-                <PersonAvatar person={p} className="cat__avatar" />
-                <div className="cat__main">
-                  <h2 className="cat__name">
-                    {p.name}
-                    {p.role ? <span className={`cat__role${isMaintainer(p) ? " is-maintainer" : ""}`}>{p.role}</span> : null}
-                  </h2>
-                  <PersonHandle person={p} className="cat__handle" />
-                  {p.note ? <p className="cat__note">{p.note}</p> : null}
-                  {p.interests?.length ? (
-                    <p className="cat__tags">
-                      {p.interests.map((i) => (
-                        <span key={i}>{i}</span>
-                      ))}
-                    </p>
-                  ) : null}
-                </div>
-                <PersonLinks person={p} />
-              </li>
-            ))}
-          </ul>
-        ) : (
+        {list.length === 0 && filtering ? (
           <p className="cat__none type-body-md text-white">{legionPage.none}</p>
-        )}
+        ) : (
+          <>
+            {maintainerList.length ? (
+              <section id={g.maintainers.id} className="cat__group" aria-labelledby={`${g.maintainers.id}-title`}>
+                <header className="cat__group-head">
+                  <h2 id={`${g.maintainers.id}-title`} className="cat__group-title">
+                    {g.maintainers.title}
+                  </h2>
+                  <span className="cat__group-count">{maintainerList.length}</span>
+                  <p className="cat__group-text">{g.maintainers.text}</p>
+                </header>
+                <ul className="cat__list">
+                  {maintainerList.map((p) => (
+                    <Row key={p.login} p={p} />
+                  ))}
+                </ul>
+              </section>
+            ) : null}
 
-        {list.length > visible.length ? (
-          <button type="button" className="cat__more" onClick={() => {
-              focusRow.current = visible.length;
-              setShown((n) => n + PAGE);
-            }}>
-            Show more ({list.length - visible.length} left)
-          </button>
-        ) : null}
+            {catalystList.length || !filtering ? (
+              <section id={g.catalysts.id} className="cat__group" aria-labelledby={`${g.catalysts.id}-title`}>
+                <header className="cat__group-head">
+                  <h2 id={`${g.catalysts.id}-title`} className="cat__group-title">
+                    {g.catalysts.title}
+                  </h2>
+                  <span className="cat__group-count">{catalystList.length}</span>
+                  <p className="cat__group-text">{g.catalysts.text}</p>
+                </header>
+                {catalystList.length ? (
+                  <ul className="cat__list" ref={listRef}>
+                    {visibleCatalysts.map((p) => (
+                      <Row key={p.login} p={p} />
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="cat__none type-body-md text-white">{g.catalysts.none}</p>
+                )}
+                {catalystList.length > visibleCatalysts.length ? (
+                  <button
+                    type="button"
+                    className="cat__more"
+                    onClick={() => {
+                      focusRow.current = visibleCatalysts.length;
+                      setShown((n) => n + PAGE);
+                    }}
+                  >
+                    Show more ({catalystList.length - visibleCatalysts.length} left)
+                  </button>
+                ) : null}
+              </section>
+            ) : null}
+          </>
+        )}
 
         <section id={legionPage.seats.id} className="cat__seats" aria-labelledby="seats-title">
           <header className="hb-head">

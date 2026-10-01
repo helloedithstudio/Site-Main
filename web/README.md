@@ -14,9 +14,10 @@ npm run build && npm start
 
 - `/` the story: hero, Why builders stick around, Hubs, How an idea becomes a launch, Membership, Show off,
   Studio, Decisions, Safety, Beliefs, footer. The FAQ lives only in the docs. The navbar lists separate pages only (`nav` in `lib/content.ts`).
-- `/legion` the Legion: one directory of Maintainers and Catalysts (Maintainers first) with search, filters by what people
-  build, sort and show more, plus how to earn a Maintainer seat. Everyone is added in `lib/legion.ts` (opt-in, by GitHub
-  username).
+- `/legion` the Legion: two separate sections, Maintainers and then Catalysts (each with its own heading and count), with search,
+  filters by what people build (the areas ticked on the Catalyst form: Web2, Web3, AI, Hardware, Design, listed in
+  `legionInterests` in `lib/legion.ts`), sort, and show more for the Catalysts, plus how to earn a Maintainer seat. People are
+  added when they tick "Show me on the public Legion page" on the form (opt-in, by GitHub username).
 - `/studio` the Studio page, what clients see: the portfolio's services page, moved in and kept in its own Apple-style look on
   purpose (not the dev site's theme). Eight scenes: film, manifesto, the demo test, case study and method, capabilities, FAQ,
   philosophy, the door. Route `app/studio/page.tsx` (the copy is in it), pieces in `components/studio/`, styles in

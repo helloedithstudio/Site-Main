@@ -31,6 +31,23 @@ fake.redisSets.set("legion:index", new Set(["zz-promo-one-test"]));
 fake.prCounts.set("zz-promo-one-test|orgA", 5);
 fake.prCounts.set("zz-promo-two-test|orgA", 1);
 
+// A fuller Legion page, for checking the two sections, the filters and "Show more" (LEGION_SEED=1 npx tsx scripts/fakes/serve.ts):
+// one extra Maintainer, three Catalysts with different areas and join dates, and 26 filler Catalysts so there are more than
+// one page of them. Not seeded by default, because other browser runs count the people on the page.
+if (process.env.LEGION_SEED === "1") {
+  const list = (e: { github: string; name: string; interests: string[]; joined: string; role?: string; note?: string }) => {
+    fake.redis.set(`legion:profile:${e.github}`, JSON.stringify(e));
+    fake.redisSets.get("legion:index")!.add(e.github);
+  };
+  list({ github: "zz-mara-test", name: "Mara Maintainer", role: "Maintainer", interests: ["Web2", "Design"], joined: "2026-09-20", note: "Runs the design hub." });
+  list({ github: "zz-nina-test", name: "Nina Webthree", interests: ["Web3"], joined: "2026-09-30", note: "Building a wallet for people who dislike wallets." });
+  list({ github: "zz-omar-test", name: "Omar Webtwo", interests: ["Web2", "AI"], joined: "2026-09-25" });
+  for (let i = 1; i <= 26; i++) {
+    const n = String(i).padStart(2, "0");
+    list({ github: `zz-filler-${n}-test`, name: `Filler ${n}`, interests: ["Hardware"], joined: "2026-08-01" });
+  }
+}
+
 // Channels and roles for the audit (GET /api/discord/audit). A sensible layout, plus one deliberate leak: "maintainer-notes" sits in
 // Community with no overwrites, so everyone can see a channel that looks like it is for Maintainers.
 const VIEW = "1024";
