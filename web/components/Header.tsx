@@ -13,7 +13,6 @@ import { throttle } from "@/lib/runtime/timing";
 import Logo from "./Logo";
 import HeaderNav from "./HeaderNav";
 import { brand } from "@/lib/brand";
-import { usePitch } from "@/lib/pitchClient";
 import MenuToggle from "./MenuToggle";
 
 const scope = { "data-v-1f0a709d": "" };
@@ -22,19 +21,15 @@ const scope = { "data-v-1f0a709d": "" };
 const PUSH_DWELL = 450;
 
 /** Pages that open with their own call to action, so the header's button waits until that has passed. */
-const HERO_PAGES = new Set(["/", "/studio"]);
+const HERO_PAGES = new Set(["/"]);
+
+const cta = { label: brand.cta, to: "/join" };
 
 export default function Header() {
   const [hidden, setHidden] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const heroPage = HERO_PAGES.has(pathname);
-  const pitch = usePitch();
-  // The Studio is where clients land, so its button books a call (with the Maintainer who sent the link, if one did).
-  const cta =
-    pathname === "/studio"
-      ? { label: pitch ? `Book a call with ${pitch.from.first}` : "Book a call", to: pitch?.from.booking ?? brand.booking }
-      : { label: brand.cta, to: "/join" };
   // Where the hero's own button is gone; HeaderNav measures it, this reads it.
   const heroEnd = useRef(0);
   const onHeroEnd = useCallback((y: number) => {

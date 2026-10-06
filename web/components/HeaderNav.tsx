@@ -2,7 +2,7 @@
 
 // The right end of the header: the page links (The Legion, Docs) and the "Become a Catalyst" button.
 //
-// On pages that open with their own call to action (the home hero, the Studio film) the button stays out of the header
+// On pages that open with their own call to action (the home hero) the button stays out of the header
 // until that opening is behind you.
 // Then it slides in from the right edge and pushes the links left, one rigid unit: the gap between the button and the
 // links never changes while it moves, like a train car shoving the one ahead. Scrolling back up into the hero reverses
@@ -56,7 +56,7 @@ export default function HeaderNav({
 }: {
   /** True on a page that opens with its own call to action ([data-hero]), so the header's waits until it has passed. */
   heroPage: boolean;
-  /** The button: "Become a Catalyst" by default, "Book a call" where the visitor is more likely a client. */
+  /** The button: "Become a Catalyst". */
   button: { label: string; to: string };
   /** Told where the hero's button is gone, so the header can stay on screen while the push plays. */
   onHeroEnd: (y: number) => void;

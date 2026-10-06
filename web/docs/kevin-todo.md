@@ -95,18 +95,11 @@ Specs, sizes and colours are in `docs/affinity-brief.md`; the starting files are
 - [ ] **F4. Demo Day.** Pick the first date, or tell me it is still open.
 - [ ] **F5. First projects and RFCs.** When something ships or an RFC opens, tell me and I will list it.
 
-## S. Studio page (`/studio`)
+## S. Studio page (`/studio`): removed 6 Oct 2026
 
-Since 30 Sep `/studio` is your portfolio's Studio page, moved in from `docs/portfolio-studio-page/` and kept in its own Apple-style look on purpose (it is what clients see, so it does not follow the dev site's theme). The words are in `app/studio/page.tsx` (the same list, in reading order, is `docs/portfolio-studio-page/copy.md`), the look is `styles/studio.css`, the pieces are `components/studio/`. The earlier Showcase page is parked (see item 6 at the top), so B11, B12, S3 and the Blender items are on hold with it.
+The client-facing Studio page was taken off this site so it serves the dev community only (items S7 to S11 below it no longer apply). `/studio` and `/showcase` redirect home, the header, footer, sitemap and Docs links to it are gone, and the Docs button now reads "Meet the Legion". The page's source is kept in `docs/portfolio-studio-page/` and in the `studio-page` branch, ready to move to the freelancing site (its film, logos and device mockup went with it from `public/studio-page/`; get them from git history).
 
-**Before it goes public (only you can settle these):**
-
-- [ ] **S7. The case study.** Scene 4 names a client (Mamacita's Miami Eats) and shows their site on a laptop. Confirm you still have their permission for it to be on edith's public site, not only on your portfolio.
-- [ ] **S8. The Claude and OpenAI logos.** The marks belong to Anthropic and OpenAI. Check their brand guidelines allow this use on a public page (scene 2). If not, say so and I swap them for plain words.
-- [ ] **S9. The film.** `public/studio-page/studio1.mp4` came from your own Studio page. Confirm it contains no third-party footage and you may reuse it here.
-- [ ] **S10. The claims and the voice (10 min).** Read the page once as edith's page and decide what stays. The copy is your portfolio's, only the dashes changed. Things to check: it still says "Edith Studio" (edith's own copy says plain "edith"); "What I build" and "we" are mixed; "one flat price in writing", "a first demo in days" and "shipped worldwide" are promises the studio now makes; and the button "Visit Edith Studio" now goes to the edith home page, because the old Studio site is this site. Tell me what to change and I will.
-
-- [ ] **S11. The Docs page button "See the studio" (2 min).** It sits under "Top projects" on `/docs` and goes to `/studio`, which used to show projects and now shows the services page, so the button no longer leads to what the section is about. Tell me: point it somewhere else (The Legion, or Discord), reword it, or leave it.
+**Left over, your call:** the home page's "Studio" section (`Franchise.tsx`, with a "Book a 30 minute call" link), the client text in the Docs (`#clients`, customer terms), and the parked Showcase plus pitch-link code (`components/showcase/`, `lib/pitch*.ts`, `/api/pitch`, `scripts/pitch-link.ts`), which nothing routes to now.
 
 **Still yours from before:**
 

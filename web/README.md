@@ -13,17 +13,14 @@ npm run build && npm start
 ## Pages
 
 - `/` the story: hero, Why builders stick around, Hubs, How an idea becomes a launch, Membership, Show off,
-  Studio, Decisions, Safety, Beliefs, footer. The FAQ lives only in the docs. The navbar lists separate pages only (`nav` in `lib/content.ts`).
+  Studio (home section), Decisions, Safety, Beliefs, footer. The FAQ lives only in the docs. The navbar lists separate pages only (`nav` in `lib/content.ts`).
 - `/legion` the Legion: two separate sections, Maintainers and then Catalysts (each with its own heading and count), with search,
   filters by what people build (the areas ticked on the Catalyst form: Web2, Web3, AI, Hardware, Design, listed in
   `legionInterests` in `lib/legion.ts`), sort, and show more for the Catalysts, plus how to earn a Maintainer seat. People are
   added when they tick "Show me on the public Legion page" on the form (opt-in, by GitHub username).
-- `/studio` the Studio page, what clients see: the portfolio's services page, moved in and kept in its own Apple-style look on
-  purpose (not the dev site's theme). Eight scenes: film, manifesto, the demo test, case study and method, capabilities, FAQ,
-  philosophy, the door. Route `app/studio/page.tsx` (the copy is in it), pieces in `components/studio/`, styles in
-  `styles/studio.css` (plain CSS, every class starts `sp-`), assets in `public/studio-page/`. Provenance and the original
-  source are in `docs/portfolio-studio-page/`. The earlier Showcase page is parked in `components/showcase/`
-  (`ShowcasePage.tsx` says how to bring it back). Pitch links (`/studio?p=...`) still work.
+- `/studio` (and the old `/showcase`) no longer exist: the client-facing Studio page was taken off this site on 6 Oct 2026 so it
+  serves the dev community only. Both addresses redirect home (`next.config.ts`). The page's source is kept in
+  `docs/portfolio-studio-page/` and in git history (`studio-page` branch) for the separate freelancing site.
 - `/join` the Catalyst form for new members (not in the sitemap, not indexed). See "The Catalyst join flow" below.
 - `/docs` top projects, discussions, FAQ, community rules and the legal documents. Footer links such as `/docs#terms`
   deep-link to a section. `/handbook` and `/catalysts` are the old addresses and redirect (`next.config.ts`). **The rules and legal text are a draft that has not been
@@ -41,7 +38,6 @@ npm run build && npm start
 | `app/` | Root layout (fonts, metadata, structured data), `page.tsx` (home), `docs/page.tsx`, `legion/page.tsx` |
 | `components/sections/` | Home sections: `Hero`, `WhatIsEdith`, `Hubs`, `Loop`, `Membership`, `ShowOff`, `Franchise`, `Decisions`, `Safety`, `Beliefs` |
 | `components/docs/`, `components/legion/` | The docs page and the Legion directory |
-| `components/studio/` | The Studio page's pieces (film hero, comparison bars, FAQ, scroll fill, parallax, reveal, pitch start). `components/showcase/` is the parked earlier Studio page. |
 | `components/` | Site chrome: `SiteShell`, `Header`, `MobileMenu`, `QuickMenu`, `GlCanvas`, `Footer` (Apple style: small print, five columns of link groups from `footer.columns` in `lib/content.ts`, legal row; accordions on phones) |
 | `components/ui/` | Shared pieces: gradient-hover `Button`, `Pager`, `DragCarousel`, `Seal`, `ShowCard`, ... |
 | `lib/runtime/` | Lenis scroll, resize, device, event bus, GSAP eases and effects, UI flag store |
