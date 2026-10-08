@@ -10,6 +10,7 @@ import { getRuntime } from "@/lib/runtime";
 import { useMounted, useResizeFlags } from "@/lib/runtime/hooks";
 import Header from "./Header";
 import MobileMenu from "./MobileMenu";
+import CatalystModal from "./catalyst/CatalystModal";
 import { LOGO } from "@/lib/logo";
 
 const BIAS = 300;
@@ -124,6 +125,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
       <video id="test-video" src={TEST_VIDEO} className="fixed invisible" muted autoPlay playsInline loop />
       <Header />
       {!mounted ? <span /> : small ? <MobileMenu /> : null}
+      {mounted ? <CatalystModal /> : null}
       <div data-mobile-scroll-content="">{children}</div>
     </div>
   );

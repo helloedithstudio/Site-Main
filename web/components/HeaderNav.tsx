@@ -18,6 +18,7 @@ import type { ScrollEvent, TickEvent } from "@/lib/runtime/events";
 import Button from "./ui/Button";
 import RouterLink from "./ui/RouterLink";
 import { nav } from "@/lib/content";
+import { store } from "@/lib/runtime/store";
 
 /** Seconds for one swing of the spring (SwiftUI's "response"). Higher is slower and softer. */
 const RESPONSE = 0.6;
@@ -185,7 +186,12 @@ export default function HeaderNav({
         ))}
       </ul>
       <div ref={cta} className="will-change-transform" {...scopeAttrs}>
-        <Button to={button.to} item={{ label: button.label }} {...scopeAttrs} />
+        <Button
+          tag="button"
+          item={{ label: button.label }}
+          onClick={() => store.setFlag("modalCatalyst", true)}
+          {...scopeAttrs}
+        />
       </div>
     </div>
   );

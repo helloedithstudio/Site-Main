@@ -92,7 +92,14 @@ export default function MobileMenu() {
           >
             <div className="flex flex-col">
               <div className="flex justify-center py-25">
-                <Button to="/join" item={{ label: brand.cta }} />
+                <Button
+                  tag="button"
+                  item={{ label: brand.cta }}
+                  onClick={() => {
+                    store.setFlag("menuMobile", false);
+                    store.setFlag("modalCatalyst", true);
+                  }}
+                />
               </div>
               <nav>
                 <ul className="border-y border-brown-dark divide-y divide-brown-dark">

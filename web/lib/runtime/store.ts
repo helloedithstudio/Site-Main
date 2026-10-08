@@ -10,6 +10,8 @@ export type Flags = {
   dark: boolean;
   vaultsRevealed: boolean;
   vaultsSettled: boolean;
+  /** True while the "Become a Catalyst" modal is open. */
+  modalCatalyst: boolean;
 };
 
 type Listener = () => void;
@@ -23,6 +25,7 @@ const initialFlags: Flags = {
   dark: false,
   vaultsRevealed: false,
   vaultsSettled: false,
+  modalCatalyst: false,
 };
 
 export const store = {

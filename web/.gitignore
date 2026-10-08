@@ -34,9 +34,14 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Catalyst dev store — local JSON fallback used when CATALYST_STORE_URL is not set. Never deploy this.
+.catalyst-dev-store.json
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+

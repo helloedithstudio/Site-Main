@@ -236,3 +236,101 @@ The header, loading screen and footer all read those files.
 - A lawyer's review of the docs page's rules and legal documents, and the legal entity details for the terms.
 - Work section and per-Maintainer booking (the general edith booking link is `brand.booking`).
 - X (Twitter) link once the page exists.
+
+## The "Become a Catalyst" modal form
+
+Clicking the **Become a Catalyst** button in the navbar (or the mobile menu) opens a modal dialog containing a six-field registration form. On success, a record is persisted and the user sees a confirmation screen.
+
+### What it collects
+
+| Field | Accepted input | Stored as |
+| --- | --- | --- |
+| Full Name | 2-80 chars | `name` |
+| Discord username | `username`, `@username`, `Name#1234`, or a 17-20 digit snowflake ID | `discordId` (normalised, lowercase) |
+| GitHub username | `username`, `@username`, or `github.com/…` URL | `githubId` (bare username) |
+| X (Twitter) handle | `handle`, `@handle`, or `x.com/…` / `twitter.com/…` URL | `xId` (bare handle, no @) |
+| LinkedIn profile | slug, `@slug`, or `linkedin.com/in/…` URL | `linkedinId` (bare slug) |
+| Portfolio / website | any URL — `https://` prepended if the scheme is omitted | `portfolioUrl` (normalised `https://…`) |
+
+No email address is collected anywhere in the form, schema, API, or storage.
+
+### Environment variables
+
+Copy `.env.example` and set the following. The rest of the file documents the existing join flow.
+
+```
+# Required in production — pick one option:
+
+# Option A: a dedicated Upstash Redis database for Catalyst registrations
+CATALYST_STORE_URL=https://…
+CATALYST_STORE_TOKEN=…
+
+# Option B: reuse the existing Upstash database (UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN).
+# Keys are prefixed "catalyst:discord:<id>" so they never collide with the join-flow keys.
+# Leave CATALYST_STORE_URL empty and the API falls back automatically.
+
+# Shown as a "Back to Discord" button on the success screen. Optional.
+NEXT_PUBLIC_DISCORD_INVITE_URL=https://discord.gg/…
+
+# Optional: post a notification to this Discord webhook on every new registration.
+# Include name, Discord ID, GitHub, X, LinkedIn, portfolio. Keep it private.
+CATALYST_WEBHOOK_URL=https://discord.com/api/webhooks/…
+```
+
+In **local development**, if neither `CATALYST_STORE_URL` nor `UPSTASH_REDIS_REST_URL` is set, registrations are written to `.catalyst-dev-store.json` in the `web/` directory. This file is git-ignored and never deployed.
+
+### Changing the storage backend
+
+The persistence layer is behind the `CatalystStore` interface in `lib/catalyst/store.ts`. To swap to Supabase, Postgres, Firebase, or any other store:
+
+1. Implement the `CatalystStore` interface (two methods: `findByDiscordId` and `save`).
+2. Return your implementation from `getCatalystStore()` instead of the Upstash or JSON adapters.
+3. Add a unique index on `discordId` in your schema — the API relies on `findByDiscordId` returning an existing record for the 409 duplicate check.
+
+### API
+
+`POST /api/catalyst` — accepts `Content-Type: application/json`.
+
+**Request body** (all fields required, mirrors `CatalystPayload` in `lib/catalyst/schema.ts`):
+```json
+{
+  "name": "Jane Doe",
+  "discordId": "janedoe",
+  "githubId": "janedoe",
+  "xId": "janedoe",
+  "linkedinId": "jane-doe",
+  "portfolioUrl": "https://janedoe.dev",
+  "hp": ""
+}
+```
+
+**Responses:**
+
+| Status | Meaning |
+| --- | --- |
+| 201 | `{ success: true, message: "You are now a Catalyst." }` |
+| 409 | Discord ID already registered: `{ success: false, message: "…", errors: { discordId: "…" } }` |
+| 422 | Validation failed: `{ success: false, message: "…", errors: { field: "message", … } }` |
+| 429 | Rate limited (5 requests/minute/IP) |
+| 503 | Store unavailable |
+
+**Security:** 8 KB body cap, per-IP rate limiting, honeypot field (`hp`), server-side re-validation of all inputs, XSS-safe storage (the portfolio URL is stored as a string and never rendered as raw HTML), no secrets logged.
+
+### Files
+
+| Path | What it does |
+| --- | --- |
+| `lib/catalyst/schema.ts` | Shared normalisation + validation (runs on client and server) |
+| `lib/catalyst/store.ts` | `CatalystStore` interface, Upstash adapter, JSON dev fallback |
+| `app/api/catalyst/route.ts` | `POST /api/catalyst` handler |
+| `components/catalyst/useCatalystForm.ts` | Reducer-based form state, per-field blur validation, submit logic |
+| `components/catalyst/CatalystForm.tsx` | Six-field form UI, success screen, honeypot |
+| `components/catalyst/CatalystModal.tsx` | Accessible `<dialog>` shell with focus trap, ESC/backdrop close, scroll lock |
+| `styles/edith.css` | Modal and form styles (appended at the bottom, `ctm-*` and `ctf-*` class namespaces) |
+
+### Running the tests
+
+```bash
+npm run test:catalyst
+# 77 checks: all five normalisers + the full validator (edge cases, URL stripping, honeypot, type safety)
+```
